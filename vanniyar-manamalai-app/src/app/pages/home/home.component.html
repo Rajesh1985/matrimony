@@ -1,0 +1,93 @@
+<div class="home-wrapper text-white d-flex flex-column text-center">
+    <div class="position-relative text-center text-white hero-section">
+        <img [src]="backgroundimg" alt="Hero Image" class="hero-image">
+      
+        <div class="position-absolute top-50 start-50 translate-middle text-overlay">
+          <h1 class="display-4 fw-bold">Chengai Vanniyar Manamalai</h1>
+          <p class="lead">Find your perfect match from the Vanniyar community in Tamil Nadu.</p>
+        </div>
+      </div>          
+    
+      <main class="container py-5">
+        <div class="row align-items-center">
+          
+          <!-- Left: Video -->
+          <div class="col-lg-7 mb-4 mb-lg-0">
+            <div class="video-banner">
+              <video autoplay muted loop class="w-100 rounded shadow-lg">
+                <source [src]="video1Path" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+            </div>
+          </div>
+      
+          <!-- Right: Registration Form -->
+          <div class="col-lg-5">
+            <aside class="registration-form bg-white p-4 rounded shadow">
+              <h2 class="mb-2">Create a Manamalai Profile</h2>
+              <h3 class="mb-4 text-muted">Find your perfect match</h3>
+              <form>
+                <div class="mb-3">
+                  <label for="profile_for" class="form-label">Manamalai profile for</label>
+                  <select id="profile_for" class="form-select" name="profile_for">
+                    <option value="self">Self</option>
+                    <option value="son">Son</option>
+                    <option value="daughter">Daughter</option>
+                    <option value="brother">Brother</option>
+                    <option value="sister">Sister</option>
+                    <option value="relative">Relative</option>
+                    <option value="friend">Friend</option>
+                  </select>
+                </div>
+                
+                <div class="mb-3">
+                  <label for="name" class="form-label">Enter Name</label>
+                  <input type="text" id="name" name="name" class="form-control" required>
+                </div>
+      
+                <div class="mb-3">
+                  <label for="phone" class="form-label">Enter Number</label>
+                  <div class="d-flex gap-2">
+                    <select class="form-select w-auto" name="country_code">
+                      <option value="+91">+91</option>
+                    </select>
+                    <input type="number" id="phone" name="phone" class="form-control" required>
+                  </div>
+                </div>
+      
+                <div class="mb-3">
+                  <button type="submit" class="btn btn-danger w-100">REGISTER</button>
+                </div>
+      
+                <p class="small text-muted text-center">
+                  By clicking register, I agree to the <a href="#">T&C</a> and <a href="#">Privacy Policy</a>.
+                </p>
+              </form>
+            </aside>
+          </div>
+      
+        </div>
+      </main>
+      
+    <!-- Gallery / Photos -->
+    <div id="imageCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          <div
+            *ngFor="let img of imagemainPath; let i = index"
+            class="carousel-item"
+            [class.active]="i === 0"
+          >
+            <img [src]="img" class="d-block w-100" alt="Slide image">
+          </div>
+        </div>
+      
+        <!-- Navigation Buttons -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#imageCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#imageCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon"></span>
+        </button>
+      </div>
+  </div>
+  

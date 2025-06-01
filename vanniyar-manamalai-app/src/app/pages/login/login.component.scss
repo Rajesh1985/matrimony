@@ -1,0 +1,58 @@
+.login-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(to right, #f7e673, #cfd854);
+  padding: 2rem;
+}
+
+/* Hero section */
+.hero-section {
+  width: 100%;
+  height: 350px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 2rem;
+  border-radius: 1rem;
+}
+
+.hero-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; // 🔄 replaced contain with cover for proper fit
+  filter: brightness(50%);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.text-overlay {
+  z-index: 2;
+  position: relative;
+  max-width: 90%;
+  color: #fff;
+}
+
+/* Login card inside main content */
+.card {
+  border-radius: 1rem;
+  background-color: rgba(235, 24, 24, 0.75);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(241, 2, 2, 0.3);
+}
+
+.text-overlay-custom {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  color: #fff;
+  z-index: 2;
+  padding: 0 1rem;
+}
