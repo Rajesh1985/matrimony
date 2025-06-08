@@ -1,0 +1,51 @@
+<div class="membership-wrapper">
+    <!-- Hero Section -->
+    <section class="hero-section text-center text-white position-relative">
+        <img [src]="backgroundimg" alt="Hero Image" class="hero-image" />
+        <div class="text-overlay-custom">
+            <h1 class="fw-bold mb-3">Membership Plans</h1>
+            <p>Choose the perfect plan for your journey</p>
+        </div>
+    </section>
+
+    <!-- Membership Plans Section -->
+    <section class="membership-plans container py-5">
+        <div class="row g-4">
+            <div class="col-md-4" *ngFor="let plan of plans">
+                <div class="plan-card h-100" [class.recommended]="plan.recommended">
+                    <div class="plan-header">
+                        <h2 class="plan-name">{{ plan.name }}</h2>
+                        <div class="plan-price">
+                            <span class="currency">₹</span>{{ plan.cost }}
+                        </div>
+                        <div class="plan-duration">{{ plan.validity }}</div>
+                    </div>
+
+                    <div class="plan-features">
+                        <ul>
+                            <li *ngFor="let feature of plan.features">
+                                <i class="bi bi-check-circle-fill"></i>
+                                {{ feature }}
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="plan-action">
+                        <button class="btn btn-subscribe">Subscribe Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="text-center mt-5">
+            <p class="text-dark">
+                All plans include: Basic profile creation, Photo upload, and Customer support
+            </p>
+            <p class="text-dark">
+                For any queries about our membership plans, please 
+                <a routerLink="/contact-us" class="text-decoration-none">contact us</a>
+            </p>
+        </div>
+    </section>
+</div>

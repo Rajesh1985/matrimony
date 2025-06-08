@@ -1,0 +1,41 @@
+<div class="home-wrapper text-white d-flex flex-column">
+    <section class="hero-section text-center text-white position-relative">
+        <img [src]="backgroundimg" alt="Hero Image" class="hero-image" />
+        <div class="text-overlay-custom">
+            <h1 class="fw-bold mb-3">Success Stories</h1>
+            <p>Celebrating happy unions from our community</p>
+        </div>
+    </section>
+
+    <section class="success-stories container my-5 bg-white rounded p-4" aria-label="Carousel of couples who met through our matrimony">
+        <h2 class="text-center text-dark mb-4">{{ title }}</h2>
+          <swiper-container [init]="true" [config]="swiperConfig" class="mySwiper" role="group" aria-label="Success-story slider">
+            <swiper-slide *ngFor="let s of stories">
+                <div class="story-card">
+                    <div class="row align-items-center g-4">
+                        <div class="col-md-5">
+                            <div class="image-container">
+                                <img [src]="s.img" [alt]="'Wedding photograph of ' + s.couple" class="story-image" />
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="testimonial-content">
+                                <div class="testimonial-text">
+                                    <p class="quote">{{ s.testimonial }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center mt-4">
+                        <p class="couple-name mb-2">{{ s.couple }}</p>
+                        <a class="read-more" [href]="s.link" target="_blank" rel="noopener noreferrer">
+                            Read their full story <span class="arrow" aria-hidden="true">→</span>
+                        </a>
+                    </div>                </div>
+            </swiper-slide>
+            <div class="swiper-button-prev" slot="button-prev" aria-label="Previous slide"></div>
+            <div class="swiper-button-next" slot="button-next" aria-label="Next slide"></div>
+            <div class="swiper-pagination" slot="pagination" aria-label="Slide pagination"></div>
+        </swiper-container>
+    </section>
+</div>
