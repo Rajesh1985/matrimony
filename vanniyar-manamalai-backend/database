@@ -1,0 +1,340 @@
+-- Matrimonial Database Schema
+-- This schema handles biodata/matrimonial profile information
+
+-- Main profiles table
+CREATE TABLE profiles (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    serial_number VARCHAR(20) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    birth_date DATE,
+    birth_time TIME,
+    height_cm INT, 
+    complexion VARCHAR(50), 
+    caste VARCHAR(100), 
+    sub_caste VARCHAR(100), 
+    mobile_number VARCHAR(20),
+    introducer_name VARCHAR(100),
+    introducer_mobile VARCHAR(20),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE profile_photos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    profile_id INT NOT NULL,
+    photo_url VARCHAR(255) NOT NULL,
+    photo_type ENUM('profile', 'family', 'additional') DEFAULT 'profile',
+    upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_primary BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_profile_photos_profile_id ON profile_photos(profile_id);
+
+-- Contact addresses table (normalized for multiple addresses)
+CREATE TABLE addresses (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    profile_id INT NOT NULL,
+    address_type ENUM('permanent', 'current', 'office', 'other') NOT NULL,
+    address_line1 VARCHAR(255),
+    address_line2 VARCHAR(255),
+    city VARCHAR(100),
+    state VARCHAR(100),
+    country VARCHAR(100),
+    postal_code VARCHAR(20),
+    is_primary BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_addresses_profile_id ON addresses(profile_id);
+
+-- Astrology details table (for detailed horoscope info)
+CREATE TABLE astrology_details (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    profile_id INT NOT NULL,
+    star VARCHAR(50),
+    rasi VARCHAR(50), 
+    lagnam VARCHAR(50), 
+    birth_place VARCHAR(100),
+    gotram VARCHAR(50),
+    dosham_details TEXT,
+    horoscope_url VARCHAR(255), -- Link to horoscope document
+    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_astrology_details_profile_id ON astrology_details(profile_id);
+
+-- Family details table
+CREATE TABLE family_details (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    profile_id INT NOT NULL,
+    father_name VARCHAR(100),
+    father_occupation VARCHAR(100),
+    mother_name VARCHAR(100),
+    mother_occupation VARCHAR(100),
+    total_siblings INT DEFAULT 0,
+    married_siblings INT DEFAULT 0,
+    family_type ENUM('nuclear', 'joint', 'extended') DEFAULT 'nuclear',
+    family_status VARCHAR(100),
+    family_values TEXT,
+    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_family_details_profile_id ON family_details(profile_id);
+
+-- Education details table (for multiple qualifications)
+CREATE TABLE education_details (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    profile_id INT NOT NULL,
+    degree VARCHAR(100),
+    specialization VARCHAR(100),
+    institution VARCHAR(200),
+    location VARCHAR(100),
+    year_of_completion YEAR,
+    grade_percentage DECIMAL(5,2),
+    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_education_details_profile_id ON education_details(profile_id);
+
+-- Professional details table
+CREATE TABLE professional_details (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    profile_id INT NOT NULL,
+    designation VARCHAR(100),
+    company_name VARCHAR(200),
+    industry VARCHAR(100),
+    experience_years DECIMAL(4,1),
+    monthly_income DECIMAL(12,2),
+    annual_income DECIMAL(12,2),
+    work_location VARCHAR(100),
+    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_professional_details_profile_id ON professional_details(profile_id);
+
+-- Partner preferences table
+CREATE TABLE partner_preferences (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    profile_id INT NOT NULL,
+    age_from INT,
+    age_to INT,
+    height_from INT, -- in cm
+    height_to INT, -- in cm
+    education_preference TEXT,
+    occupation_preference TEXT,
+    income_preference TEXT,
+    caste_preference TEXT,
+    star_preference TEXT, -- Comma-separated list of preferred stars
+    rasi_preference TEXT, -- Comma-separated list of preferred rasis
+    location_preference TEXT,
+    other_preferences TEXT,
+    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_partner_preferences_profile_id ON partner_preferences(profile_id);
+
+-- Contact log table (for tracking communications)
+CREATE TABLE contact_log (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    profile_id INT NOT NULL,
+    contacted_by VARCHAR(100),
+    contact_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    contact_method ENUM('phone', 'email', 'whatsapp', 'direct', 'introducer'),
+    notes TEXT,
+    status ENUM('interested', 'not_interested', 'follow_up', 'closed'),
+    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_contact_log_profile_id ON contact_log(profile_id);
+
+-- Property details table
+CREATE TABLE property_details (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    profile_id INT NOT NULL,
+    property_type ENUM('house', 'apartment', 'land', 'commercial', 'other'),
+    property_value DECIMAL(15,2),
+    location VARCHAR(200),
+    description TEXT,
+    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
+);
+
+CREATE INDEX idx_property_details_profile_id ON property_details(profile_id);
+
+-- Membership plans table
+CREATE TABLE membership_plans (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    plan_name VARCHAR(100) NOT NULL,
+    plan_type ENUM('basic', 'premium', 'gold', 'platinum', 'vip') NOT NULL,
+    duration_months INT NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
+    features TEXT, -- JSON or text description of features
+    contact_limit INT DEFAULT 0, -- Number of contacts allowed (0 = unlimited)
+    photo_limit INT DEFAULT 1, -- Number of photos allowed
+    priority_listing BOOLEAN DEFAULT FALSE,
+    horoscope_matching BOOLEAN DEFAULT FALSE,
+    profile_highlighting BOOLEAN DEFAULT FALSE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Member subscriptions table
+CREATE TABLE member_subscriptions (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    profile_id INT NOT NULL,
+    membership_plan_id INT NOT NULL,
+    subscription_number VARCHAR(50) UNIQUE NOT NULL, -- Membership ID/Number
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    payment_amount DECIMAL(10,2) NOT NULL,
+    payment_method ENUM('cash', 'card', 'upi', 'bank_transfer', 'cheque', 'online') DEFAULT 'cash',
+    payment_reference VARCHAR(100), -- Transaction ID/Reference
+    payment_date DATE,
+    status ENUM('active', 'expired', 'suspended', 'cancelled', 'pending') DEFAULT 'active',
+    auto_renewal BOOLEAN DEFAULT FALSE,
+    renewal_reminder_sent BOOLEAN DEFAULT FALSE,
+    created_by VARCHAR(100), -- Staff member who created the subscription
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE,
+    FOREIGN KEY (membership_plan_id) REFERENCES membership_plans(id)
+);
+
+-- Payment history table
+CREATE TABLE payment_history (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    subscription_id INT NOT NULL,
+    payment_amount DECIMAL(10,2) NOT NULL,
+    payment_date DATE NOT NULL,
+    payment_method ENUM('cash', 'card', 'upi', 'bank_transfer', 'cheque', 'online') NOT NULL,
+    payment_reference VARCHAR(100),
+    receipt_number VARCHAR(50),
+    payment_status ENUM('success', 'pending', 'failed', 'refunded') DEFAULT 'success',
+    processed_by VARCHAR(100), -- Staff member who processed payment
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (subscription_id) REFERENCES member_subscriptions(id) ON DELETE CASCADE
+);
+
+-- Membership usage tracking table
+CREATE TABLE membership_usage (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    subscription_id INT NOT NULL,
+    usage_type ENUM('contact_view', 'photo_view', 'profile_search', 'horoscope_match', 'contact_exchange') NOT NULL,
+    usage_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    target_profile_id INT, -- Profile that was viewed/contacted
+    notes TEXT,
+    FOREIGN KEY (subscription_id) REFERENCES member_subscriptions(id) ON DELETE CASCADE,
+    FOREIGN KEY (target_profile_id) REFERENCES profiles(id) ON DELETE SET NULL
+);
+
+-- Compatible stars lookup table
+CREATE TABLE star_compatibility (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    star_name VARCHAR(50) NOT NULL,
+    compatible_stars TEXT, -- JSON or comma-separated list
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexes for better performance
+CREATE INDEX idx_profiles_name ON profiles(name);
+CREATE INDEX idx_profiles_caste ON profiles(caste);
+CREATE INDEX idx_profiles_star ON profiles(star);
+CREATE INDEX idx_profiles_mobile ON profiles(mobile_number);
+CREATE INDEX idx_profiles_active ON profiles(is_active);
+CREATE INDEX idx_profiles_income ON profiles(monthly_income_rs);
+CREATE INDEX idx_profiles_age ON profiles(birth_date);
+
+-- Membership related indexes
+CREATE INDEX idx_subscriptions_profile ON member_subscriptions(profile_id);
+CREATE INDEX idx_subscriptions_status ON member_subscriptions(status);
+CREATE INDEX idx_subscriptions_dates ON member_subscriptions(start_date, end_date);
+CREATE INDEX idx_subscriptions_expiry ON member_subscriptions(end_date);
+CREATE INDEX idx_payment_history_subscription ON payment_history(subscription_id);
+CREATE INDEX idx_payment_history_date ON payment_history(payment_date);
+CREATE INDEX idx_membership_usage_subscription ON membership_usage(subscription_id);
+CREATE INDEX idx_membership_usage_date ON membership_usage(usage_date);
+
+
+CREATE VIEW profile_summary AS
+SELECT 
+    p.id,
+    p.serial_number,
+    p.name,
+    YEAR(CURDATE()) - YEAR(p.birth_date) AS age,
+    p.star,
+    p.rasi,
+    p.height_cm,
+    p.complexion,
+    p.caste,
+    COALESCE(ed.degree, '') AS education,
+    COALESCE(pd.designation, '') AS occupation,
+    p.monthly_income_rs,
+    p.mobile_number,
+    p.is_active,
+FROM profiles p
+LEFT JOIN education_details ed ON p.id = ed.profile_id
+LEFT JOIN professional_details pd ON p.id = pd.profile_id
+WHERE p.is_active = TRUE;
+
+CREATE VIEW detailed_profile AS
+SELECT 
+    p.*,
+    f.father_occupation,
+    f.mother_occupation,
+    f.total_siblings,
+    f.family_type,
+    pr.designation,
+    pr.company_name,
+    pr.annual_income,
+    ms.subscription_number,
+    ms.start_date as membership_start,
+    ms.end_date as membership_end,
+    ms.status as membership_status,
+    mp.plan_name as membership_plan,
+    mp.plan_type
+FROM profiles p
+LEFT JOIN family_details f ON p.id = f.profile_id
+LEFT JOIN professional_details pr ON p.id = pr.profile_id
+LEFT JOIN member_subscriptions ms ON p.id = ms.profile_id AND ms.status = 'active'
+LEFT JOIN membership_plans mp ON ms.membership_plan_id = mp.id
+WHERE p.is_active = TRUE;
+
+-- View for membership expiry tracking
+CREATE VIEW membership_expiry_report AS
+SELECT 
+    p.id,
+    p.name,
+    p.mobile_number,
+    ms.subscription_number,
+    ms.end_date,
+    mp.plan_name,
+    DATEDIFF(ms.end_date, CURDATE()) as days_remaining,
+    CASE 
+        WHEN ms.end_date < CURDATE() THEN 'Expired'
+        WHEN DATEDIFF(ms.end_date, CURDATE()) <= 7 THEN 'Expires This Week'
+        WHEN DATEDIFF(ms.end_date, CURDATE()) <= 30 THEN 'Expires This Month'
+        ELSE 'Active'
+    END as expiry_status
+FROM profiles p
+JOIN member_subscriptions ms ON p.id = ms.profile_id
+JOIN membership_plans mp ON ms.membership_plan_id = mp.id
+WHERE ms.status = 'active'
+ORDER BY ms.end_date;
+
+-- View for revenue tracking
+CREATE VIEW revenue_report AS
+SELECT 
+    DATE_FORMAT(ph.payment_date, '%Y-%m') as month_year,
+    mp.plan_name,
+    COUNT(*) as subscriptions_count,
+    SUM(ph.payment_amount) as total_revenue
+FROM payment_history ph
+JOIN member_subscriptions ms ON ph.subscription_id = ms.id
+JOIN membership_plans mp ON ms.membership_plan_id = mp.id
+WHERE ph.payment_status = 'success'
+GROUP BY DATE_FORMAT(ph.payment_date, '%Y-%m'), mp.plan_name
+ORDER BY month_year DESC, mp.plan_name;
