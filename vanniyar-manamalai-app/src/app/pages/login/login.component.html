@@ -25,14 +25,21 @@
           <h2 class="text-dark mb-4">Login to Your Account</h2>
           <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
             <div class="mb-3">
-              <label for="email" class="form-label text-dark">Email address</label>
-              <input 
-                type="email" 
-                class="form-control" 
-                id="email" 
-                formControlName="email"
-                required
-              >
+              <label for="mobile" class="form-label text-dark">Mobile Number</label>
+              <div class="d-flex gap-2">
+                <select class="form-select w-auto" formControlName="country_code">
+                  <option value="+91">+91</option>
+                </select>
+                <input 
+                  type="tel" 
+                  class="form-control" 
+                  id="mobile" 
+                  formControlName="mobile"
+                  pattern="[0-9]{10}"
+                  maxlength="10"
+                  required
+                >
+              </div>
             </div>
 
             <div class="mb-3">

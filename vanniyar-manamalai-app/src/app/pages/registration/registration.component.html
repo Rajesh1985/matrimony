@@ -1,0 +1,407 @@
+
+<section class="hero-section text-center text-white position-relative">
+  <img [src]="backgroundimg" alt="Hero Image" class="hero-image" />
+  <div class="text-overlay-custom">
+    <h1 class="fw-bold mb-3">User Registration</h1>
+    <p>Choose the perfect plan for your journey</p>
+  </div>
+</section>
+<div class="registration-wrapper">
+  <div class="registration-steps centered">
+    <div class="tabs">
+      <button type="button" class="tab-btn" [class.active]="step === 0">User Information</button>
+      <button type="button" class="tab-btn" [class.active]="step === 1">Personal Details</button>
+      <button type="button" class="tab-btn" [class.active]="step === 2">Family Details</button>
+      <button type="button" class="tab-btn" [class.active]="step === 3">Astrology Details</button>
+      <button type="button" class="tab-btn" [class.active]="step === 4">Professional Details</button>
+      <button type="button" class="tab-btn" [class.active]="step === 5">Partner Preferences</button>
+      <button type="button" class="tab-btn" [class.active]="step === 6">Verification</button>
+    </div>
+  </div>
+  <div class="registration-form-container">
+    <form>
+      <!-- User Information Step -->
+      <div *ngIf="step === 0">
+        <h2>User Information</h2>
+        <hr />
+        <div class="row">
+          <div class="col">
+            <label for="name">Name <span class="text-danger">*</span></label>
+            <input type="text" id="name" name="name" class="form-control" required />
+          </div>
+          <div class="col">
+            <label for="email">Email <span class="text-danger">*</span></label>
+            <input type="email" id="email" name="email" class="form-control" required />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label>Country Code <span class="text-danger">*</span></label>
+            <select class="form-select w-auto" name="country_code">
+              <option value="+91">+91</option>
+              <option value="+1">+1</option>
+              <option value="+44">+44</option>
+              <option value="+61">+61</option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="phone">Phone Number <span class="text-danger">*</span></label>
+            <input type="number" id="phone" name="phone" class="form-control" required />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="gender">Gender <span class="text-danger">*</span></label>
+            <select id="gender" name="gender" class="form-select" required>
+              <option value="">Select Your Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="col">
+            <label for="password">Password <span class="text-danger">*</span></label>
+            <input type="password" id="password" name="password" class="form-control" required />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col d-flex justify-content-between">
+            <button *ngIf="step > 0" type="button" class="btn btn-secondary px-5 py-2 mt-4" (click)="prevStep()">&lt; Back</button>
+            <button type="button" class="btn btn-danger px-5 py-2 mt-4 ms-auto" (click)="nextStep()">Next &nbsp; &gt;</button>
+          </div>
+        </div>
+      </div>
+      <!-- Personal Details Step -->
+      <div *ngIf="step === 1">
+        <h2>Personal Details</h2>
+        <hr />
+        <div class="row">
+          <div class="col">
+            <label>Name</label>
+            <input type="text" class="form-control" [value]="formData.name" readonly />
+          </div>
+          <div class="col">
+            <label>Phone Number</label>
+            <input type="text" class="form-control" [value]="formData.country_code + ' ' + formData.phone" readonly />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="birth_date">Birth Date</label>
+            <input type="date" id="birth_date" name="birth_date" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="birth_time">Birth Time</label>
+            <input type="time" id="birth_time" name="birth_time" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="height">Height (in cms)</label>
+            <input type="number" id="height" name="height" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="complexion">Complexion</label>
+            <select id="complexion" name="complexion" class="form-select">
+              <option value="Fair">Fair</option>
+              <option value="Wheatish">Wheatish</option>
+              <option value="Dark">Dark</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="caste">Caste</label>
+            <input type="text" id="caste" name="caste" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="sub_caste">Subcaste</label>
+            <input type="text" id="sub_caste" name="sub_caste" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="address_line1">Address Line 1</label>
+            <input type="text" id="address_line1" name="address_line1" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="address_line2">Address Line 2</label>
+            <input type="text" id="address_line2" name="address_line2" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="city">City</label>
+            <input type="text" id="city" name="city" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="state">State</label>
+            <input type="text" id="state" name="state" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="country">Country</label>
+            <input type="text" id="country" name="country" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="postal_code">Postal Code</label>
+            <input type="text" id="postal_code" name="postal_code" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col d-flex justify-content-between">
+            <button *ngIf="step > 0" type="button" class="btn btn-secondary px-5 py-2 mt-4" (click)="prevStep()">&lt; Back</button>
+            <button type="button" class="btn btn-danger px-5 py-2 mt-4 ms-auto" (click)="nextStep()">Next &nbsp; &gt;</button>
+          </div>
+        </div>
+      </div>
+      <!-- Family Details Step -->
+      <div *ngIf="step === 2">
+        <h2>Family Details</h2>
+        <hr />
+        <div class="row">
+          <div class="col">
+            <label for="father_name">Father's Name</label>
+            <input type="text" id="father_name" name="father_name" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="father_occupation">Father's Occupation</label>
+            <input type="text" id="father_occupation" name="father_occupation" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="mother_name">Mother's Name</label>
+            <input type="text" id="mother_name" name="mother_name" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="mother_occupation">Mother's Occupation</label>
+            <input type="text" id="mother_occupation" name="mother_occupation" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="total_siblings">Total Siblings</label>
+            <input type="number" id="total_siblings" name="total_siblings" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="married_siblings">Married Siblings</label>
+            <input type="number" id="married_siblings" name="married_siblings" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="family_type">Family Type</label>
+            <select id="family_type" name="family_type" class="form-select">
+              <option value="nuclear">Nuclear</option>
+              <option value="joint">Joint</option>
+              <option value="extended">Extended</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col d-flex justify-content-between">
+            <button *ngIf="step > 0" type="button" class="btn btn-secondary px-5 py-2 mt-4" (click)="prevStep()">&lt; Back</button>
+            <button type="button" class="btn btn-danger px-5 py-2 mt-4 ms-auto" (click)="nextStep()">Next &nbsp; &gt;</button>
+          </div>
+        </div>
+      </div>
+      <!-- Astrology Details Step -->
+      <div *ngIf="step === 3">
+        <h2>Astrology Details</h2>
+        <hr />
+        <div class="row">
+          <div class="col">
+            <label for="star">Star</label>
+            <input type="text" id="star" name="star" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="rasi">Rasi</label>
+            <input type="text" id="rasi" name="rasi" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="lagnam">Lagnam</label>
+            <input type="text" id="lagnam" name="lagnam" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="birth_place">Birth Place</label>
+            <input type="text" id="birth_place" name="birth_place" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="gotram">Gotram</label>
+            <input type="text" id="gotram" name="gotram" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="dosham_details">Dosham Details</label>
+            <input type="text" id="dosham_details" name="dosham_details" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="horoscope">Horoscope (PDF/JPEG/PNG/JPG, &lt; 10MB)</label>
+            <input type="file" id="horoscope" name="horoscope" class="form-control" accept=".pdf,.jpeg,.png,.jpg" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col d-flex justify-content-between">
+            <button *ngIf="step > 0" type="button" class="btn btn-secondary px-5 py-2 mt-4" (click)="prevStep()">&lt; Back</button>
+            <button type="button" class="btn btn-danger px-5 py-2 mt-4 ms-auto" (click)="nextStep()">Next &nbsp; &gt;</button>
+          </div>
+        </div>
+      </div>
+      <!-- Professional Details Step -->
+      <div *ngIf="step === 4">
+        <h2>Professional Details</h2>
+        <hr />
+        <!-- Education Block -->
+        <div class="card mb-4">
+          <div class="card-header bg-primary text-white">Education</div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col">
+                <label for="degree">Degree</label>
+                <input type="text" id="degree" name="degree" class="form-control" />
+              </div>
+              <div class="col">
+                <label for="specialization">Specialization</label>
+                <input type="text" id="specialization" name="specialization" class="form-control" />
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col">
+                <label for="institution">Institution</label>
+                <input type="text" id="institution" name="institution" class="form-control" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- Professional Block -->
+        <div class="card mb-4">
+          <div class="card-header bg-success text-white">Professional</div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col">
+                <label for="company_name">Company Name</label>
+                <input type="text" id="company_name" name="company_name" class="form-control" />
+              </div>
+              <div class="col">
+                <label for="designation">Designation</label>
+                <input type="text" id="designation" name="designation" class="form-control" />
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col">
+                <label for="experience_years">Experience (Years)</label>
+                <input type="number" id="experience_years" name="experience_years" class="form-control" />
+              </div>
+              <div class="col">
+                <label for="monthly_income">Monthly Income</label>
+                <input type="number" id="monthly_income" name="monthly_income" class="form-control" />
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col">
+                <label for="annual_income">Annual Income</label>
+                <input type="number" id="annual_income" name="annual_income" class="form-control" />
+              </div>
+              <div class="col">
+                <label for="work_location">Work Location</label>
+                <input type="text" id="work_location" name="work_location" class="form-control" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col d-flex justify-content-between">
+            <button *ngIf="step > 0" type="button" class="btn btn-secondary px-5 py-2 mt-4" (click)="prevStep()">&lt; Back</button>
+            <button type="button" class="btn btn-danger px-5 py-2 mt-4 ms-auto" (click)="nextStep()">Next &nbsp; &gt;</button>
+          </div>
+        </div>
+      </div>
+      <!-- Partner Preferences Step -->
+      <div *ngIf="step === 5">
+        <h2>Partner Preferences</h2>
+        <hr />
+        <div class="row">
+          <div class="col">
+            <label for="age_from">Age From</label>
+            <input type="number" id="age_from" name="age_from" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="age_to">Age To</label>
+            <input type="number" id="age_to" name="age_to" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="height_from">Height From</label>
+            <input type="number" id="height_from" name="height_from" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="height_to">Height To</label>
+            <input type="number" id="height_to" name="height_to" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="education_preference">Education Preference</label>
+            <input type="text" id="education_preference" name="education_preference" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="occupation_preference">Occupation Preference</label>
+            <input type="text" id="occupation_preference" name="occupation_preference" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="income_preference">Income Preference</label>
+            <input type="text" id="income_preference" name="income_preference" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="star_preference">Star Preference</label>
+            <input type="text" id="star_preference" name="star_preference" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <label for="rasi_preference">Rasi Preference</label>
+            <input type="text" id="rasi_preference" name="rasi_preference" class="form-control" />
+          </div>
+          <div class="col">
+            <label for="location_preference">Location Preference</label>
+            <input type="text" id="location_preference" name="location_preference" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col d-flex justify-content-between">
+            <button *ngIf="step > 0" type="button" class="btn btn-secondary px-5 py-2 mt-4" (click)="prevStep()">&lt; Back</button>
+            <button type="button" class="btn btn-danger px-5 py-2 mt-4 ms-auto" (click)="nextStep()">Next &nbsp; &gt;</button>
+          </div>
+        </div>
+      </div>
+      <!-- Verification Step -->
+      <div *ngIf="step === 6">
+        <h2>Verification</h2>
+        <hr />
+        <div class="row">
+          <div class="col">
+            <label for="otp">Enter OTP</label>
+            <input type="text" id="otp" name="otp" class="form-control" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col d-flex justify-content-between">
+            <button *ngIf="step > 0" type="button" class="btn btn-secondary px-5 py-2 mt-4" (click)="prevStep()">&lt; Back</button>
+            <button type="button" class="btn btn-success px-5 py-2 mt-4">Submit</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+

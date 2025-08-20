@@ -17,15 +17,18 @@ export class LoginComponent implements OnInit {
   
   ngOnInit() {
     this.loginForm = this.formBuilder.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      country_code: ['+91', Validators.required],
+      mobile: ['', [Validators.required, Validators.pattern('[0-9]{10}')]],
+      password: ['', Validators.required]
     });
   }
 
   onSubmit() {
     if (this.loginForm.valid) {
       // Handle login logic here
-      console.log(this.loginForm.value);
+      const mobile = this.loginForm.value.mobile;
+      // Navigate to user page with mobile
+      window.location.href = `/user/${mobile}`;
     } else {
       // Mark all fields as touched to trigger validation display
       Object.keys(this.loginForm.controls).forEach(key => {

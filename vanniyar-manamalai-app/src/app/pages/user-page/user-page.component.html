@@ -1,0 +1,57 @@
+<div class="user-page-container">
+  <div class="row">
+    <div class="col-4 user-info-block">
+      <h3>User Info</h3>
+      <div *ngIf="!isLoading">
+        <p><strong>Name:</strong> {{userProfile.name}}</p>
+        <p><strong>Father Name:</strong> {{userProfile.father_name}}</p>
+        <p><strong>Mother Name:</strong> {{userProfile.mother_name}}</p>
+        <p><strong>Rasi:</strong> {{userProfile.rasi}}</p>
+        <p><strong>Star:</strong> {{userProfile.star}}</p>
+        <p><strong>Occupation:</strong> {{userProfile.occupation}}</p>
+        <p><strong>Company Name:</strong> {{userProfile.company_name}}</p>
+        <button class="btn btn-primary mt-2" (click)="editProfile()">Edit Profile</button>
+      </div>
+      <div *ngIf="isLoading">Loading...</div>
+    </div>
+    <div class="col-8 partner-search-block">
+      <h3>Partner Search</h3>
+      <div class="search-bar mb-3">
+        <input type="text" class="form-control" placeholder="Search..." />
+      </div>
+      <form>
+        <div class="row mb-2">
+          <div class="col">
+            <label>Age Range</label>
+            <input type="number" class="form-control" placeholder="From" />
+          </div>
+          <div class="col">
+            <label>&nbsp;</label>
+            <input type="number" class="form-control" placeholder="To" />
+          </div>
+        </div>
+        <div class="row mb-2">
+          <div class="col">
+            <label>Height Range</label>
+            <input type="number" class="form-control" placeholder="From (cm)" />
+          </div>
+          <div class="col">
+            <label>&nbsp;</label>
+            <input type="number" class="form-control" placeholder="To (cm)" />
+          </div>
+        </div>
+        <div class="row mb-2">
+          <div class="col">
+            <label>Star</label>
+            <input type="text" class="form-control" placeholder="Star" />
+          </div>
+          <div class="col">
+            <label>Rasi</label>
+            <input type="text" class="form-control" placeholder="Rasi" />
+          </div>
+        </div>
+        <button type="button" class="btn btn-success">Search</button>
+      </form>
+    </div>
+  </div>
+</div>
