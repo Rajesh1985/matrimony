@@ -69,3 +69,6 @@ def update_is_verified_by_mobile(db: Session, mobile: str, is_verified: bool):
 def get_is_verified_by_mobile(db: Session, mobile: str):
     user = db.query(User).filter(User.mobile == mobile).first()
     return user.is_verified if user else None
+
+def get_all_users(db: Session):
+    return db.query(User).all()

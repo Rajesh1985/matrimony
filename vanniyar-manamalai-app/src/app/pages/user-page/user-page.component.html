@@ -1,57 +1,69 @@
 <div class="user-page-container">
-  <div class="row">
-    <div class="col-4 user-info-block">
-      <h3>User Info</h3>
-      <div *ngIf="!isLoading">
-        <p><strong>Name:</strong> {{userProfile.name}}</p>
-        <p><strong>Father Name:</strong> {{userProfile.father_name}}</p>
-        <p><strong>Mother Name:</strong> {{userProfile.mother_name}}</p>
-        <p><strong>Rasi:</strong> {{userProfile.rasi}}</p>
-        <p><strong>Star:</strong> {{userProfile.star}}</p>
-        <p><strong>Occupation:</strong> {{userProfile.occupation}}</p>
-        <p><strong>Company Name:</strong> {{userProfile.company_name}}</p>
-        <button class="btn btn-primary mt-2" (click)="editProfile()">Edit Profile</button>
+  <div class="user-info">
+    <ng-container *ngIf="userData; else errorBlock">
+      <h2>{{ userData.name }}</h2>
+      <p><strong>Birth Date:</strong> {{ userData.birth_date }}</p>
+      <p><strong>Height (cm):</strong> {{ userData.height_cm }}</p>
+      <p><strong>Caste:</strong> {{ userData.caste }}</p>
+      <p><strong>Sub-caste:</strong> {{ userData.sub_caste }}</p>
+      <p><strong>Mobile Number:</strong> {{ userData.mobile_number }}</p>
+      <div *ngIf="userData.address">
+        <h2>Address</h2>
+        <p><strong>Address Type:</strong> {{ userData.address.address_type }}</p>
+        <p><strong>City:</strong> {{ userData.address.city }}</p>
+        <p><strong>State:</strong> {{ userData.address.state }}</p>
+        <p><strong>Country:</strong> {{ userData.address.country }}</p>
+        <p><strong>Pincode:</strong> {{ userData.address.pincode }}</p>
       </div>
-      <div *ngIf="isLoading">Loading...</div>
-    </div>
-    <div class="col-8 partner-search-block">
-      <h3>Partner Search</h3>
-      <div class="search-bar mb-3">
-        <input type="text" class="form-control" placeholder="Search..." />
+      <div *ngIf="userData.astrology">
+        <h2>Astrology</h2>
+        <p><strong>Rasi:</strong> {{ userData.astrology.rasi }}</p>
+        <p><strong>Star:</strong> {{ userData.astrology.star }}</p>
+        <p><strong>Lagnam:</strong> {{ userData.astrology.lagnam }}</p>
+        <p><strong>Birth Place:</strong> {{ userData.astrology.birth_place }}</p>
+        <p><strong>Gotram:</strong> {{ userData.astrology.gotram }}</p>
+        <p><strong>Dosham:</strong> {{ userData.astrology.dosham_details }}</p>
       </div>
-      <form>
-        <div class="row mb-2">
-          <div class="col">
-            <label>Age Range</label>
-            <input type="number" class="form-control" placeholder="From" />
-          </div>
-          <div class="col">
-            <label>&nbsp;</label>
-            <input type="number" class="form-control" placeholder="To" />
-          </div>
-        </div>
-        <div class="row mb-2">
-          <div class="col">
-            <label>Height Range</label>
-            <input type="number" class="form-control" placeholder="From (cm)" />
-          </div>
-          <div class="col">
-            <label>&nbsp;</label>
-            <input type="number" class="form-control" placeholder="To (cm)" />
-          </div>
-        </div>
-        <div class="row mb-2">
-          <div class="col">
-            <label>Star</label>
-            <input type="text" class="form-control" placeholder="Star" />
-          </div>
-          <div class="col">
-            <label>Rasi</label>
-            <input type="text" class="form-control" placeholder="Rasi" />
-          </div>
-        </div>
-        <button type="button" class="btn btn-success">Search</button>
-      </form>
-    </div>
+      <div *ngIf="userData.family">
+        <h2>Family</h2>
+        <p><strong>Father Name:</strong> {{ userData.family.father_name }}</p>
+        <p><strong>Father Occupation:</strong> {{ userData.family.father_occupation }}</p>
+        <p><strong>Mother Name:</strong> {{ userData.family.mother_name }}</p>
+        <p><strong>Mother Occupation:</strong> {{ userData.family.mother_occupation }}</p>
+        <p><strong>Total Siblings:</strong> {{ userData.family.total_siblings }}</p>
+        <p><strong>Married Siblings:</strong> {{ userData.family.married_siblings }}</p>
+        <p><strong>Family Type:</strong> {{ userData.family.family_type }}</p>
+      </div>
+      <div *ngIf="userData.education">
+        <h2>Education</h2>
+        <p><strong>Degree:</strong> {{ userData.education.degree }}</p>
+        <p><strong>Specialization:</strong> {{ userData.education.specialization }}</p>
+        <p><strong>Institution:</strong> {{ userData.education.institution }}</p>
+      </div>
+      <div *ngIf="userData.professional">
+        <h2>Professional</h2>
+        <p><strong>Designation:</strong> {{ userData.professional.designation }}</p>
+        <p><strong>Company Name:</strong> {{ userData.professional.company_name }}</p>
+        <p><strong>Experience:</strong> {{ userData.professional.experience_years }}</p>
+        <p><strong>Monthly Income:</strong> {{ userData.professional.monthly_income }}</p>
+        <p><strong>Work Location:</strong> {{ userData.professional.work_location }}</p>
+      </div>
+      <div *ngIf="userData.partner_preferences">
+        <h2>Partner Preferences</h2>
+        <p><strong>Age Range:</strong> {{ userData.partner_preferences.age_from }} - {{ userData.partner_preferences.age_to }}</p>
+        <p><strong>Height Range:</strong> {{ userData.partner_preferences.height_from }} - {{ userData.partner_preferences.height_to }}</p>
+        <p><strong>Caste:</strong> {{ userData.partner_preferences.caste_preference }}</p>
+        <p><strong>Education:</strong> {{ userData.partner_preferences.education_preference }}</p>
+        <p><strong>Occupation:</strong> {{ userData.partner_preferences.occupation_preference }}</p>
+        <p><strong>Star:</strong> {{ userData.partner_preferences.star_preference }}</p>
+        <p><strong>Rasi:</strong> {{ userData.partner_preferences.rasi_preference }}</p>
+        <p><strong>Location:</strong> {{ userData.partner_preferences.location_preference }}</p>
+        <p><strong>Income:</strong> {{ userData.partner_preferences.income_preference }}</p>
+      </div>
+    </ng-container>
+    <ng-template #errorBlock>
+      <p *ngIf="error" class="error">{{ error }}</p>
+    </ng-template>
   </div>
+  <div class="user-blank"></div>
 </div>

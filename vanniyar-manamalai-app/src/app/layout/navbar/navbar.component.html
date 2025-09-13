@@ -11,10 +11,18 @@
         <li class="nav-item"><a class="nav-link" routerLink="/membership">Membership</a></li>
         <li class="nav-item"><a class="nav-link" routerLink="/login">Login</a></li>
         <li class="nav-item"><a class="nav-link" routerLink="/contact-us">Contact Us</a></li>
+        <li class="nav-item dropdown" *ngIf="showLogout">
+          <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            User
+          </a>
+          <ul class="dropdown-menu" aria-labelledby="userDropdown">
+            <li><a class="dropdown-item" href="#" (click)="router.navigate(['/user-page']); $event.preventDefault();">Profile</a></li>
+            <li><a class="dropdown-item" href="#" (click)="logout(); $event.preventDefault();">Logout</a></li>
+          </ul>
+        </li>
         <li class="nav-item d-flex align-items-center">
           <img [src]="logo1" alt="Logo" class="logo-img me-2" />
         </li>
       </ul>
     </div>
   </nav>
-  

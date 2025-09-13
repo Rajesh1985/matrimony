@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
+import { UserApiService } from '../../user-api.service';
+import { GlobalStateService } from '../../global-state.service';
 
 @Component({
   selector: 'app-login',
@@ -11,10 +13,16 @@ import { RouterModule } from '@angular/router';
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
-  
-  constructor(private formBuilder: FormBuilder) {}  backgroundimg='assets/images/gallery/background.png';
+  loginError: string | null = null;
+  constructor(
+    private formBuilder: FormBuilder,
+    private userApi: UserApiService,
+    private globalState: GlobalStateService,
+    private router: Router
+  ) {}
+  backgroundimg='assets/images/gallery/background.png';
   video1Path='assets/videos/wedding-intro.mp4';
-  
+
   ngOnInit() {
     this.loginForm = this.formBuilder.group({
       country_code: ['+91', Validators.required],
@@ -25,12 +33,27 @@ export class LoginComponent implements OnInit {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      // Handle login logic here
       const mobile = this.loginForm.value.mobile;
-      // Navigate to user page with mobile
-      window.location.href = `/user/${mobile}`;
+      const password = this.loginForm.value.password;
+      this.userApi.validateUser(mobile, password).subscribe(
+        (res) => {
+          console.log('Validation response:', res);
+          if (res.valid) {
+            this.globalState.profileId = res.profile_id;
+            this.globalState.isUserSignedIn = true;
+            console.log('Login successful, profileId:', res.profile_id);
+            this.router.navigate(['/user-page']);
+          } else {
+            console.log('Login failed: Invalid mobile or password');
+            this.loginError = 'Invalid mobile or password';
+          }
+        },
+        (err) => {
+          console.error('Login error:', err);
+          this.loginError = 'Login failed. Please try again.';
+        }
+      );
     } else {
-      // Mark all fields as touched to trigger validation display
       Object.keys(this.loginForm.controls).forEach(key => {
         const control = this.loginForm.get(key);
         control?.markAsTouched();

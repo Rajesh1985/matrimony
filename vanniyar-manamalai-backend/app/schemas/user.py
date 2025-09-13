@@ -16,3 +16,9 @@ class UserOut(UserBase):
 
     class Config:
         orm_mode = True
+
+
+class UserValidationRequest(BaseModel):
+    mobile: str
+    password: str
+

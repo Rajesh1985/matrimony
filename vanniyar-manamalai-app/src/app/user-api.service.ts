@@ -107,4 +107,11 @@ export class UserApiService {
   getProfileIdByMobileRoute(mobile: string): Observable<any> {
     return this.http.get(`${this.baseUrl}/profiles/profile_id_by_mobile/${mobile}`);
   }
+
+  validateUser(mobile: string, password: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/users/validate`, {
+      mobile,
+      password
+    });
+  }
 }

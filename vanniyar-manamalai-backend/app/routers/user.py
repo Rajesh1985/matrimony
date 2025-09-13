@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 from crud import user as crud_user
-from schemas.user import UserCreate, UserOut
+from schemas.user import UserCreate, UserOut, UserValidationRequest
 from typing import List
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -71,3 +71,13 @@ def generate_otp_for_mobile(mobile: str, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"success": True}
+
+@router.post("/validate")
+def validate_user(payload: UserValidationRequest, db: Session = Depends(get_db)):
+    users = crud_user.get_all_users(db)
+    matched_users = [user for user in users if user.mobile == payload.mobile]
+    if len(matched_users) == 1:
+        user = matched_users[0]
+        if user.password == payload.password:
+            return {"valid": True, "profile_id": user.profile_id}
+    return {"valid": False}

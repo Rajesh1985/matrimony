@@ -6,6 +6,7 @@ import { SuccessStoriesComponent } from './pages/success-stories/success-stories
 import { ContactUsComponent } from './pages/contact-us/contact-us.component';
 import { MembershipComponent } from './pages/membership/membership.component';
 import { RegistrationComponent } from './pages/registration/registration.component';
+import { UserPageComponent } from './pages/user-page/user-page.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -15,6 +16,6 @@ export const routes: Routes = [
   { path: 'success-stories', component: SuccessStoriesComponent },
   { path: 'contact-us', component: ContactUsComponent },
   { path: 'membership', component: MembershipComponent },
-  { path: 'user/:mobile', loadComponent: () => import('./pages/user-page/user-page.component').then(m => m.UserPageComponent) },
+  { path: 'user-page', component: UserPageComponent },
   { path: '**', redirectTo: '' }
 ];
