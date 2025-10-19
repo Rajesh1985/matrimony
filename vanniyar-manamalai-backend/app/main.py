@@ -16,7 +16,8 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://89.116.134.253:8000"],  # Update if Angular runs on a different host
+    allow_origins=["http://89.116.134.253",
+                   "http://localhost:4200"],  # Update if Angular runs on a different host
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
