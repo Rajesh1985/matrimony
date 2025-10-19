@@ -3,6 +3,8 @@ import { NavbarComponent } from '../../layout/navbar/navbar.component';
 import { FooterComponent } from '../../layout/footer/footer.component';
 import { UserApiService } from '../../user-api.service';
 import { CommonModule } from '@angular/common';
+import { GlobalStateService } from '../../global-state.service';
+import { RouterModule, Router } from '@angular/router';
 
 
 @Component({
@@ -26,8 +28,12 @@ export class RegistrationComponent {
     // Add more fields as needed for other steps
   };
 
-  constructor(private userApi: UserApiService) {}
-
+  constructor(
+    private userApi: UserApiService,
+    private globalState: GlobalStateService,
+    private router: Router
+  ) {}
+  
   nextStep() {
     // Step 0: User Information
     if (this.step === 0) {
@@ -624,6 +630,10 @@ export class RegistrationComponent {
     else if (this.step === 6) {
       this.formData.otp = (document.getElementById('otp') as HTMLInputElement)?.value;
       // You can add OTP validation here
+      this.globalState.profileId = this.formData.profile_id;
+      this.globalState.isUserSignedIn = true;
+      console.log('Login successful, profileId:', this.formData.profile_id);
+      this.router.navigate(['/user-page']);
     }
     if (this.step < 6) {
       this.step++;

@@ -3,3 +3,8 @@ uvicorn
 sqlalchemy
 python-dotenv
 pydantic
+pymysql
+python-multipart
+aiofiles
+gunicorn
+

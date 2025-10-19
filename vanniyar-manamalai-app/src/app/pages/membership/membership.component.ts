@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 
 interface MembershipPlan {
   name: string;
-  cost: number;
-  views: number;
+  cost: string;
+  views: string;
   validity: string;
   features: string[];
   recommended?: boolean;
@@ -23,8 +23,8 @@ export class MembershipComponent {
   plans: MembershipPlan[] = [
     {
       name: 'Basic',
-      cost: 1000,
-      views: 25,
+      cost: 'TBD',
+      views: 'TBD',
       validity: '1 month',
       features: [
         '25 Profile Views',
@@ -35,8 +35,8 @@ export class MembershipComponent {
     },
     {
       name: 'Elite',
-      cost: 2500,
-      views: 100,
+      cost: 'TBD',
+      views: 'TBD',
       validity: '6 months',
       recommended: true,
       features: [
@@ -49,8 +49,8 @@ export class MembershipComponent {
     },
     {
       name: 'Premium',
-      cost: 5000,
-      views: 500,
+      cost: 'TBD',
+      views: 'TBD',
       validity: '12 months',
       features: [
         '500 Profile Views',

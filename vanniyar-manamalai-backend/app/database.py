@@ -10,18 +10,17 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 # 👇 GLOBAL CONFIG
-DB_SERVER = "localhost"           # Change to remote address later
-DB_NAME = "manamalai"
-DB_USER = "manamalai"
-DB_PASSWORD = "Cvm_1234"
-DB_DRIVER = "ODBC Driver 17 for SQL Server"
+# Connection details
+MYSQL_USER = "manamalai"
+MYSQL_PASSWORD = "Chenagai_12345"
+MYSQL_HOST = "127.0.0.1"  # Localhost because of SSH tunnel
+MYSQL_PORT = 3306         # Local port forwarded to remote 3306
+MYSQL_DB = "manamalai_db"
 
-# Format: mssql+pyodbc://user:password@server/database?driver=...
-DATABASE_URL = (
-    f"mssql+pyodbc://{DB_USER}:{DB_PASSWORD}@{DB_SERVER}/{DB_NAME}"
-    f"?driver={DB_DRIVER.replace(' ', '+')}"
-)
+# SQLAlchemy connection string
+connection_url = f"mysql+pymysql://{MYSQL_USER}:{MYSQL_PASSWORD}@{MYSQL_HOST}:{MYSQL_PORT}/{MYSQL_DB}"
 
-engine = create_engine(DATABASE_URL)
+# Create engine and session
+engine = create_engine(connection_url)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()

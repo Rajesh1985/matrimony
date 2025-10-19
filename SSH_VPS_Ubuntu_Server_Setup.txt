@@ -1,0 +1,160 @@
+SSH to VPS Ubuntu Server
+
+Install Node js
+---------------------
+sudo apt update
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+
+Install mysql
+---------------------
+sudo apt update
+sudo apt install mysql-server
+sudo systemctl start mysql.service
+sudo systemctl enable mysql.service
+sudo systemctl status mysql.service
+mysql -u root -p
+sudo mysql_secure_installation
+
+sudo mysql
+
+CREATE USER 'manamalai'@'localhost' IDENTIFIED BY 'Ch**********45';
+GRANT ALL PRIVILEGES ON *.* TO 'manamalai'@'localhost' WITH GRANT OPTION;
+FLUSH PRIVILEGES;
+
+ALTER USER 'manamalai'@'localhost' IDENTIFIED BY 'Ch**********45';
+FLUSH PRIVILEGES;
+
+
+SELECT user, host FROM mysql.user;
+
+Create the Database First, log in to MySQL:
+mysql -u root -p
+
+Then create your database:
+CREATE DATABASE manamalai_db;
+EXIT;
+
+Step 2: Import the .sql File
+Assuming your .sql file is named tables.sql and located in your home directory:
+mysql -u root -p manamalai_db < ~/tables.sql
+
+
+Step 3: Verify the Tables
+Log back into MySQL and check:
+mysql -u root -p
+USE manamalai_db;
+SHOW TABLES;
+
+Backend Setup
+------------------------
+git clone  https://github.com/Rajesh1985/matrimony.git
+cd ./matrimony/vanniyar-manamalai-backend/
+python3 -m venv venv
+source venv/bin/activate
+cd ./app/
+pip install -r requirements.txt
+
+Test FastAPI locally:
+uvicorn main:app --host 0.0.0.0 --port 8000
+
+Set Up Gunicorn + Supervisor (Optional for Production)
+----------------------------------------------------------
+- Install Gunicorn:
+pip install gunicorn
+
+Install Supervisor:
+sudo apt install supervisor
+
+- Create a Supervisor config(/etc/supervisor/conf.d/manamalai_fastapi.conf):
+[program:fastapi]
+command=/root/repo/matrimony/vanniyar-manamalai-backend/venv/bin/gunicorn main:app -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:8000
+directory=/root/repo/matrimony/vanniyar-manamalai-backend/app
+autostart=true
+autorestart=true
+stderr_logfile=/var/log/fastapi.err.log
+stdout_logfile=/var/log/fastapi.out.log
+
+Enable Supervisor:
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start fastapi
+
+
+Deploy Angular Frontend
+--------------------------
+- Install Node.js and Angular CLI:
+curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+sudo apt install -y nodejs
+npm install -g @angular/cli
+
+- Build Angular app:
+cd /root/repo/matrimony/vanniyar-manamalai-app
+npm install
+ng build --configuration production
+
+- Copy build to Nginx:
+sudo cp -r dist/your-app-name/* /var/www/html/
+	
+Installing Nginx
+---------------------------
+sudo apt update
+sudo apt install nginx
+
+sudo systemctl start nginx
+sudo systemctl enable nginx
+sudo systemctl status nginx
+
+sudo ufw allow 'Nginx HTTP'
+sudo ufw allow 'Nginx HTTPS'
+
+Configure Nginx
+---------------------------
+- Edit Nginx config:
+sudo nano /etc/nginx/sites-available/default
+
+- Example config:
+server {
+    listen 80;
+    server_name yourdomain.com;
+
+    location / {
+        root /var/www/html;
+        index index.html;
+        try_files $uri $uri/ /index.html;
+    }
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:8000/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+- Restart Nginx:
+sudo systemctl restart nginx
+
+
+
+Secure with SSL (HTTPS)
+--------------------------------
+- Install Certbot:
+sudo apt install certbot python3-certbot-nginx -y
+
+- Generate SSL certificate:
+sudo certbot --nginx -d yourdomain.com
+
+TBD
+
+
+Final Checks
+-----------------------------
+- Test domain: http://yourdomain.com
+- Test API: http://yourdomain.com/api/endpoint
+- Monitor logs:
+sudo tail -f /var/log/nginx/error.log
+sudo supervisorctl status
+
