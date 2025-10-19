@@ -83,6 +83,8 @@ sudo supervisorctl update
 sudo supervisorctl start manamalai_fastapi
 sudo supervisorctl status
 
+sudo supervisorctl stop manamalai_fastapi
+
 Deploy Angular Frontend
 --------------------------
 - Install Node.js and Angular CLI:
