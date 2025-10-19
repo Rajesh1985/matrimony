@@ -80,7 +80,7 @@ stdout_logfile=/var/log/manamalai_fastapi.out.log
 Enable Supervisor:
 sudo supervisorctl reread
 sudo supervisorctl update
-sudo supervisorctl start manamalai_fastapi
+sudo supervisorctl restart manamalai_fastapi
 sudo supervisorctl status
 
 sudo supervisorctl stop manamalai_fastapi
