@@ -1,0 +1,13 @@
+[Unit]
+Description=Mount ext4 image on /srv/uploads
+Requires=loop-uploads.service
+After=loop-uploads.service
+
+[Mount]
+What=/run/loop-mydisk
+Where=/srv/uploads
+Type=ext4
+Options=defaults
+
+[Install]
+WantedBy=multi-user.target

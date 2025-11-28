@@ -1,0 +1,14 @@
+[Unit]
+Description=Setup loop device for uploads image
+Wants=local-fs.target
+After=local-fs.target
+ConditionPathExists=/var/lib/uploads.img
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'LOOP=$(losetup --find --show /var/lib/uploads.img) && echo $LOOP > /run/myloopdev && ln -sf $LOOP /run/loop-mydisk'
+ExecStop=/bin/sh -c 'losetup -d $(cat /run/myloopdev)'
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
