@@ -4,23 +4,23 @@ from datetime import date, time, datetime
 from enum import Enum
 
 class GenderEnum(str, Enum):
-    male = "Male"
-    female = "Female"
-    other = "Other"
+    Male = "Male"
+    Female = "Female"
+    Other = "Other"
 
 class PhysicalStatusEnum(str, Enum):
-    normal = "Normal"
-    physically_challenged = "Physically Challenged"
+    Normal = "Normal"
+    Physically_Challenged = "Physically_Challenged"
 
 class MaritalStatusEnum(str, Enum):
-    unmarried = "Unmarried"
-    widow_widower = "Widow_Widower"
-    divorced = "Divorced"
-    separated = "Separated"
+    Unmarried = "Unmarried"
+    Widow_Widower = "Widow_Widower"
+    Divorced = "Divorced"
+    Separated = "Separated"
 
 class FoodPreferenceEnum(str, Enum):
-    veg = "Veg"
-    non_veg = "NonVeg"
+    Veg = "Veg"
+    NonVeg = "NonVeg"
 
 class ProfileBase(BaseModel):
     name: str
@@ -46,6 +46,9 @@ class ProfileBase(BaseModel):
     country: Optional[str] = None
     postal_code: Optional[str] = None
     is_active: Optional[bool] = True
+
+    class Config:
+        use_enum_values = True
 
 class ProfileCreate(ProfileBase):
     """Schema for creating a new profile"""
@@ -85,5 +88,6 @@ class ProfileResponse(ProfileBase):
     updated_at: datetime
 
     class Config:
+        use_enum_values = True
         orm_mode = True
         from_attributes = True

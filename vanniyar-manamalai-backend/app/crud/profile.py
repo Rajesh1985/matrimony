@@ -18,6 +18,19 @@ def get_profiles(db: Session, skip: int = 0, limit: int = 100):
     """Get all profiles with pagination"""
     return db.query(Profile).offset(skip).limit(limit).all()
 
+def update_serial_number_by_profile_id(db: Session, profile_id: int, serial_number: str):
+    """Update verification status"""
+    db_profile = db.query(Profile).filter(Profile.id == profile_id).first()
+    
+    if not db_profile:
+        return None
+    
+    db_profile.serial_number = serial_number
+    
+    db.commit()
+    db.refresh(db_profile)
+    return db_profile
+
 def update_profile(db: Session, profile_id: int, profile_data: ProfileUpdate):
     """
     Update profile with partial data (only fields provided)

@@ -256,6 +256,19 @@ def update_is_verified_by_mobile(db: Session, mobile: str, is_verified: bool):
     db.refresh(db_user)
     return db_user
 
+def update_is_verified_by_profile_id(db: Session, profile_id: int, is_verified: bool):
+    """Update verification status"""
+    db_user = db.query(User).filter(User.profile_id == profile_id).first()
+    
+    if not db_user:
+        return None
+    
+    db_user.is_verified = is_verified
+    
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
 def get_is_verified_by_mobile(db: Session, mobile: str):
     """Get verification status"""
     db_user = db.query(User).filter(User.mobile == mobile).first()

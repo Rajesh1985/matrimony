@@ -1,407 +1,841 @@
 
-<section class="hero-section text-center text-white position-relative">
-  <img [src]="backgroundimg" alt="Hero Image" class="hero-image" />
-  <div class="text-overlay-custom">
-    <h1 class="fw-bold mb-3">User Registration</h1>
-    <p>Choose the perfect plan for your journey</p>
-  </div>
-</section>
-<div class="registration-wrapper">
-  <div class="registration-steps centered">
-    <div class="tabs">
-      <button type="button" class="tab-btn" [class.active]="step === 0">User Information</button>
-      <button type="button" class="tab-btn" [class.active]="step === 1">Personal Details</button>
-      <button type="button" class="tab-btn" [class.active]="step === 2">Family Details</button>
-      <button type="button" class="tab-btn" [class.active]="step === 3">Astrology Details</button>
-      <button type="button" class="tab-btn" [class.active]="step === 4">Professional Details</button>
-      <button type="button" class="tab-btn" [class.active]="step === 5">Partner Preferences</button>
-      <button type="button" class="tab-btn" [class.active]="step === 6">Verification</button>
+<div class="registration-container">
+  <div class="registration-wrapper">
+    <!-- Progress indicator -->
+    <div class="progress-section">
+      <h1 class="registration-title">Complete Your Matrimony Profile</h1>
+      <div class="progress-bar">
+        <div class="progress-fill" [style.width.%]="((step + 1) / (maxSteps + 1)) * 100"></div>
+      </div>
+      <p class="progress-text">Step {{ step + 1 }} of {{ maxSteps + 1 }}: {{ getStepTitle() }}</p>
+    </div>
+
+    <!-- Form container -->
+    <div class="form-container">
+      <!-- STEP 0: USER REGISTRATION -->
+      <div class="step-content" *ngIf="step === 0">
+        <h2 class="step-title">Create Your Account</h2>
+        <p class="step-description">Please provide your basic information to get started</p>
+
+        <div class="form-group">
+          <label for="country_code">Country Code *</label>
+          <select 
+            id="country_code" 
+            [(ngModel)]="formData.country_code" 
+            class="form-control"
+            [class.has-error]="hasError('country_code')">
+            <option value="">Select Country Code</option>
+            <option *ngFor="let cc of countryCodes" [value]="cc.code">
+              {{ cc.code }} - {{ cc.country }}
+            </option>
+          </select>
+          <span class="error-message" *ngIf="hasError('country_code')">{{ errors['country_code'] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="name">Full Name *</label>
+          <input 
+            id="name" 
+            type="text" 
+            [(ngModel)]="formData.name" 
+            placeholder="Enter your full name"
+            class="form-control"
+            [class.has-error]="hasError('name')">
+          <span class="error-message" *ngIf="hasError('name')">{{ errors['name'] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email *</label>
+          <input 
+            id="email" 
+            type="email" 
+            [(ngModel)]="formData.email" 
+            placeholder="Enter your email"
+            class="form-control"
+            [class.has-error]="hasError('email')">
+          <span class="error-message" *ngIf="hasError('email')">{{ errors['email'] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="mobile">Mobile Number (10 digits) *</label>
+          <input 
+            id="mobile" 
+            type="text" 
+            [(ngModel)]="formData.mobile" 
+            placeholder="Enter 10-digit mobile number"
+            class="form-control"
+            maxlength="10"
+            [class.has-error]="hasError('mobile')">
+          <span class="error-message" *ngIf="hasError('mobile')">{{ errors['mobile'] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="gender">Gender *</label>
+          <select 
+            id="gender" 
+            [(ngModel)]="formData.gender" 
+            class="form-control"
+            [class.has-error]="hasError('gender')">
+            <option value="">Select Gender</option>
+            <option *ngFor="let opt of registrationData.GENDER_OPTIONS" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+          <span class="error-message" *ngIf="hasError('gender')">{{ errors['gender'] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password *</label>
+          <input 
+            id="password" 
+            type="password" 
+            [(ngModel)]="formData.password" 
+            placeholder="Min 8 chars, 1 uppercase, 1 number, 1 symbol"
+            class="form-control"
+            [class.has-error]="hasError('password')">
+          <span class="error-message" *ngIf="hasError('password')">{{ errors['password'] }}</span>
+          <small class="form-hint">Must contain: 8+ characters, 1 uppercase, 1 number, 1 symbol (&#64;$!%*?&)</small>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmPassword">Confirm Password *</label>
+          <input 
+            id="confirmPassword" 
+            type="password" 
+            [(ngModel)]="formData.confirmPassword" 
+            placeholder="Re-enter password"
+            class="form-control"
+            [class.has-error]="hasError('confirmPassword')">
+          <span class="error-message" *ngIf="hasError('confirmPassword')">{{ errors['confirmPassword'] }}</span>
+        </div>
+      </div>
+
+      <!-- STEP 1: PROFILE DETAILS -->
+      <div class="step-content" *ngIf="step === 1">
+        <h2 class="step-title">Personal Details</h2>
+        <p class="step-description">Tell us more about yourself</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="height_cm">Height (cm) *</label>
+            <input 
+              id="height_cm" 
+              type="number" 
+              [(ngModel)]="formData.height_cm" 
+              placeholder="Enter height in cm"
+              class="form-control"
+              [class.has-error]="hasError('height_cm')">
+            <span class="error-message" *ngIf="hasError('height_cm')">{{ errors['height_cm'] }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="birth_date">Birth Date *</label>
+            <input 
+              id="birth_date" 
+              type="date" 
+              [(ngModel)]="formData.birth_date" 
+              class="form-control"
+              [class.has-error]="hasError('birth_date')">
+            <span class="error-message" *ngIf="hasError('birth_date')">{{ errors['birth_date'] }}</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="country">Country *</label>
+            <select 
+              id="country" 
+              [(ngModel)]="formData.country" 
+              (change)="onCountryChange(formData.country)"
+              class="form-control"
+              [class.has-error]="hasError('country')">
+              <option value="">Select Country</option>
+              <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+            </select>
+            <span class="error-message" *ngIf="hasError('country')">{{ errors['country'] }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="state">State *</label>
+            <select 
+              id="state" 
+              [(ngModel)]="formData.state" 
+              (change)="onStateChange(formData.state)"
+              class="form-control"
+              [class.has-error]="hasError('state')">
+              <option value="">Select State</option>
+              <option *ngFor="let state of states" [value]="state">{{ state }}</option>
+            </select>
+            <span class="error-message" *ngIf="hasError('state')">{{ errors['state'] }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="city">City *</label>
+            <select 
+              id="city" 
+              [(ngModel)]="formData.city" 
+              class="form-control"
+              [class.has-error]="hasError('city')">
+              <option value="">Select City</option>
+              <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+            </select>
+            <span class="error-message" *ngIf="hasError('city')">{{ errors['city'] }}</span>
+          </div>
+        </div>
+
+        <!-- Radio buttons for status fields -->
+        <div class="radio-group">
+          <label>Physical Status *</label>
+          <div class="radio-options">
+            <label *ngFor="let opt of registrationData.PHYSICAL_STATUS_OPTIONS" class="radio-label">
+              <input 
+                type="radio" 
+                name="physical_status"
+                [(ngModel)]="formData.physical_status" 
+                [value]="opt.value"
+                class="radio-input">
+              <span>{{ opt.label }}</span>
+            </label>
+          </div>
+          <span class="error-message" *ngIf="hasError('physical_status')">{{ errors['physical_status'] }}</span>
+        </div>
+
+        <div class="radio-group">
+          <label>Marital Status *</label>
+          <div class="radio-options">
+            <label *ngFor="let opt of registrationData.MARITAL_STATUS_OPTIONS" class="radio-label">
+              <input 
+                type="radio" 
+                name="marital_status"
+                [(ngModel)]="formData.marital_status" 
+                [value]="opt.value"
+                class="radio-input">
+              <span>{{ opt.label }}</span>
+            </label>
+          </div>
+          <span class="error-message" *ngIf="hasError('marital_status')">{{ errors['marital_status'] }}</span>
+        </div>
+
+        <div class="radio-group">
+          <label>Food Preference *</label>
+          <div class="radio-options">
+            <label *ngFor="let opt of registrationData.FOOD_PREFERENCE_OPTIONS" class="radio-label">
+              <input 
+                type="radio" 
+                name="food_preference"
+                [(ngModel)]="formData.food_preference" 
+                [value]="opt.value"
+                class="radio-input">
+              <span>{{ opt.label }}</span>
+            </label>
+          </div>
+          <span class="error-message" *ngIf="hasError('food_preference')">{{ errors['food_preference'] }}</span>
+        </div>
+
+        <div class="radio-group">
+          <label>Complexion *</label>
+          <div class="radio-options">
+            <label *ngFor="let opt of registrationData.COMPLEXION_OPTIONS" class="radio-label">
+              <input 
+                type="radio" 
+                name="complexion"
+                [(ngModel)]="formData.complexion" 
+                [value]="opt.value"
+                class="radio-input">
+              <span>{{ opt.label }}</span>
+            </label>
+          </div>
+          <span class="error-message" *ngIf="hasError('complexion')">{{ errors['complexion'] }}</span>
+        </div>
+
+        <!-- Text fields -->
+        <div class="form-group">
+          <label for="hobbies">Hobbies (Optional)</label>
+          <input 
+            id="hobbies" 
+            type="text" 
+            [(ngModel)]="formData.hobbies" 
+            placeholder="e.g., Reading, Sports, Music"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="about_me">About Me (Optional)</label>
+          <textarea 
+            id="about_me" 
+            [(ngModel)]="formData.about_me" 
+            placeholder="Tell us about yourself"
+            class="form-control"
+            rows="3"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="address_line1">Address Line 1 *</label>
+          <input 
+            id="address_line1" 
+            type="text" 
+            [(ngModel)]="formData.address_line1" 
+            placeholder="Enter street address"
+            class="form-control"
+            [class.has-error]="hasError('address_line1')">
+          <span class="error-message" *ngIf="hasError('address_line1')">{{ errors['address_line1'] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="address_line2">Address Line 2 (Optional)</label>
+          <input 
+            id="address_line2" 
+            type="text" 
+            [(ngModel)]="formData.address_line2" 
+            placeholder="Enter additional address details"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="postal_code">Postal Code (5-6 digits) *</label>
+          <input 
+            id="postal_code" 
+            type="text" 
+            [(ngModel)]="formData.postal_code" 
+            placeholder="Enter postal code"
+            class="form-control"
+            maxlength="6"
+            [class.has-error]="hasError('postal_code')">
+          <span class="error-message" *ngIf="hasError('postal_code')">{{ errors['postal_code'] }}</span>
+        </div>
+      </div>
+
+      <!-- STEP 2: FAMILY DETAILS -->
+      <div class="step-content" *ngIf="step === 2">
+        <h2 class="step-title">Family Background</h2>
+        <p class="step-description">Tell us about your family</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="family_type">Family Type *</label>
+            <select 
+              id="family_type" 
+              [(ngModel)]="formData.family_type" 
+              class="form-control"
+              [class.has-error]="hasError('family_type')">
+              <option value="">Select Family Type</option>
+              <option *ngFor="let opt of registrationData.FAMILY_TYPE_OPTIONS" [value]="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
+            <span class="error-message" *ngIf="hasError('family_type')">{{ errors['family_type'] }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="family_status">Family Status *</label>
+            <select 
+              id="family_status" 
+              [(ngModel)]="formData.family_status" 
+              class="form-control"
+              [class.has-error]="hasError('family_status')">
+              <option value="">Select Family Status</option>
+              <option *ngFor="let opt of registrationData.FAMILY_STATUS_OPTIONS" [value]="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
+            <span class="error-message" *ngIf="hasError('family_status')">{{ errors['family_status'] }}</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="brothers">Number of Brothers *</label>
+            <input 
+              id="brothers" 
+              type="number" 
+              [(ngModel)]="formData.brothers" 
+              (change)="onBrothersChange()"
+              placeholder="0"
+              class="form-control"
+              min="0"
+              [class.has-error]="hasError('brothers')">
+            <span class="error-message" *ngIf="hasError('brothers')">{{ errors['brothers'] }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="sisters">Number of Sisters *</label>
+            <input 
+              id="sisters" 
+              type="number" 
+              [(ngModel)]="formData.sisters" 
+              (change)="onSistersChange()"
+              placeholder="0"
+              class="form-control"
+              min="0"
+              [class.has-error]="hasError('sisters')">
+            <span class="error-message" *ngIf="hasError('sisters')">{{ errors['sisters'] }}</span>
+          </div>
+        </div>
+
+        <!-- Married brothers checkboxes -->
+        <div *ngIf="brothersArray.length > 0" class="checkbox-group">
+          <label>Married Brothers</label>
+          <div class="checkbox-options">
+            <label *ngFor="let i of brothersArray" class="checkbox-label">
+              <input 
+                type="checkbox" 
+                [ngModel]="formData.married_brothers[i]"
+                (change)="formData.married_brothers[i] = ($any($event.target)).checked"
+                class="checkbox-input">
+              <span></span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Married sisters checkboxes -->
+        <div *ngIf="sistersArray.length > 0" class="checkbox-group">
+          <label>Married Sisters</label>
+          <div class="checkbox-options">
+            <label *ngFor="let i of sistersArray" class="checkbox-label">
+              <input 
+                type="checkbox" 
+                [ngModel]="formData.married_sisters[i]"
+                (change)="formData.married_sisters[i] = ($any($event.target)).checked"
+                class="checkbox-input">
+              <span></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="father_name">Father's Name</label>
+          <input 
+            id="father_name" 
+            type="text" 
+            [(ngModel)]="formData.father_name" 
+            placeholder="Enter father's name"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="father_occupation">Father's Occupation (Optional)</label>
+          <input 
+            id="father_occupation" 
+            type="text" 
+            [(ngModel)]="formData.father_occupation" 
+            placeholder="Enter father's occupation"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="mother_name">Mother's Name</label>
+          <input 
+            id="mother_name" 
+            type="text" 
+            [(ngModel)]="formData.mother_name" 
+            placeholder="Enter mother's name"
+            class="form-control">
+        </div>
+        
+        <div class="form-group">
+          <label for="mother_occupation">Mother's Occupation (Optional)</label>
+          <input 
+            id="mother_occupation" 
+            type="text" 
+            [(ngModel)]="formData.mother_occupation" 
+            placeholder="Enter mother's occupation"
+            class="form-control">
+        </div>
+
+        <div class="form-group">
+          <label for="family_description">Family Description (Optional)</label>
+          <textarea 
+            id="family_description" 
+            [(ngModel)]="formData.family_description" 
+            placeholder="Tell us about your family"
+            class="form-control"
+            rows="3"></textarea>
+        </div>
+      </div>
+
+      <!-- STEP 3: ASTROLOGY DETAILS -->
+      <div class="step-content" *ngIf="step === 3">
+        <h2 class="step-title">Astrological Details</h2>
+        <p class="step-description">Share your astrological information</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="star">Star/Nakshatra *</label>
+            <select 
+              id="star" 
+              [(ngModel)]="formData.star" 
+              class="form-control"
+              [class.has-error]="hasError('star')">
+              <option value="">Select Star</option>
+              <option *ngFor="let opt of registrationData.STAR_OPTIONS" [value]="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
+            <span class="error-message" *ngIf="hasError('star')">{{ errors['star'] }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="rasi">Rasi/Zodiac *</label>
+            <select 
+              id="rasi" 
+              [(ngModel)]="formData.rasi" 
+              class="form-control"
+              [class.has-error]="hasError('rasi')">
+              <option value="">Select Rasi</option>
+              <option *ngFor="let opt of registrationData.RASI_OPTIONS" [value]="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
+            <span class="error-message" *ngIf="hasError('rasi')">{{ errors['rasi'] }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="kotturam">Kotturam *</label>
+            <select 
+              id="kotturam" 
+              [(ngModel)]="formData.kotturam" 
+              class="form-control"
+              disabled>
+              <option *ngFor="let opt of registrationData.KOTTURAM_OPTIONS" [value]="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="lagnam">Lagnam *</label>
+          <input 
+            id="lagnam" 
+            type="text" 
+            [(ngModel)]="formData.lagnam" 
+            placeholder="Enter lagnam"
+            class="form-control"
+            [class.has-error]="hasError('lagnam')">
+          <span class="error-message" *ngIf="hasError('lagnam')">{{ errors['lagnam'] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="birth_place">Birth Place *</label>
+          <input 
+            id="birth_place" 
+            type="text" 
+            [(ngModel)]="formData.birth_place" 
+            placeholder="Enter birth place"
+            class="form-control"
+            [class.has-error]="hasError('birth_place')">
+          <span class="error-message" *ngIf="hasError('birth_place')">{{ errors['birth_place'] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="dosham_details">Dosham Details (Optional)</label>
+          <textarea 
+            id="dosham_details" 
+            [(ngModel)]="formData.dosham_details" 
+            placeholder="Describe any dosham"
+            class="form-control"
+            rows="3"></textarea>
+        </div>
+      </div>
+
+      <!-- STEP 4: PROFESSIONAL DETAILS -->
+      <div class="step-content" *ngIf="step === 4">
+        <h2 class="step-title">Professional Information</h2>
+        <p class="step-description">Tell us about your career and education</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="education">Education *</label>
+            <select 
+              id="education" 
+              [(ngModel)]="formData.education" 
+              class="form-control"
+              [class.has-error]="hasError('education')">
+              <option value="">Select Education</option>
+              <option *ngFor="let opt of registrationData.EDUCATION_OPTIONS" [value]="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
+            <span class="error-message" *ngIf="hasError('education')">{{ errors['education'] }}</span>
+          </div>
+
+          <div class="form-group" *ngIf="formData.education === 'Others'">
+            <label for="education_optional">Specify Education *</label>
+            <input 
+              id="education_optional" 
+              type="text" 
+              [(ngModel)]="formData.education_optional" 
+              placeholder="Please specify your education"
+              class="form-control"
+              [class.has-error]="hasError('education_optional')">
+            <span class="error-message" *ngIf="hasError('education_optional')">{{ errors['education_optional'] }}</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="employment_type">Employment Type *</label>
+            <select 
+              id="employment_type" 
+              [(ngModel)]="formData.employment_type" 
+              class="form-control"
+              [class.has-error]="hasError('employment_type')">
+              <option value="">Select Employment Type</option>
+              <option *ngFor="let opt of registrationData.EMPLOYMENT_TYPE_OPTIONS" [value]="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
+            <span class="error-message" *ngIf="hasError('employment_type')">{{ errors['employment_type'] }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="occupation">Occupation *</label>
+            <input 
+              id="occupation" 
+              type="text" 
+              [(ngModel)]="formData.occupation" 
+              placeholder="Enter your occupation"
+              class="form-control"
+              [class.has-error]="hasError('occupation')">
+            <span class="error-message" *ngIf="hasError('occupation')">{{ errors['occupation'] }}</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="company_name">Company/Organization *</label>
+          <input 
+            id="company_name" 
+            type="text" 
+            [(ngModel)]="formData.company_name" 
+            placeholder="Enter company name"
+            class="form-control"
+            [class.has-error]="hasError('company_name')">
+          <span class="error-message" *ngIf="hasError('company_name')">{{ errors['company_name'] }}</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="annual_income">Annual Income *</label>
+            <select 
+              id="annual_income" 
+              [(ngModel)]="formData.annual_income" 
+              class="form-control"
+              [class.has-error]="hasError('annual_income')">
+              <option value="">Select Income Range</option>
+              <option *ngFor="let opt of registrationData.ANNUAL_INCOME_OPTIONS" [value]="opt.value">
+                {{ opt.label }}
+              </option>
+            </select>
+            <span class="error-message" *ngIf="hasError('annual_income')">{{ errors['annual_income'] }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="work_location">Work Location *</label>
+            <input 
+              id="work_location" 
+              type="text" 
+              [(ngModel)]="formData.work_location" 
+              placeholder="Enter work city/country"
+              class="form-control"
+              [class.has-error]="hasError('work_location')">
+            <span class="error-message" *ngIf="hasError('work_location')">{{ errors['work_location'] }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- STEP 5: PARTNER PREFERENCES -->
+      <div class="step-content" *ngIf="step === 5">
+        <h2 class="step-title">Partner Preferences</h2>
+        <p class="step-description">Specify what you're looking for in a partner</p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="age_from">Age From *</label>
+            <input 
+              id="age_from" 
+              type="number" 
+              [(ngModel)]="formData.age_from" 
+              placeholder="18"
+              class="form-control"
+              min="18"
+              max="100"
+              [class.has-error]="hasError('age_from')">
+            <span class="error-message" *ngIf="hasError('age_from')">{{ errors['age_from'] }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="age_to">Age To *</label>
+            <input 
+              id="age_to" 
+              type="number" 
+              [(ngModel)]="formData.age_to" 
+              placeholder="35"
+              class="form-control"
+              min="18"
+              max="100"
+              [class.has-error]="hasError('age_to')">
+            <span class="error-message" *ngIf="hasError('age_to')">{{ errors['age_to'] }}</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="height_from">Height From (cm) *</label>
+            <input 
+              id="height_from" 
+              type="number" 
+              [(ngModel)]="formData.height_from" 
+              placeholder="150"
+              class="form-control"
+              min="100"
+              max="250"
+              [class.has-error]="hasError('height_from')">
+            <span class="error-message" *ngIf="hasError('height_from')">{{ errors['height_from'] }}</span>
+          </div>
+
+          <div class="form-group">
+            <label for="height_to">Height To (cm) *</label>
+            <input 
+              id="height_to" 
+              type="number" 
+              [(ngModel)]="formData.height_to" 
+              placeholder="180"
+              class="form-control"
+              min="100"
+              max="250"
+              [class.has-error]="hasError('height_to')">
+            <span class="error-message" *ngIf="hasError('height_to')">{{ errors['height_to'] }}</span>
+          </div>
+        </div>
+
+        <!-- Multi-select dropdowns -->
+        <div class="form-group">
+          <label for="education_preference">Education Preference *</label>
+          <app-multi-select-dropdown
+            [options]="educationOptions"
+            [selectedValues]="formData.education_preference"
+            placeholder="Select education preferences"
+            [showSelectAll]="true"
+            (selectionChanged)="onEducationPreferenceChanged($event)">
+          </app-multi-select-dropdown>
+          <span class="error-message" *ngIf="hasError('education_preference')">{{ errors['education_preference'] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="occupation_preference">Occupation Preference *</label>
+          <app-multi-select-dropdown
+            [options]="occupationOptions"
+            [selectedValues]="formData.occupation_preference"
+            placeholder="Select occupation preferences"
+            [showSelectAll]="true"
+            (selectionChanged)="onOccupationPreferenceChanged($event)">
+          </app-multi-select-dropdown>
+          <span class="error-message" *ngIf="hasError('occupation_preference')">{{ errors['occupation_preference'] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="income_preference">Income Preference *</label>
+          <app-multi-select-dropdown
+            [options]="incomeOptions"
+            [selectedValues]="formData.income_preference"
+            placeholder="Select income preferences"
+            [showSelectAll]="true"
+            (selectionChanged)="onIncomePreferenceChanged($event)">
+          </app-multi-select-dropdown>
+          <span class="error-message" *ngIf="hasError('income_preference')">{{ errors['income_preference'] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="location_preference">Location Preference *</label>
+          <app-multi-select-dropdown
+            [options]="locationOptions"
+            [selectedValues]="formData.location_preference"
+            placeholder="Select location preferences"
+            [showSelectAll]="false"
+            (selectionChanged)="onLocationPreferenceChanged($event)">
+          </app-multi-select-dropdown>
+          <span class="error-message" *ngIf="hasError('location_preference')">{{ errors['location_preference'] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="star_preference">Star Preference *</label>
+          <app-multi-select-dropdown
+            [options]="starOptions"
+            [selectedValues]="formData.star_preference"
+            placeholder="Select star preferences"
+            [showSelectAll]="false"
+            (selectionChanged)="onStarPreferenceChanged($event)">
+          </app-multi-select-dropdown>
+          <span class="error-message" *ngIf="hasError('star_preference')">{{ errors['star_preference'] }}</span>
+        </div>
+
+        <div class="form-group">
+          <label for="rasi_preference">Rasi Preference *</label>
+          <app-multi-select-dropdown
+            [options]="rasiOptions"
+            [selectedValues]="formData.rasi_preference"
+            placeholder="Select rasi preferences"
+            [showSelectAll]="false"
+            (selectionChanged)="onRasiPreferenceChanged($event)">
+          </app-multi-select-dropdown>
+          <span class="error-message" *ngIf="hasError('rasi_preference')">{{ errors['rasi_preference'] }}</span>
+        </div>
+      </div>
+
+      <!-- STEP 6: VERIFICATION & COMPLETION -->
+      <div class="step-content" *ngIf="step === 6">
+        <h2 class="step-title">Verification & Completion</h2>
+        <p class="step-description">Review your information</p>
+
+        <div class="verification-box">
+          <h3>Registration Summary</h3>
+          <div class="summary-item">
+            <strong>Name:</strong> {{ formData.name }}
+          </div>
+          <div class="summary-item">
+            <strong>Email:</strong> {{ formData.email }}
+          </div>
+          <div class="summary-item">
+            <strong>Mobile:</strong> {{ formData.country_code }} {{ formData.mobile }}
+          </div>
+          <div class="summary-item">
+            <strong>Gender:</strong> {{ formData.gender }}
+          </div>
+          <div class="summary-item">
+            <strong>Location:</strong> {{ formData.city }}, {{ formData.state }}, {{ formData.country }}
+          </div>
+          <div class="summary-item">
+            <strong>Occupation:</strong> {{ formData.occupation || 'Not specified' }}
+          </div>
+          <div class="summary-item">
+            <strong>Looking for Age:</strong> {{ formData.age_from }} - {{ formData.age_to }}
+          </div>
+          <div class="summary-item">
+            <strong>Profile ID:</strong> {{ formData.profile_id }}
+          </div>
+        </div>
+
+        <div class="completion-message">
+          <p>✓ All your details have been saved successfully!</p>
+          <p>Your matrimony profile is now ready. Click the button below to complete registration.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation buttons -->
+    <div class="button-group">
+      <button 
+        (click)="prevStep()" 
+        class="btn btn-secondary"
+        *ngIf="step > 0">
+        ← Previous
+      </button>
+
+      <button 
+        (click)="nextStep()" 
+        class="btn btn-primary">
+        {{ step === 6 ? 'Complete Registration' : 'Next →' }}
+      </button>
     </div>
   </div>
-  <div class="registration-form-container">
-    <form>
-      <!-- User Information Step -->
-      <div *ngIf="step === 0">
-        <h2>User Information</h2>
-        <hr />
-        <div class="row">
-          <div class="col">
-            <label for="name">Name <span class="text-danger">*</span></label>
-            <input type="text" id="name" name="name" class="form-control" required />
-          </div>
-          <div class="col">
-            <label for="email">Email <span class="text-danger">*</span></label>
-            <input type="email" id="email" name="email" class="form-control" required />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label>Country Code <span class="text-danger">*</span></label>
-            <select class="form-select w-auto" name="country_code">
-              <option value="+91">+91</option>
-              <option value="+1">+1</option>
-              <option value="+44">+44</option>
-              <option value="+61">+61</option>
-            </select>
-          </div>
-          <div class="col">
-            <label for="phone">Phone Number <span class="text-danger">*</span></label>
-            <input type="number" id="phone" name="phone" class="form-control" required />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="gender">Gender <span class="text-danger">*</span></label>
-            <select id="gender" name="gender" class="form-select" required>
-              <option value="">Select Your Gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div class="col">
-            <label for="password">Password <span class="text-danger">*</span></label>
-            <input type="password" id="password" name="password" class="form-control" required />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col d-flex justify-content-between">
-            <button *ngIf="step > 0" type="button" class="btn btn-secondary px-5 py-2 mt-4" (click)="prevStep()">&lt; Back</button>
-            <button type="button" class="btn btn-danger px-5 py-2 mt-4 ms-auto" (click)="nextStep()">Next &nbsp; &gt;</button>
-          </div>
-        </div>
-      </div>
-      <!-- Personal Details Step -->
-      <div *ngIf="step === 1">
-        <h2>Personal Details</h2>
-        <hr />
-        <div class="row">
-          <div class="col">
-            <label>Name</label>
-            <input type="text" class="form-control" [value]="formData.name" readonly />
-          </div>
-          <div class="col">
-            <label>Phone Number</label>
-            <input type="text" class="form-control" [value]="formData.country_code + ' ' + formData.phone" readonly />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="birth_date">Birth Date</label>
-            <input type="date" id="birth_date" name="birth_date" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="birth_time">Birth Time</label>
-            <input type="time" id="birth_time" name="birth_time" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="height">Height (in cms)</label>
-            <input type="number" id="height" name="height" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="complexion">Complexion</label>
-            <select id="complexion" name="complexion" class="form-select">
-              <option value="Fair">Fair</option>
-              <option value="Wheatish">Wheatish</option>
-              <option value="Dark">Dark</option>
-            </select>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="caste">Caste</label>
-            <input type="text" id="caste" name="caste" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="sub_caste">Subcaste</label>
-            <input type="text" id="sub_caste" name="sub_caste" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="address_line1">Address Line 1</label>
-            <input type="text" id="address_line1" name="address_line1" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="address_line2">Address Line 2</label>
-            <input type="text" id="address_line2" name="address_line2" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="city">City</label>
-            <input type="text" id="city" name="city" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="state">State</label>
-            <input type="text" id="state" name="state" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="country">Country</label>
-            <input type="text" id="country" name="country" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="postal_code">Postal Code</label>
-            <input type="text" id="postal_code" name="postal_code" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col d-flex justify-content-between">
-            <button *ngIf="step > 0" type="button" class="btn btn-secondary px-5 py-2 mt-4" (click)="prevStep()">&lt; Back</button>
-            <button type="button" class="btn btn-danger px-5 py-2 mt-4 ms-auto" (click)="nextStep()">Next &nbsp; &gt;</button>
-          </div>
-        </div>
-      </div>
-      <!-- Family Details Step -->
-      <div *ngIf="step === 2">
-        <h2>Family Details</h2>
-        <hr />
-        <div class="row">
-          <div class="col">
-            <label for="father_name">Father's Name</label>
-            <input type="text" id="father_name" name="father_name" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="father_occupation">Father's Occupation</label>
-            <input type="text" id="father_occupation" name="father_occupation" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="mother_name">Mother's Name</label>
-            <input type="text" id="mother_name" name="mother_name" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="mother_occupation">Mother's Occupation</label>
-            <input type="text" id="mother_occupation" name="mother_occupation" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="total_siblings">Total Siblings</label>
-            <input type="number" id="total_siblings" name="total_siblings" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="married_siblings">Married Siblings</label>
-            <input type="number" id="married_siblings" name="married_siblings" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="family_type">Family Type</label>
-            <select id="family_type" name="family_type" class="form-select">
-              <option value="nuclear">Nuclear</option>
-              <option value="joint">Joint</option>
-              <option value="extended">Extended</option>
-            </select>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col d-flex justify-content-between">
-            <button *ngIf="step > 0" type="button" class="btn btn-secondary px-5 py-2 mt-4" (click)="prevStep()">&lt; Back</button>
-            <button type="button" class="btn btn-danger px-5 py-2 mt-4 ms-auto" (click)="nextStep()">Next &nbsp; &gt;</button>
-          </div>
-        </div>
-      </div>
-      <!-- Astrology Details Step -->
-      <div *ngIf="step === 3">
-        <h2>Astrology Details</h2>
-        <hr />
-        <div class="row">
-          <div class="col">
-            <label for="star">Star</label>
-            <input type="text" id="star" name="star" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="rasi">Rasi</label>
-            <input type="text" id="rasi" name="rasi" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="lagnam">Lagnam</label>
-            <input type="text" id="lagnam" name="lagnam" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="birth_place">Birth Place</label>
-            <input type="text" id="birth_place" name="birth_place" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="gotram">Gotram</label>
-            <input type="text" id="gotram" name="gotram" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="dosham_details">Dosham Details</label>
-            <input type="text" id="dosham_details" name="dosham_details" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="horoscope">Horoscope (PDF/JPEG/PNG/JPG, &lt; 10MB)</label>
-            <input type="file" id="horoscope" name="horoscope" class="form-control" accept=".pdf,.jpeg,.png,.jpg" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col d-flex justify-content-between">
-            <button *ngIf="step > 0" type="button" class="btn btn-secondary px-5 py-2 mt-4" (click)="prevStep()">&lt; Back</button>
-            <button type="button" class="btn btn-danger px-5 py-2 mt-4 ms-auto" (click)="nextStep()">Next &nbsp; &gt;</button>
-          </div>
-        </div>
-      </div>
-      <!-- Professional Details Step -->
-      <div *ngIf="step === 4">
-        <h2>Professional Details</h2>
-        <hr />
-        <!-- Education Block -->
-        <div class="card mb-4">
-          <div class="card-header bg-primary text-white">Education</div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col">
-                <label for="degree">Degree</label>
-                <input type="text" id="degree" name="degree" class="form-control" />
-              </div>
-              <div class="col">
-                <label for="specialization">Specialization</label>
-                <input type="text" id="specialization" name="specialization" class="form-control" />
-              </div>
-            </div>
-            <div class="row mt-3">
-              <div class="col">
-                <label for="institution">Institution</label>
-                <input type="text" id="institution" name="institution" class="form-control" />
-              </div>
-            </div>
-          </div>
-        </div>
-        <!-- Professional Block -->
-        <div class="card mb-4">
-          <div class="card-header bg-success text-white">Professional</div>
-          <div class="card-body">
-            <div class="row">
-              <div class="col">
-                <label for="company_name">Company Name</label>
-                <input type="text" id="company_name" name="company_name" class="form-control" />
-              </div>
-              <div class="col">
-                <label for="designation">Designation</label>
-                <input type="text" id="designation" name="designation" class="form-control" />
-              </div>
-            </div>
-            <div class="row mt-3">
-              <div class="col">
-                <label for="experience_years">Experience (Years)</label>
-                <input type="number" id="experience_years" name="experience_years" class="form-control" />
-              </div>
-              <div class="col">
-                <label for="monthly_income">Monthly Income</label>
-                <input type="number" id="monthly_income" name="monthly_income" class="form-control" />
-              </div>
-            </div>
-            <div class="row mt-3">
-              <div class="col">
-                <label for="annual_income">Annual Income</label>
-                <input type="number" id="annual_income" name="annual_income" class="form-control" />
-              </div>
-              <div class="col">
-                <label for="work_location">Work Location</label>
-                <input type="text" id="work_location" name="work_location" class="form-control" />
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col d-flex justify-content-between">
-            <button *ngIf="step > 0" type="button" class="btn btn-secondary px-5 py-2 mt-4" (click)="prevStep()">&lt; Back</button>
-            <button type="button" class="btn btn-danger px-5 py-2 mt-4 ms-auto" (click)="nextStep()">Next &nbsp; &gt;</button>
-          </div>
-        </div>
-      </div>
-      <!-- Partner Preferences Step -->
-      <div *ngIf="step === 5">
-        <h2>Partner Preferences</h2>
-        <hr />
-        <div class="row">
-          <div class="col">
-            <label for="age_from">Age From</label>
-            <input type="number" id="age_from" name="age_from" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="age_to">Age To</label>
-            <input type="number" id="age_to" name="age_to" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="height_from">Height From</label>
-            <input type="number" id="height_from" name="height_from" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="height_to">Height To</label>
-            <input type="number" id="height_to" name="height_to" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="education_preference">Education Preference</label>
-            <input type="text" id="education_preference" name="education_preference" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="occupation_preference">Occupation Preference</label>
-            <input type="text" id="occupation_preference" name="occupation_preference" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="income_preference">Income Preference</label>
-            <input type="text" id="income_preference" name="income_preference" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="star_preference">Star Preference</label>
-            <input type="text" id="star_preference" name="star_preference" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col">
-            <label for="rasi_preference">Rasi Preference</label>
-            <input type="text" id="rasi_preference" name="rasi_preference" class="form-control" />
-          </div>
-          <div class="col">
-            <label for="location_preference">Location Preference</label>
-            <input type="text" id="location_preference" name="location_preference" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col d-flex justify-content-between">
-            <button *ngIf="step > 0" type="button" class="btn btn-secondary px-5 py-2 mt-4" (click)="prevStep()">&lt; Back</button>
-            <button type="button" class="btn btn-danger px-5 py-2 mt-4 ms-auto" (click)="nextStep()">Next &nbsp; &gt;</button>
-          </div>
-        </div>
-      </div>
-      <!-- Verification Step -->
-      <div *ngIf="step === 6">
-        <h2>Verification</h2>
-        <hr />
-        <div class="row">
-          <div class="col">
-            <label for="otp">Enter OTP</label>
-            <input type="text" id="otp" name="otp" class="form-control" />
-          </div>
-        </div>
-        <div class="row">
-          <div class="col d-flex justify-content-between">
-            <button *ngIf="step > 0" type="button" class="btn btn-secondary px-5 py-2 mt-4" (click)="prevStep()">&lt; Back</button>
-            <button type="button" class="btn btn-success px-5 py-2 mt-4" (click)="nextStep()">Submit</button>
-          </div>
-        </div>
-      </div>
-    </form>
-  </div>
 </div>
-

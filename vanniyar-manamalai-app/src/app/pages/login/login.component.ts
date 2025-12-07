@@ -38,7 +38,7 @@ export class LoginComponent implements OnInit {
       this.userApi.validateUser(mobile, password).subscribe(
         (res) => {
           console.log('Validation response:', res);
-          if (res.valid) {
+          if (res.success) {
             this.globalState.profileId = res.profile_id;
             this.globalState.isUserSignedIn = true;
             console.log('Login successful, profileId:', res.profile_id);

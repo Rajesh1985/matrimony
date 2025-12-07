@@ -260,6 +260,24 @@ def get_profile_id_by_mobile(mobile: str, db: Session = Depends(get_db)):
     
     return {"profile_id": profile_id}
 
+@router.put("/is_verified/profile/{profile_id}")
+def update_is_verified_by_profile_id(profile_id: int, is_verified: bool, db: Session = Depends(get_db)):
+    """
+    Update verification status by profile_id
+    
+    Purpose: Allow internal systems to update verification status
+    
+    Use Case:
+    - After successful OTP verification
+    - Admin manually verifies user
+    """
+    user = crud_user.update_is_verified_by_profile_id(db, profile_id, is_verified)
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"success": True, "is_verified": user.is_verified}
+
 # ==================== OTP & VERIFICATION ====================
 
 @router.post("/generate_otp")

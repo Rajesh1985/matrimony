@@ -4,23 +4,23 @@ from app.database import Base
 import enum
 
 class GenderEnum(str, enum.Enum):
-    male = "Male"
-    female = "Female"
-    other = "Other"
+    Male = "Male"
+    Female = "Female"
+    Other = "Other"
 
 class PhysicalStatusEnum(str, enum.Enum):
-    normal = "Normal"
-    physically_challenged = "Physically Challenged"
+    Normal = "Normal"
+    Physically_Challenged = "Physically Challenged"
 
 class MaritalStatusEnum(str, enum.Enum):
-    unmarried = "Unmarried"
-    widow_widower = "Widow_Widower"
-    divorced = "Divorced"
-    separated = "Separated"
+    Unmarried = "Unmarried"
+    Widow_Widower = "Widow_Widower"
+    Divorced = "Divorced"
+    Separated = "Separated"
 
 class FoodPreferenceEnum(str, enum.Enum):
-    veg = "Veg"
-    non_veg = "NonVeg"
+    Veg = "Veg"
+    NonVeg = "NonVeg"
 
 class Profile(Base):
     __tablename__ = "profiles"
@@ -37,12 +37,12 @@ class Profile(Base):
     mobile_number = Column(String(20))
     introducer_name = Column(String(100))
     introducer_mobile = Column(String(20))
-    gender = Column(Enum(GenderEnum), nullable=False)
+    gender = Column(Enum(GenderEnum, native_enum=True), nullable=False)
     hobbies = Column(String(500))
     about_me = Column(String(2048))
-    physical_status = Column(Enum(PhysicalStatusEnum))
-    marital_status = Column(Enum(MaritalStatusEnum))
-    food_preference = Column(Enum(FoodPreferenceEnum))
+    physical_status = Column(Enum(PhysicalStatusEnum, native_enum=True))
+    marital_status = Column(Enum(MaritalStatusEnum, native_enum=True))
+    food_preference = Column(Enum(FoodPreferenceEnum, native_enum=True))
     religion = Column(String(50), default='hindu')
     address_line1 = Column(String(255))
     address_line2 = Column(String(255))

@@ -4,9 +4,9 @@ import enum
 
 class FamilyStatusEnum(str, enum.Enum):
     """Economic status of family"""
-    middle_class = "Middle_Class"
-    upper_middle_class = "upper_middle_class"
-    rich_elite = "Rich/Elite"
+    Middle_Class = "Middle_Class"
+    Upper_Middle_Class = "Upper_Middle_Class"
+    Rich_Elite = "Rich_Elite"
 
 class FamilyTypeEnum(str, enum.Enum):
     """Family structure type"""

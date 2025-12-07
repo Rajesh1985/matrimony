@@ -110,6 +110,20 @@ export class UserApiService {
     );
   }
 
+  updateIsVerifiedbyProfileID(is_verified: boolean, profile_id: number): Observable<any> {
+      return this.http.put(
+      `${this.baseUrl}/users/is_verified/profile/${profile_id}?is_verified=${is_verified}`,
+      null
+    );
+  }  
+
+  updateSerialNumberByProfileID(serial_number: string, profile_id: number): Observable<any> {
+      return this.http.put(
+      `${this.baseUrl}/profiles/serial_number/${profile_id}?serial_number=${serial_number}`,
+      null
+    );
+  } 
+
   /**
    * Update user details (name, email, gender - excludes profile_id)
    * PATCH /users/{user_id}

@@ -20,7 +20,7 @@ CREATE TABLE profiles (
     gender ENUM('Male', 'Female', 'Other') NOT NULL,
     hobbies VARCHAR(500),
     about_me VARCHAR(2048),
-    physical_status ENUM('Normal', 'Physically Challenged'),
+    physical_status ENUM('Normal', 'Physically_Challenged'),
     marital_status ENUM('Unmarried', 'Widow_Widower', 'Divorced', 'Separated'),
     food_preference ENUM('Veg', 'NonVeg'),
     religion VARCHAR(50) DEFAULT 'hindu',
@@ -43,7 +43,7 @@ DROP TRIGGER IF EXISTS trg_generate_serial_number;
 -- Trigger for serial number generation
 DELIMITER //
 CREATE TRIGGER trg_generate_serial_number
-BEFORE INSERT ON profiles
+AFTER INSERT ON profiles
 FOR EACH ROW
 BEGIN
     SET NEW.serial_number = CONCAT(

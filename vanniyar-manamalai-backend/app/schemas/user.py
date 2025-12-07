@@ -5,9 +5,9 @@ from enum import Enum
 
 class GenderEnum(str, Enum):
     """Gender options"""
-    male = "Male"
-    female = "Female"
-    other = "Other"
+    Male = "Male"
+    Female = "Female"
+    Other = "Other"
 
 class UserBase(BaseModel):
     """Base user schema"""

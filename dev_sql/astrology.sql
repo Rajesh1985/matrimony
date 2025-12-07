@@ -20,9 +20,10 @@ CREATE TABLE astrology_details (
     ),
     lagnam VARCHAR(100),
     birth_place VARCHAR(100),
-    Kotturam ENUM('Jumbo Maha Rishi Kotturam'),
+    Kotturam ENUM('Jumbo_Maha_Rishi'),
     dosham_details TEXT,
-    file_id CHAR(36) NOT NULL,
+    file_id CHAR(36),
+    FOREIGN KEY (file_id) REFERENCES files(id) ON DELETE SET NULL,
     FOREIGN KEY (profile_id) REFERENCES profiles(id) ON DELETE CASCADE
 );
 

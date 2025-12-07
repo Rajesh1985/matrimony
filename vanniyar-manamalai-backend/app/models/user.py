@@ -4,9 +4,9 @@ import enum
 
 class GenderEnum(str, enum.Enum):
     """Gender options"""
-    male = "Male"
-    female = "Female"
-    other = "Other"
+    Male = "Male"
+    Female = "Female"
+    Other = "Other"
 
 class User(Base):
     __tablename__ = "Users"  # Note: Capital 'U' to match SQL schema
