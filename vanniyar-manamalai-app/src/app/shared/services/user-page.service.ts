@@ -85,7 +85,8 @@ export interface RecommendedProfile {
   providedIn: 'root'
 })
 export class UserPageService {
-  private apiUrl =  'http://localhost:8000';
+  private apiUrl = 'http://89.116.134.253:8000';
+  // private apiUrl =  'http://localhost:8000';
 
   constructor(private http: HttpClient) {}
 
