@@ -161,3 +161,8 @@ Final Checks
 sudo tail -f /var/log/nginx/error.log
 sudo supervisorctl status
 
+
+
+
+npm install
+npm audit fix
