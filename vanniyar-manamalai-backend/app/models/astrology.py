@@ -1,14 +1,64 @@
-from sqlalchemy import Column, Integer, String, ForeignKey
-from database import Base
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Enum, CHAR
+from app.database import Base
+import enum
+
+class StarEnum(str, enum.Enum):
+    """27 Nakshatras (Tamil: நட்சத்திரங்கள்)"""
+    Ashwini = "Ashwini"
+    Bharani = "Bharani"
+    Krittika = "Krittika"
+    Rohini = "Rohini"
+    Arudra = "Arudra"
+    Punarvasu = "Punarvasu"
+    Pushya = "Pushya"
+    Ashlesha = "Ashlesha"
+    Magha = "Magha"
+    Purva_Phalguni = "Purva Phalguni"
+    Uttara_Phalguni = "Uttara Phalguni"
+    Hasta = "Hasta"
+    Chitra = "Chitra"
+    Swati = "Swati"
+    Vishakha = "Vishakha"
+    Anuradha = "Anuradha"
+    Jyeshtha = "Jyeshtha"
+    Mula = "Mula"
+    Purva_Ashadha = "Purva Ashadha"
+    Uttara_Ashadha = "Uttara Ashadha"
+    Shravana = "Shravana"
+    Dhanishta = "Dhanishta"
+    Shatabhisha = "Shatabhisha"
+    Purva_Bhadrapada = "Purva Bhadrapada"
+    Uttara_Bhadrapada = "Uttara Bhadrapada"
+    Revati = "Revati"
+
+class RasiEnum(str, enum.Enum):
+    """12 Zodiac Signs (Tamil: ராசி)"""
+    Aries = "Aries"
+    Taurus = "Taurus"
+    Gemini = "Gemini"
+    Cancer = "Cancer"
+    Leo = "Leo"
+    Virgo = "Virgo"
+    Libra = "Libra"
+    Scorpio = "Scorpio"
+    Sagittarius = "Sagittarius"
+    Capricorn = "Capricorn"
+    Aquarius = "Aquarius"
+    Pisces = "Pisces"
+
+class KotturaEnum(str, enum.Enum):
+    """Gothram (Tamil: கோத்திரம்)"""
+    Jumbo_Maha_Rishi = "Jumbo Maha Rishi"
 
 class AstrologyDetails(Base):
     __tablename__ = "astrology_details"
-    id = Column(Integer, primary_key=True, index=True)
-    profile_id = Column(Integer, ForeignKey("profiles.id", ondelete="CASCADE"))
-    star = Column(String(50))
-    rasi = Column(String(50))
-    lagnam = Column(String(50))
+    
+    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    profile_id = Column(Integer, ForeignKey("profiles.id", ondelete="CASCADE"), nullable=False)
+    star = Column(Enum(StarEnum))
+    rasi = Column(Enum(RasiEnum))
+    lagnam = Column(String(100))
     birth_place = Column(String(100))
-    gotram = Column(String(50))
-    dosham_details = Column(String)
-    horoscope_url = Column(String(255))
+    Kotturam = Column(Enum(KotturaEnum))
+    dosham_details = Column(Text)
+    file_id = Column(CHAR(36), nullable=False)  # UUID for horoscope file reference

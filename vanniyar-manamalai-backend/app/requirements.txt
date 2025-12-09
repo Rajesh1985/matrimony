@@ -9,3 +9,5 @@ aiofiles
 gunicorn
 cryptography
 fastapi-cors
+'pydantic[email]'
+python-multipart

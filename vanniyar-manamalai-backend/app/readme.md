@@ -30,7 +30,7 @@ This is the backend service for the Vanniyar Manamalai matrimony platform. It is
    ```
 2. **Start the FastAPI server:**
    ```sh
-   uvicorn main:app --reload
+   uvicorn app.main:app --reload
    ```
    The API will be available at `http://127.0.0.1:8000`.
 

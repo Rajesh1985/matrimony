@@ -1,69 +1,357 @@
+<!-- src/app/pages/user-page/user-page.component.html (UPDATED - Address in sections) -->
+
 <div class="user-page-container">
-  <div class="user-info">
-    <ng-container *ngIf="userData; else errorBlock">
-      <h2>{{ userData.name }}</h2>
-      <p><strong>Birth Date:</strong> {{ userData.birth_date }}</p>
-      <p><strong>Height (cm):</strong> {{ userData.height_cm }}</p>
-      <p><strong>Caste:</strong> {{ userData.caste }}</p>
-      <p><strong>Sub-caste:</strong> {{ userData.sub_caste }}</p>
-      <p><strong>Mobile Number:</strong> {{ userData.mobile_number }}</p>
-      <div *ngIf="userData.address">
-        <h2>Address</h2>
-        <p><strong>Address Type:</strong> {{ userData.address.address_type }}</p>
-        <p><strong>City:</strong> {{ userData.address.city }}</p>
-        <p><strong>State:</strong> {{ userData.address.state }}</p>
-        <p><strong>Country:</strong> {{ userData.address.country }}</p>
-        <p><strong>Pincode:</strong> {{ userData.address.pincode }}</p>
-      </div>
-      <div *ngIf="userData.astrology">
-        <h2>Astrology</h2>
-        <p><strong>Rasi:</strong> {{ userData.astrology.rasi }}</p>
-        <p><strong>Star:</strong> {{ userData.astrology.star }}</p>
-        <p><strong>Lagnam:</strong> {{ userData.astrology.lagnam }}</p>
-        <p><strong>Birth Place:</strong> {{ userData.astrology.birth_place }}</p>
-        <p><strong>Gotram:</strong> {{ userData.astrology.gotram }}</p>
-        <p><strong>Dosham:</strong> {{ userData.astrology.dosham_details }}</p>
-      </div>
-      <div *ngIf="userData.family">
-        <h2>Family</h2>
-        <p><strong>Father Name:</strong> {{ userData.family.father_name }}</p>
-        <p><strong>Father Occupation:</strong> {{ userData.family.father_occupation }}</p>
-        <p><strong>Mother Name:</strong> {{ userData.family.mother_name }}</p>
-        <p><strong>Mother Occupation:</strong> {{ userData.family.mother_occupation }}</p>
-        <p><strong>Total Siblings:</strong> {{ userData.family.total_siblings }}</p>
-        <p><strong>Married Siblings:</strong> {{ userData.family.married_siblings }}</p>
-        <p><strong>Family Type:</strong> {{ userData.family.family_type }}</p>
-      </div>
-      <div *ngIf="userData.education">
-        <h2>Education</h2>
-        <p><strong>Degree:</strong> {{ userData.education.degree }}</p>
-        <p><strong>Specialization:</strong> {{ userData.education.specialization }}</p>
-        <p><strong>Institution:</strong> {{ userData.education.institution }}</p>
-      </div>
-      <div *ngIf="userData.professional">
-        <h2>Professional</h2>
-        <p><strong>Designation:</strong> {{ userData.professional.designation }}</p>
-        <p><strong>Company Name:</strong> {{ userData.professional.company_name }}</p>
-        <p><strong>Experience:</strong> {{ userData.professional.experience_years }}</p>
-        <p><strong>Monthly Income:</strong> {{ userData.professional.monthly_income }}</p>
-        <p><strong>Work Location:</strong> {{ userData.professional.work_location }}</p>
-      </div>
-      <div *ngIf="userData.partner_preferences">
-        <h2>Partner Preferences</h2>
-        <p><strong>Age Range:</strong> {{ userData.partner_preferences.age_from }} - {{ userData.partner_preferences.age_to }}</p>
-        <p><strong>Height Range:</strong> {{ userData.partner_preferences.height_from }} - {{ userData.partner_preferences.height_to }}</p>
-        <p><strong>Caste:</strong> {{ userData.partner_preferences.caste_preference }}</p>
-        <p><strong>Education:</strong> {{ userData.partner_preferences.education_preference }}</p>
-        <p><strong>Occupation:</strong> {{ userData.partner_preferences.occupation_preference }}</p>
-        <p><strong>Star:</strong> {{ userData.partner_preferences.star_preference }}</p>
-        <p><strong>Rasi:</strong> {{ userData.partner_preferences.rasi_preference }}</p>
-        <p><strong>Location:</strong> {{ userData.partner_preferences.location_preference }}</p>
-        <p><strong>Income:</strong> {{ userData.partner_preferences.income_preference }}</p>
-      </div>
-    </ng-container>
-    <ng-template #errorBlock>
-      <p *ngIf="error" class="error">{{ error }}</p>
-    </ng-template>
+  <!-- Error message -->
+  <div class="error-container" *ngIf="error">
+    <div class="alert alert-danger">
+      <strong>Error:</strong> {{ error }}
+    </div>
   </div>
-  <div class="user-blank"></div>
+
+  <!-- Main content -->
+  <div class="page-content" *ngIf="!isLoading && currentProfile">
+    <!-- Left Sidebar: User Information -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>My Profile</h2>
+      </div>
+
+      <!-- User Summary Card -->
+      <div class="profile-card">
+        <div class="profile-avatar">
+          <app-avatar 
+            [name]="currentProfile.name" 
+            size="xl">
+          </app-avatar>
+        </div>
+
+        <div class="profile-summary">
+          <h3 class="profile-name">{{ currentProfile.name }}</h3>
+          <p class="profile-id">ID: {{ currentProfile.serial_number }}</p>
+          
+          <div class="profile-quick-stats">
+            <div class="stat">
+              <span class="stat-label">Age</span>
+              <span class="stat-value">{{ currentProfile.age }} Yrs</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">Height</span>
+              <span class="stat-value">{{ currentProfile.height_cm }} cm</span>
+            </div>
+          </div>
+
+          <div class="profile-quick-info">
+            <p><strong>{{ currentProfile.occupation }}</strong></p>
+            <p class="text-muted">{{ currentProfile.caste }}</p>
+            <p class="text-muted">{{ currentProfile.city }}, {{ currentProfile.state }}</p>
+          </div>
+
+          <div class="profile-badges">
+            <span class="badge badge-primary">{{ currentProfile.star }}</span>
+            <span class="badge badge-secondary">{{ currentProfile.rasi }}</span>
+          </div>
+
+          <p class="profile-about">{{ currentProfile.about_me }}</p>
+        </div>
+      </div>
+
+      <!-- Expandable Sections -->
+      <div class="sections-container">
+        
+        <!-- Personal Details Section -->
+        <div class="section">
+          <div class="section-header" (click)="toggleSection('personal')">
+            <h4>Personal Details</h4>
+            <span class="toggle-icon" [class.open]="expandedSections.personal">▼</span>
+          </div>
+          <div class="section-content" *ngIf="expandedSections.personal">
+            <div class="detail-row">
+              <span class="label">Height:</span>
+              <span class="value">{{ currentProfile.height_cm }} cm</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Physical Status:</span>
+              <span class="value">{{ currentProfile.physical_status }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Complexion:</span>
+              <span class="value">{{ currentProfile.complexion }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Marital Status:</span>
+              <span class="value">{{ currentProfile.marital_status }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Hobbies:</span>
+              <span class="value">{{ currentProfile.hobbies || 'N/A' }}</span>
+            </div>
+            <button class="btn btn-edit" (click)="openEditModal('personal')">Edit</button>
+          </div>
+        </div>
+
+        <!-- Professional Section -->
+        <div class="section">
+          <div class="section-header" (click)="toggleSection('professional')">
+            <h4>Professional</h4>
+            <span class="toggle-icon" [class.open]="expandedSections.professional">▼</span>
+          </div>
+          <div class="section-content" *ngIf="expandedSections.professional">
+            <div class="detail-row">
+              <span class="label">Education:</span>
+              <span class="value">{{ currentProfile.education }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Occupation:</span>
+              <span class="value">{{ currentProfile.occupation }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Company:</span>
+              <span class="value">{{ currentProfile.company_name }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Income:</span>
+              <span class="value">{{ currentProfile.annual_income }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Work Location:</span>
+              <span class="value">{{ currentProfile.work_location }}</span>
+            </div>
+            <button class="btn btn-edit" (click)="openEditModal('professional')">Edit</button>
+          </div>
+        </div>
+
+        <!-- Family Section -->
+        <div class="section">
+          <div class="section-header" (click)="toggleSection('family')">
+            <h4>Family</h4>
+            <span class="toggle-icon" [class.open]="expandedSections.family">▼</span>
+          </div>
+          <div class="section-content" *ngIf="expandedSections.family">
+            <div class="detail-row">
+              <span class="label">Family Type:</span>
+              <span class="value">{{ currentProfile.family_type }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Status:</span>
+              <span class="value">{{ currentProfile.family_status }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Brothers:</span>
+              <span class="value">{{ currentProfile.brothers }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Sisters:</span>
+              <span class="value">{{ currentProfile.sisters }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Married Brothers:</span>
+              <span class="value">{{ currentProfile.married_brothers }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Married Sisters:</span>
+              <span class="value">{{ currentProfile.married_sisters }}</span>
+            </div>
+            <button class="btn btn-edit" (click)="openEditModal('family')">Edit</button>
+          </div>
+        </div>
+
+        <!-- Astrology Section -->
+        <div class="section">
+          <div class="section-header" (click)="toggleSection('astrology')">
+            <h4>Astrology</h4>
+            <span class="toggle-icon" [class.open]="expandedSections.astrology">▼</span>
+          </div>
+          <div class="section-content" *ngIf="expandedSections.astrology">
+            <div class="detail-row">
+              <span class="label">Star:</span>
+              <span class="value">{{ currentProfile.star }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Rasi:</span>
+              <span class="value">{{ currentProfile.rasi }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Lagnam:</span>
+              <span class="value">{{ currentProfile.lagnam }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Birth Place:</span>
+              <span class="value">{{ currentProfile.birth_place }}</span>
+            </div>
+            <button class="btn btn-edit" (click)="openEditModal('astrology')">Edit</button>
+          </div>
+        </div>
+
+        <!-- Address Section -->
+        <div class="section">
+          <div class="section-header" (click)="toggleSection('address')">
+            <h4>Address</h4>
+            <span class="toggle-icon" [class.open]="expandedSections.address">▼</span>
+          </div>
+          <div class="section-content" *ngIf="expandedSections.address">
+            <div class="detail-row">
+              <span class="label">Address Line 1:</span>
+              <span class="value">{{ currentProfile.address_line1 }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Address Line 2:</span>
+              <span class="value">{{ currentProfile.address_line2 || 'N/A' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">City:</span>
+              <span class="value">{{ currentProfile.city }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">State:</span>
+              <span class="value">{{ currentProfile.state }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Country:</span>
+              <span class="value">{{ currentProfile.country }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Postal Code:</span>
+              <span class="value">{{ currentProfile.postal_code }}</span>
+            </div>
+            <button class="btn btn-edit" (click)="openEditModal('address')">Edit</button>
+          </div>
+        </div>
+
+        <!-- Preferences Section -->
+        <div class="section">
+          <div class="section-header" (click)="toggleSection('preferences')">
+            <h4>Partner Preferences</h4>
+            <span class="toggle-icon" [class.open]="expandedSections.preferences">▼</span>
+          </div>
+          <div class="section-content" *ngIf="expandedSections.preferences">
+            <div class="detail-row">
+              <span class="label">Age Range:</span>
+              <span class="value">{{ currentProfile.age_from }} - {{ currentProfile.age_to }} Yrs</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Height Range:</span>
+              <span class="value">{{ currentProfile.height_from }} - {{ currentProfile.height_to }} cm</span>
+            </div>
+            <button class="btn btn-edit" (click)="openEditModal('preferences')">Edit</button>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Right Section: Recommended Profiles -->
+    <main class="main-content">
+      <div class="main-header">
+        <h2>Recommended Profiles</h2>
+        <p class="text-muted" *ngIf="recommendedProfiles.length > 0">
+          {{ recommendedProfiles.length }} Profile{{ recommendedProfiles.length !== 1 ? 's' : '' }} found
+        </p>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading-container" *ngIf="isLoadingRecommendations">
+        <div class="spinner"></div>
+        <p>Loading recommended profiles...</p>
+      </div>
+
+      <!-- No Profiles -->
+      <div class="no-profiles" *ngIf="!isLoadingRecommendations && recommendedProfiles.length === 0">
+        <p>No matching profiles found. Update your preferences to see recommendations.</p>
+      </div>
+
+      <!-- Profiles Grid -->
+      <div class="profiles-grid" *ngIf="!isLoadingRecommendations && recommendedProfiles.length > 0">
+        <div class="profile-card-item" *ngFor="let profile of recommendedProfiles">
+          
+          <!-- Profile Header with Photo & Quick Info -->
+          <div class="profile-card-header">
+            <div class="profile-photo">
+              <app-avatar 
+                [name]="profile.name" 
+                size="lg">
+              </app-avatar>
+            </div>
+
+            <div class="profile-header-info">
+              <div>
+                <h3 class="profile-title">{{ profile.name }}</h3>
+                <p class="profile-subtitle">ID: {{ profile.match_profile_id }}</p>
+              </div>
+              <div class="profile-meta">
+                <span class="age-badge">{{ profile.age }} Yrs</span>
+                <span class="height-badge">{{ profile.height_cm }} cm</span>
+              </div>
+            </div>
+
+            <div class="match-score">
+              <div class="score-circle" [class]="'score-' + profile.match_score">
+                {{ profile.match_score }}/8
+              </div>
+              <small>Match</small>
+            </div>
+          </div>
+
+          <!-- Profile Body -->
+          <div class="profile-card-body">
+            <div class="profile-detail">
+              <strong>{{ profile.occupation }}</strong>
+              <span class="text-muted">{{ profile.city }}, {{ profile.state }}</span>
+            </div>
+
+            <div class="profile-astro">
+              <span class="badge badge-sm">{{ profile.star }}</span>
+              <span class="badge badge-sm">{{ profile.rasi }}</span>
+            </div>
+
+            <p class="profile-about">{{ profile.about_me }}</p>
+
+            <p class="last-updated">
+              Updated {{ formatTimestamp(profile.preferences_updated_at) }}
+            </p>
+          </div>
+
+          <!-- Profile Footer: Actions -->
+          <div class="profile-card-footer">
+            <button class="btn btn-primary btn-block" (click)="viewProfile(profile)">
+              👁️ View Profile
+            </button>
+            <button class="btn btn-secondary" (click)="sendInterest(profile)">
+              💌 Interest
+            </button>
+            <button class="btn btn-outline" (click)="addToFavorites(profile)">
+              ❤️
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Loading State for Page -->
+  <div class="loading-page" *ngIf="isLoading">
+    <div class="spinner"></div>
+    <p>Loading your profile...</p>
+  </div>
 </div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Edit {{ editingSection | uppercase }}</h3>
+      <button class="modal-close" (click)="closeEditModal()">&times;</button>
+    </div>
+
+    <div class="modal-body">
+      <!-- Edit forms for each section would go here -->
+      <p>Edit form for {{ editingSection }} section</p>
+      <!-- Form fields would be dynamically generated based on editingSection -->
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" (click)="saveSection()">Save Changes</button>
+    </div>
+  </div>
+</div>
+

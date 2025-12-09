@@ -1,648 +1,879 @@
-import { Component } from '@angular/core';
+// src/app/pages/registration/registration.component.ts
+
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { RouterModule, Router } from '@angular/router';
 import { NavbarComponent } from '../../layout/navbar/navbar.component';
 import { FooterComponent } from '../../layout/footer/footer.component';
+import { MultiSelectDropdownComponent } from '../../shared/components/multi-select-dropdown/multi-select-dropdown.component';
 import { UserApiService } from '../../user-api.service';
-import { CommonModule } from '@angular/common';
+import { LocationService, CountryCode } from '../../shared/services/location.service';
 import { GlobalStateService } from '../../global-state.service';
-import { RouterModule, Router } from '@angular/router';
-
+import { REGISTRATION_DATA, LOCATION_DATA } from '../../shared/constants/registration-data.constants';
 
 @Component({
   selector: 'app-registration',
-  standalone: true,
-  imports: [NavbarComponent, FooterComponent, CommonModule],
+  imports: [
+    NavbarComponent,
+    FooterComponent,
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    MultiSelectDropdownComponent
+  ],
   templateUrl: './registration.component.html',
   styleUrls: ['./registration.component.scss']
 })
-
-export class RegistrationComponent {
+export class RegistrationComponent implements OnInit {
   backgroundimg: string = 'assets/images/gallery/background.png';
   step: number = 0;
+  maxSteps: number = 6;
+
+  // Form data
   formData: any = {
+    // Step 0: User
+    country_code: '+91',
     name: '',
     email: '',
-    country_code: '+91',
-    phone: '',
+    mobile: '',
     gender: '',
-    password: ''
-    // Add more fields as needed for other steps
+    password: '',
+    confirmPassword: '',
+
+    // Step 1: Profile
+    caste: 'Vanniyar',
+    religion: 'Hindu',
+    height_cm: '',
+    birth_date: '',
+    birth_time: '',
+    country: '',
+    state: '',
+    city: '',
+    physical_status: '',
+    marital_status: '',
+    food_preference: '',
+    complexion: '',
+    hobbies: '',
+    about_me: '',
+    address_line1: '',
+    address_line2: '',
+    postal_code: '',
+
+    // Step 2: Family
+    family_type: '',
+    family_status: '',
+    brothers: 0,
+    sisters: 0,
+    married_brothers: [],
+    married_sisters: [],
+    father_name: '',
+    father_occupation: '',
+    mother_name: '',
+    mother_occupation: '',
+    family_description: '',
+
+    // Step 3: Astrology
+    star: '',
+    rasi: '',
+    kotturam: 'Jumbo_Maha_Rishi',
+    lagnam: '',
+    birth_place: '',
+    dosham_details: '',
+
+    // Step 4: Professional
+    education: '',
+    education_optional: '',
+    employment_type: '',
+    occupation: '',
+    company_name: '',
+    annual_income: '',
+    work_location: '',
+
+    // Step 5: Partner Preferences
+    age_from: '',
+    age_to: '',
+    height_from: '',
+    height_to: '',
+    education_preference: [],
+    occupation_preference: [],
+    income_preference: [],
+    location_preference: [],
+    star_preference: [],
+    rasi_preference: [],
+
+    // Step 6: Verification
+    profile_id: null,
+    user_id: null
   };
+
+  // Dropdown options
+  registrationData = REGISTRATION_DATA;
+  countryCodes: CountryCode[] = [];
+  countries: string[] = [];
+  states: string[] = [];
+  cities: string[] = [];
+
+  // Multi-select options
+  educationOptions: { value: string; label: string }[] = [];
+  occupationOptions: { value: string; label: string }[] = [];
+  incomeOptions: { value: string; label: string }[] = [];
+  locationOptions: { value: string; label: string }[] = [];
+  starOptions: { value: string; label: string }[] = [];
+  rasiOptions: { value: string; label: string }[] = [];
+
+  // Validation errors
+  errors: { [key: string]: string } = {};
+  brothersArray: number[] = [];
+  sistersArray: number[] = [];
 
   constructor(
     private userApi: UserApiService,
+    private locationService: LocationService,
     private globalState: GlobalStateService,
     private router: Router
   ) {}
-  
-  nextStep() {
-    // Step 0: User Information
-    if (this.step === 0) {
-      const nameInput = (document.getElementById('name') as HTMLInputElement)?.value?.trim();
-      const emailInput = (document.getElementById('email') as HTMLInputElement)?.value?.trim();
-      const countryCodeSelect = document.querySelector('select[name="country_code"]') as HTMLSelectElement;
-      const country_code = countryCodeSelect?.value?.trim();
-      const phoneInput = (document.getElementById('phone') as HTMLInputElement)?.value?.trim();
-      const genderSelect = (document.getElementById('gender') as HTMLSelectElement)?.value;
-      const passwordInput = (document.getElementById('password') as HTMLInputElement)?.value?.trim();
 
-      if (!/^\+\d{1,4}$/.test(country_code)) {
-        alert('Please enter a valid country code (e.g., +91).');
-        return;
-      }
-      if (!/^\S+@\S+\.\S+$/.test(emailInput)) {
-        alert('Please enter a valid email address.');
-        return;
-      }
-      if (!/^.*(?=.{8,})(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).*$/.test(passwordInput)) {
-        alert('Password must be at least 8 characters, include one uppercase letter, one number, and one symbol.');
-        return;
-      }
-      if (!/^\d{10}$/.test(phoneInput)) {
-        alert('Please enter a valid 10-digit mobile number.');
-        return;
-      }
-      if (!/^[A-Za-z ]+$/.test(nameInput)) {
-        alert('Name should contain only alphabets and spaces.');
-        return;
-      }
-      this.formData.name = nameInput;
-      this.formData.email = emailInput;
-      this.formData.country_code = country_code;
-      this.formData.phone = phoneInput;
-      this.formData.gender = genderSelect;
-      this.formData.password = passwordInput;
+  ngOnInit(): void {
+    this.loadCountryCodes();
+    this.loadCountries();
+    this.loadMultiSelectOptions();
+  }
 
-      // Call registerUser API
-      const userData = {
-        name: nameInput,
-        email_id: emailInput,
-        country_code: country_code,
-        mobile: phoneInput,
-        gender: genderSelect,
-        password: passwordInput
-      };
-      this.userApi.registerUser(userData).subscribe(
-        res => {
-          alert('Registration successful!');
-          this.step++;
-        },
-        err => {
-          alert('Registration failed. Please try again.');
-          // Do not increment step on error
-        }
-      );
+  // ==================== LOAD OPTIONS ====================
+
+  loadMultiSelectOptions(): void {
+    // Convert to dropdown format
+    this.educationOptions = this.registrationData.EDUCATION_OPTIONS.map(opt => ({
+      value: opt.value,
+      label: opt.label
+    }));
+
+    this.occupationOptions = this.registrationData.EMPLOYMENT_TYPE_OPTIONS.map(opt => ({
+      value: opt.value,
+      label: opt.label
+    }));
+
+    this.incomeOptions = this.registrationData.ANNUAL_INCOME_OPTIONS.map(opt => ({
+      value: opt.value,
+      label: opt.label
+    }));
+
+    this.starOptions = this.registrationData.STAR_OPTIONS.map(opt => ({
+      value: opt.value,
+      label: opt.label
+    }));
+
+    this.rasiOptions = this.registrationData.RASI_OPTIONS.map(opt => ({
+      value: opt.value,
+      label: opt.label
+    }));
+
+    // Load location options from LOCATION_DATA cities
+    const allCities = new Set<string>();
+    Object.values(LOCATION_DATA).forEach(statesObj => {
+      Object.values(statesObj).forEach(cityArray => {
+        cityArray.forEach(city => allCities.add(city));
+      });
+    });
+
+    this.locationOptions = Array.from(allCities).sort().map(city => ({
+      value: city,
+      label: city
+    }));
+  }
+
+  // ==================== LOCATION METHODS ====================
+
+  loadCountryCodes(): void {
+    this.locationService.getCountryCodes().subscribe(codes => {
+      this.countryCodes = codes;
+    });
+  }
+
+  loadCountries(): void {
+    this.locationService.getCountries().subscribe(countries => {
+      this.countries = countries;
+    });
+  }
+
+  onCountryChange(country: string): void {
+    this.formData.country = country;
+    this.formData.state = '';
+    this.formData.city = '';
+    this.states = [];
+    this.cities = [];
+
+    this.locationService.getStates(country).subscribe(states => {
+      this.states = states;
+    });
+  }
+
+  onStateChange(state: string): void {
+    this.formData.state = state;
+    this.formData.city = '';
+    this.cities = [];
+
+    this.locationService.getCities(this.formData.country, state).subscribe(cities => {
+      this.cities = cities;
+    });
+  }
+
+  // ==================== VALIDATION METHODS ====================
+
+  validateEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
+
+  validatePassword(password: string): boolean {
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    return passwordRegex.test(password);
+  }
+
+  validateMobile(mobile: string): boolean {
+    return /^\d{10}$/.test(mobile);
+  }
+
+  validateName(name: string): boolean {
+    return /^[A-Za-z\s]{2,50}$/.test(name);
+  }
+
+  clearErrors(): void {
+    this.errors = {};
+  }
+
+  addError(field: string, message: string): void {
+    this.errors[field] = message;
+  }
+
+  hasError(field: string): boolean {
+    return !!this.errors[field];
+  }
+
+  // ==================== STEP 0: USER REGISTRATION ====================
+
+  validateStep0(): boolean {
+    this.clearErrors();
+    const { country_code, name, email, mobile, gender, password, confirmPassword } = this.formData;
+
+    if (!country_code) {
+      this.addError('country_code', 'Country code is required');
+      return false;
+    }
+
+    if (!this.validateName(name)) {
+      this.addError('name', 'Name must be 2-50 characters, alphabets and spaces only');
+      return false;
+    }
+
+    if (!this.validateEmail(email)) {
+      this.addError('email', 'Invalid email address');
+      return false;
+    }
+
+    if (!this.validateMobile(mobile)) {
+      this.addError('mobile', 'Mobile must be 10 digits');
+      return false;
+    }
+
+    if (!gender) {
+      this.addError('gender', 'Gender is required');
+      return false;
+    }
+
+    if (!this.validatePassword(password)) {
+      this.addError('password', 'Password must have 8+ chars, 1 uppercase, 1 number, 1 symbol');
+      return false;
+    }
+
+    if (password !== confirmPassword) {
+      this.addError('confirmPassword', 'Passwords do not match');
+      return false;
+    }
+
+    return true;
+  }
+
+  submitStep0(): void {
+    if (!this.validateStep0()) {
+      alert('Please fix all errors before proceeding');
       return;
     }
-    // Step 1: Personal Details
-    else if (this.step === 1) {
-      // Collect personal details
-      const birth_date = (document.getElementById('birth_date') as HTMLInputElement)?.value?.trim();
-      const birth_time = (document.getElementById('birth_time') as HTMLInputElement)?.value?.trim();
-      const height = (document.getElementById('height') as HTMLInputElement)?.value?.trim();
-      const complexion = (document.getElementById('complexion') as HTMLSelectElement)?.value?.trim();
-      const caste = (document.getElementById('caste') as HTMLInputElement)?.value?.trim();
-      const sub_caste = (document.getElementById('sub_caste') as HTMLInputElement)?.value?.trim();
-      const address_line1 = (document.getElementById('address_line1') as HTMLInputElement)?.value?.trim();
-      const address_line2 = (document.getElementById('address_line2') as HTMLInputElement)?.value?.trim();
-      const city = (document.getElementById('city') as HTMLInputElement)?.value?.trim();
-      const state = (document.getElementById('state') as HTMLInputElement)?.value?.trim();
-      const country = (document.getElementById('country') as HTMLInputElement)?.value?.trim();
-      const postal_code = (document.getElementById('postal_code') as HTMLInputElement)?.value?.trim();
 
-      // Validation checks
-      if (!birth_date || !/^\d{4}-\d{2}-\d{2}$/.test(birth_date)) {
-        alert('Please enter a valid birth date (YYYY-MM-DD).');
-        return;
-      }
-      if (!birth_time || !/^([01]?\d|2[0-3]):[0-5]\d$/.test(birth_time)) {
-        alert('Please enter a valid birth time (HH:mm, 24-hour format).');
-        return;
-      }
-      if (!height || isNaN(Number(height)) || Number(height) < 100 || Number(height) > 250) {
-        alert('Please enter a valid height in cm (100-250).');
-        return;
-      }
-      if (!complexion) {
-        alert('Please select complexion.');
-        return;
-      }
-      if (!caste || !/^[A-Za-z ]+$/.test(caste)) {
-        alert('Caste should contain only alphabets and spaces.');
-        return;
-      }
-      if (sub_caste && !/^[A-Za-z ]+$/.test(sub_caste)) {
-        alert('Sub-caste should contain only alphabets and spaces.');
-        return;
-      }
-      if (!address_line1) {
-        alert('Please enter address line 1.');
-        return;
-      }
-      if (address_line2 && address_line2.length > 100) {
-        alert('Address line 2 should be less than 100 characters.');
-        return;
-      }
-      if (!city || !/^[A-Za-z ]+$/.test(city)) {
-        alert('City should contain only alphabets and spaces.');
-        return;
-      }
-      if (!state || !/^[A-Za-z ]+$/.test(state)) {
-        alert('State should contain only alphabets and spaces.');
-        return;
-      }
-      if (!country || !/^[A-Za-z ]+$/.test(country)) {
-        alert('Country should contain only alphabets and spaces.');
-        return;
-      }
-      if (!postal_code || !/^\d{6}$/.test(postal_code)) {
-        alert('Please enter a valid 6-digit postal code.');
-        return;
-      }
+    const userData = {
+      country_code: this.formData.country_code,
+      name: this.formData.name,
+      email_id: this.formData.email,
+      mobile: this.formData.mobile,
+      gender: this.formData.gender,
+      password: this.formData.password
+    };
 
-      // Save to formData
-      this.formData.birth_date = birth_date;
-      this.formData.birth_time = birth_time;
-      this.formData.height = height;
-      this.formData.complexion = complexion;
-      this.formData.caste = caste;
-      this.formData.sub_caste = sub_caste;
-      this.formData.address_line1 = address_line1;
-      this.formData.address_line2 = address_line2;
-      this.formData.city = city;
-      this.formData.state = state;
-      this.formData.country = country;
-      this.formData.postal_code = postal_code;
+    this.userApi.registerUser(userData).subscribe({
+      next: (res: any) => {
+        this.formData.user_id = res.id;
+        alert('User registration successful!');
+        this.step++;
+      },
+      error: (err: any) => {
+        alert(`Registration failed: ${err.error?.detail || 'Unknown error'}`);
+      }
+    });
+  }
 
-      // Prepare profileData for backend
-      const profileData = {
-        name: this.formData.name,
-        birth_date: birth_date,
-        birth_time: birth_time,
-        height_cm: height,
-        complexion: complexion,
-        caste: caste,
-        sub_caste: sub_caste,
-        mobile_number: this.formData.phone,
-      };
+  // ==================== STEP 1: PROFILE DETAILS ====================
 
-      this.userApi.createNewProfile(profileData).subscribe(
-        (profileRes: any) => {
-          // Get profile_id from response
-          let profile_id = profileRes?.id;
-          this.formData.profile_id = profile_id;
-          if (!profile_id) {
-            // Try to get profile_id using mobile
-            this.userApi.getProfileIdByMobileRoute(this.formData.phone).subscribe(
-              (resp: any) => {
-                profile_id = resp?.profile_id;
-                this.formData.profile_id = profile_id;
-                if (!profile_id) {
-                  alert('Profile creation failed: No profile_id returned and not found by mobile.');
-                  return;
-                }
-                // Update user profile_id by mobile (use phone from formData)
-                this.userApi.updateProfileIdByMobile(this.formData.phone, profile_id).subscribe(
-                  res => {
-                    const address = {
-                      address_type: 'Permanent',
-                      address_line1: this.formData.address_line1,
-                      address_line2: this.formData.address_line2,
-                      city: this.formData.city,
-                      state: this.formData.state,
-                      country: this.formData.country,
-                      postal_code: this.formData.postal_code,
-                      profile_id: this.formData.profile_id, // This will be set after profile creation
-                    };
-                    this.userApi.createAddress(address).subscribe(
-                      () => {
-                        alert('Personal details saved!');
-                        this.step++;
-                      },
-                      () => {
-                        alert('Failed to save address.');
-                        // Stay in same step
-                      }
-                    );
-                  },
-                  err => {
-                    alert('Failed to update user profile_id.');
-                    // Stay in same step
-                  }
-                );
-              },
-              () => {
-                alert('Profile creation failed: No profile_id returned and not found by mobile.');
+  validateStep1(): boolean {
+    this.clearErrors();
+    const {
+      height_cm, birth_date, birth_time, country, state, city,
+      physical_status, marital_status, food_preference, complexion,
+      address_line1, postal_code
+    } = this.formData;
+
+    if (!height_cm || isNaN(Number(height_cm)) || Number(height_cm) < 100 || Number(height_cm) > 250) {
+      this.addError('height_cm', 'Height must be between 100-250 cm');
+      return false;
+    }
+
+    if (!birth_date || !/^\d{4}-\d{2}-\d{2}$/.test(birth_date)) {
+      this.addError('birth_date', 'Birth date required (YYYY-MM-DD format)');
+      return false;
+    }
+
+    if (!country) {
+      this.addError('country', 'Country is required');
+      return false;
+    }
+
+    if (!state) {
+      this.addError('state', 'State is required');
+      return false;
+    }
+
+    if (!city) {
+      this.addError('city', 'City is required');
+      return false;
+    }
+
+    if (!physical_status) {
+      this.addError('physical_status', 'Physical status is required');
+      return false;
+    }
+
+    if (!marital_status) {
+      this.addError('marital_status', 'Marital status is required');
+      return false;
+    }
+
+    if (!food_preference) {
+      this.addError('food_preference', 'Food preference is required');
+      return false;
+    }
+
+    if (!complexion) {
+      this.addError('complexion', 'Complexion is required');
+      return false;
+    }
+
+    if (!address_line1) {
+      this.addError('address_line1', 'Address line 1 is required');
+      return false;
+    }
+
+    if (address_line1.length > 100) {
+      this.addError('address_line1', 'Address line 1 must be less than 100 characters');
+      return false;
+    }
+
+    if (this.formData.address_line2 && this.formData.address_line2.length > 100) {
+      this.addError('address_line2', 'Address line 2 must be less than 100 characters');
+      return false;
+    }
+
+    if (!postal_code || !/^\d{5,6}$/.test(postal_code)) {
+      this.addError('postal_code', 'Postal code must be 5-6 digits');
+      return false;
+    }
+
+    return true;
+  }
+
+  submitStep1(): void {
+    if (!this.validateStep1()) {
+      alert('Please fix all errors before proceeding');
+      return;
+    }
+
+
+    const profileData = {
+      name: this.formData.name,
+      caste: this.formData.caste,
+      religion: this.formData.religion,
+      height_cm: Number(this.formData.height_cm),
+      birth_date: this.formData.birth_date,
+      gender: this.formData.gender,
+      physical_status: this.formData.physical_status,
+      marital_status: this.formData.marital_status,
+      food_preference: this.formData.food_preference,
+      complexion: this.formData.complexion,
+      mobile_number: this.formData.mobile,
+      country: this.formData.country,
+      state: this.formData.state,
+      city: this.formData.city,
+      address_line1: this.formData.address_line1 || '',
+      address_line2: this.formData.address_line2 || '',
+      postal_code: this.formData.postal_code || '',
+      hobbies: this.formData.hobbies || '',
+      about_me: this.formData.about_me || ''
+    };
+
+    this.userApi.createNewProfile(profileData).subscribe({
+      next: (profileRes: any) => {
+        let profile_id = profileRes?.id;
+
+        if (!profile_id) {
+          this.userApi.getProfileIdByMobileRoute(this.formData.mobile).subscribe({
+            next: (resp: any) => {
+              profile_id = resp?.profile_id;
+              this.formData.profile_id = profile_id;
+
+              if (!profile_id) {
+                alert('Profile creation failed: No profile_id returned');
                 return;
               }
-            );
-            return;
-          }
-          // Update user profile_id by mobile (use phone from formData)
-          this.userApi.updateProfileIdByMobile(this.formData.phone, profile_id).subscribe(
-            res => {
-              const address = {
-                address_type: 'Permanent',
-                address_line1: this.formData.address_line1,
-                address_line2: this.formData.address_line2,
-                city: this.formData.city,
-                state: this.formData.state,
-                country: this.formData.country,
-                postal_code: this.formData.postal_code,
-                profile_id: this.formData.profile_id, // This will be set after profile creation
-              };
-              this.userApi.createAddress(address).subscribe(
-                () => {
-                  alert('Personal details saved!');
-                  this.step++;
-                },
-                () => {
-                  alert('Failed to save address.');
-                  // Stay in same step
-                }
-              );
+
+              this.linkUserToProfile(profile_id);
             },
-            err => {
-              alert('Failed to update user profile_id.');
-              // Stay in same step
+            error: () => {
+              alert('Failed to fetch profile_id');
             }
-          );
-        },
-        () => {
-          alert('Profile creation failed. Please try again.');
-          // Stay in same step
+          });
+        } else {
+          this.formData.profile_id = profile_id;
+          this.linkUserToProfile(profile_id);
         }
-      );
+      },
+      error: (err: any) => {
+        alert(`Profile creation failed: ${err.error?.detail || 'Unknown error'}`);
+      }
+    });
+  }
+
+  private linkUserToProfile(profile_id: number): void {
+    this.userApi.updateProfileIdByMobile(this.formData.mobile, profile_id).subscribe({
+      next: () => {
+        alert('Profile created and linked successfully!');
+        this.step++;
+      },
+      error: (err: any) => {
+        alert(`Failed to link profile: ${err.error?.detail || 'Unknown error'}`);
+      }
+    });
+  }
+
+  // ==================== STEP 2: FAMILY DETAILS ====================
+
+  validateStep2(): boolean {
+    this.clearErrors();
+    const { family_type, family_status, brothers, sisters } = this.formData;
+
+    if (!family_type) {
+      this.addError('family_type', 'Family type is required');
+      return false;
+    }
+
+    if (!family_status) {
+      this.addError('family_status', 'Family status is required');
+      return false;
+    }
+
+    if (brothers === null || brothers === '' || isNaN(Number(brothers)) || Number(brothers) < 0) {
+      this.addError('brothers', 'Valid number of brothers required');
+      return false;
+    }
+
+    if (sisters === null || sisters === '' || isNaN(Number(sisters)) || Number(sisters) < 0) {
+      this.addError('sisters', 'Valid number of sisters required');
+      return false;
+    }
+
+    return true;
+  }
+
+  onBrothersChange(): void {
+    const count = Number(this.formData.brothers) || 0;
+    this.brothersArray = Array(count).fill(0).map((_, i) => i);
+    this.formData.married_brothers = new Array(count).fill(false);
+  }
+
+  onSistersChange(): void {
+    const count = Number(this.formData.sisters) || 0;
+    this.sistersArray = Array(count).fill(0).map((_, i) => i);
+    this.formData.married_sisters = new Array(count).fill(false);
+  }
+
+  submitStep2(): void {
+    if (!this.validateStep2()) {
+      alert('Please fix all errors before proceeding');
       return;
     }
-    // Step 2: Family Details
-    else if (this.step === 2) {
-      // Collect family details
-      const father_name = (document.getElementById('father_name') as HTMLInputElement)?.value?.trim();
-      const father_occupation = (document.getElementById('father_occupation') as HTMLInputElement)?.value?.trim();
-      const mother_name = (document.getElementById('mother_name') as HTMLInputElement)?.value?.trim();
-      const mother_occupation = (document.getElementById('mother_occupation') as HTMLInputElement)?.value?.trim();
-      const total_siblings = (document.getElementById('total_siblings') as HTMLInputElement)?.value?.trim();
-      const married_siblings = (document.getElementById('married_siblings') as HTMLInputElement)?.value?.trim();
-      const family_type = (document.getElementById('family_type') as HTMLSelectElement)?.value?.trim();
 
-      // Validation checks
-      if (!father_name || !/^[A-Za-z ]+$/.test(father_name)) {
-        alert('Father name should contain only alphabets and spaces.');
-        return;
-      }
-      if (father_occupation && !/^[A-Za-z ]+$/.test(father_occupation)) {
-        alert('Father occupation should contain only alphabets and spaces.');
-        return;
-      }
-      if (!mother_name || !/^[A-Za-z ]+$/.test(mother_name)) {
-        alert('Mother name should contain only alphabets and spaces.');
-        return;
-      }
-      if (mother_occupation && !/^[A-Za-z ]+$/.test(mother_occupation)) {
-        alert('Mother occupation should contain only alphabets and spaces.');
-        return;
-      }
-      if (!total_siblings || isNaN(Number(total_siblings)) || Number(total_siblings) < 0) {
-        alert('Please enter a valid number for total siblings.');
-        return;
-      }
-      if (!married_siblings || isNaN(Number(married_siblings)) || Number(married_siblings) < 0) {
-        alert('Please enter a valid number for married siblings.');
-        return;
-      }
-      if (!family_type) {
-        alert('Please select family type.');
-        return;
-      }
+    const married_brothers_count = this.formData.married_brothers.filter((m: boolean) => m).length;
+    const married_sisters_count = this.formData.married_sisters.filter((m: boolean) => m).length;
 
-      // Save to formData
-      this.formData.father_name = father_name;
-      this.formData.father_occupation = father_occupation;
-      this.formData.mother_name = mother_name;
-      this.formData.mother_occupation = mother_occupation;
-      this.formData.total_siblings = total_siblings;
-      this.formData.married_siblings = married_siblings;
-      this.formData.family_type = family_type.toLowerCase();
+    const familyData = {
+      profile_id: this.formData.profile_id,
+      family_type: this.formData.family_type,
+      family_status: this.formData.family_status,
+      brothers: Number(this.formData.brothers),
+      sisters: Number(this.formData.sisters),
+      Married_brothers: married_brothers_count,
+      Married_sisters: married_sisters_count,
+      father_name: this.formData.father_name || '',
+      father_occupation: this.formData.father_occupation || '',
+      mother_name: this.formData.mother_name || '',
+      mother_occupation: this.formData.mother_occupation || '',
+      Family_description: this.formData.family_description || ''
+    };
 
-      // Prepare family_data for backend
-      const family_data = {
-        profile_id: this.formData.profile_id,
-        father_name: father_name,
-        father_occupation: father_occupation,
-        mother_name: mother_name,
-        mother_occupation: mother_occupation,
-        total_siblings: Number(total_siblings),
-        married_siblings: Number(married_siblings),
-        family_type: family_type,
-        family_status: 'TBD',
-        family_values: 'TBD'
-      };
+    this.userApi.createFamily(familyData).subscribe({
+      next: () => {
+        alert('Family details saved!');
+        this.step++;
+      },
+      error: (err: any) => {
+        alert(`Failed to save family details: ${err.error?.detail || 'Unknown error'}`);
+      }
+    });
+  }
 
-      this.userApi.createFamily(family_data).subscribe(
-        () => {
-          alert('Family details saved!');
-          this.step++;
-        },
-        () => {
-          alert('Failed to save family details.');
-          // Stay in same step
-        }
-      );
+  // ==================== STEP 3: ASTROLOGY DETAILS ====================
+
+  validateStep3(): boolean {
+    this.clearErrors();
+    const { star, rasi, lagnam, birth_place } = this.formData;
+
+    if (!star) {
+      this.addError('star', 'Star is required');
+      return false;
+    }
+
+    if (!rasi) {
+      this.addError('rasi', 'Rasi is required');
+      return false;
+    }
+
+    if (!lagnam) {
+      this.addError('lagnam', 'Lagnam is required');
+      return false;
+    }
+
+    if (!birth_place) {
+      this.addError('birth_place', 'Birth place is required');
+      return false;
+    }
+
+    if (this.formData.dosham_details && this.formData.dosham_details.length > 200) {
+      this.addError('dosham_details', 'Dosham details must be less than 200 characters');
+      return false;
+    }
+
+    return true;
+  }
+
+  submitStep3(): void {
+    if (!this.validateStep3()) {
+      alert('Please fix all errors before proceeding');
       return;
     }
-    // Step 3: Astrology Details
-    else if (this.step === 3) {
-      // Collect astrology details
-      const star = (document.getElementById('star') as HTMLInputElement)?.value?.trim();
-      const rasi = (document.getElementById('rasi') as HTMLInputElement)?.value?.trim();
-      const lagnam = (document.getElementById('lagnam') as HTMLInputElement)?.value?.trim();
-      const birth_place = (document.getElementById('birth_place') as HTMLInputElement)?.value?.trim();
-      const gotram = (document.getElementById('gotram') as HTMLInputElement)?.value?.trim();
-      const dosham_details = (document.getElementById('dosham_details') as HTMLInputElement)?.value?.trim();
-      // Horoscope file handling (optional, not uploaded here)
-      // const horoscopeFile = (document.getElementById('horoscope') as HTMLInputElement)?.files?.[0];
 
-      // Validation checks
-      if (!star || !/^[A-Za-z ]+$/.test(star)) {
-        alert('Please enter a valid star (alphabets and spaces only).');
-        return;
-      }
-      if (!rasi || !/^[A-Za-z ]+$/.test(rasi)) {
-        alert('Please enter a valid rasi (alphabets and spaces only).');
-        return;
-      }
-      if (!lagnam || !/^[A-Za-z ]+$/.test(lagnam)) {
-        alert('Please enter a valid lagnam (alphabets and spaces only).');
-        return;
-      }
-      if (!birth_place || !/^[A-Za-z ]+$/.test(birth_place)) {
-        alert('Please enter a valid birth place (alphabets and spaces only).');
-        return;
-      }
-      if (gotram && !/^[A-Za-z ]+$/.test(gotram)) {
-        alert('Gotram should contain only alphabets and spaces.');
-        return;
-      }
-      if (dosham_details && dosham_details.length > 100) {
-        alert('Dosham details should be less than 100 characters.');
-        return;
-      }
+    const astrologyData = {
+      profile_id: this.formData.profile_id,
+      star: this.formData.star,
+      rasi: this.formData.rasi,
+      kotturam: this.formData.kotturam,
+      lagnam: this.formData.lagnam,
+      birth_place: this.formData.birth_place,
+      dosham_details: this.formData.dosham_details || ''
+    };
 
-      // Save to formData
-      this.formData.star = star;
-      this.formData.rasi = rasi;
-      this.formData.lagnam = lagnam;
-      this.formData.birth_place = birth_place;
-      this.formData.gotram = gotram;
-      this.formData.dosham_details = dosham_details;
+    this.userApi.createAstrology(astrologyData).subscribe({
+      next: () => {
+        alert('Astrology details saved!');
+        this.step++;
+      },
+      error: (err: any) => {
+        alert(`Failed to save astrology details: ${err.error?.detail || 'Unknown error'}`);
+      }
+    });
+  }
 
-      // Prepare astrology_data for backend
-      const astrology_data = {
-        profile_id: this.formData.profile_id,
-        star,
-        rasi,
-        lagnam,
-        birth_place,
-        gotram,
-        dosham_details,
-        horoscope_url: null
-      };
+  // ==================== STEP 4: PROFESSIONAL DETAILS ====================
 
-      this.userApi.createAstrology(astrology_data).subscribe(
-        () => {
-          alert('Astrology details saved!');
-          this.step++;
-        },
-        () => {
-          alert('Failed to save astrology details.');
-          // Stay in same step
-        }
-      );
+  validateStep4(): boolean {
+    this.clearErrors();
+    const { education, employment_type, occupation, company_name, annual_income, work_location } = this.formData;
+
+    if (!education) {
+      this.addError('education', 'Education is required');
+      return false;
+    }
+
+    if (education === 'Others' && !this.formData.education_optional) {
+      this.addError('education_optional', 'Please specify other education');
+      return false;
+    }
+
+    if (!employment_type) {
+      this.addError('employment_type', 'Employment type is required');
+      return false;
+    }
+
+    if (!occupation) {
+      this.addError('occupation', 'Occupation is required');
+      return false;
+    }
+
+    if (!company_name) {
+      this.addError('company_name', 'Company name is required');
+      return false;
+    }
+
+    if (!annual_income) {
+      this.addError('annual_income', 'Annual income is required');
+      return false;
+    }
+
+    if (!work_location) {
+      this.addError('work_location', 'Work location is required');
+      return false;
+    }
+
+    return true;
+  }
+
+  submitStep4(): void {
+    if (!this.validateStep4()) {
+      alert('Please fix all errors before proceeding');
       return;
     }
-    // Step 4: Professional Details
-    else if (this.step === 4) {
-      // Education block
-      const degree = (document.getElementById('degree') as HTMLInputElement)?.value?.trim();
-      const specialization = (document.getElementById('specialization') as HTMLInputElement)?.value?.trim();
-      const institution = (document.getElementById('institution') as HTMLInputElement)?.value?.trim();
 
-      // Professional block
-      const company_name = (document.getElementById('company_name') as HTMLInputElement)?.value?.trim();
-      const designation = (document.getElementById('designation') as HTMLInputElement)?.value?.trim();
-      const experience_years = (document.getElementById('experience_years') as HTMLInputElement)?.value?.trim();
-      const monthly_income = (document.getElementById('monthly_income') as HTMLInputElement)?.value?.trim();
-      const annual_income = (document.getElementById('annual_income') as HTMLInputElement)?.value?.trim();
-      const work_location = (document.getElementById('work_location') as HTMLInputElement)?.value?.trim();
+    const educationValue = this.formData.education === 'Others'
+      ? this.formData.education_optional
+      : this.formData.education;
 
-      // Validation for education
-      if (!degree || !/^[A-Za-z0-9 .,-]+$/.test(degree)) {
-        alert('Please enter a valid degree.');
-        return;
-      }
-      if (!specialization || !/^[A-Za-z0-9 .,-]+$/.test(specialization)) {
-        alert('Please enter a valid specialization.');
-        return;
-      }
-      if (!institution || !/^[A-Za-z0-9 .,-]+$/.test(institution)) {
-        alert('Please enter a valid institution.');
-        return;
-      }
+    const professionalData = {
+      profile_id: this.formData.profile_id,
+      education: educationValue,
+      education_optional: this.formData.education_optional || '',
+      employment_type: this.formData.employment_type,
+      occupation: this.formData.occupation,
+      company_name: this.formData.company_name,
+      annual_income: this.formData.annual_income,
+      work_location: this.formData.work_location
+    };
 
-      // Validation for professional
-      if (!company_name || !/^[A-Za-z0-9 .,-]+$/.test(company_name)) {
-        alert('Please enter a valid company name.');
-        return;
+    this.userApi.createProfessional(professionalData).subscribe({
+      next: () => {
+        alert('Professional details saved!');
+        this.step++;
+      },
+      error: (err: any) => {
+        alert(`Failed to save professional details: ${err.error?.detail || 'Unknown error'}`);
       }
-      if (!designation || !/^[A-Za-z0-9 .,-]+$/.test(designation)) {
-        alert('Please enter a valid designation.');
-        return;
-      }
-      if (!experience_years || isNaN(Number(experience_years)) || Number(experience_years) < 0) {
-        alert('Please enter a valid experience in years.');
-        return;
-      }
-      if (!monthly_income || isNaN(Number(monthly_income)) || Number(monthly_income) < 0) {
-        alert('Please enter a valid monthly income.');
-        return;
-      }
-      if (!annual_income || isNaN(Number(annual_income)) || Number(annual_income) < 0) {
-        alert('Please enter a valid annual income.');
-        return;
-      }
-      if (!work_location || !/^[A-Za-z0-9 .,-]+$/.test(work_location)) {
-        alert('Please enter a valid work location.');
-        return;
-      }
+    });
+  }
 
-      // Save to formData
-      this.formData.degree = degree;
-      this.formData.specialization = specialization;
-      this.formData.institution = institution;
-      this.formData.company_name = company_name;
-      this.formData.designation = designation;
-      this.formData.experience_years = experience_years;
-      this.formData.monthly_income = monthly_income;
-      this.formData.annual_income = annual_income;
-      this.formData.work_location = work_location;
+  // ==================== STEP 5: PARTNER PREFERENCES ====================
 
-      // Prepare education_data
-      const education_data = {
-        profile_id: this.formData.profile_id,
-        degree: degree,
-        specialization: specialization,
-        institution: institution,
-        location: "TBD",
-        year_of_completion: 0,
-        grade_percentage: 0.0
-      };
-      // Prepare professional_data
-      const professional_data = {
-        profile_id: this.formData.profile_id,
-        company_name,
-        designation,
-        experience_years: Number(experience_years),
-        monthly_income: Number(monthly_income),
-        annual_income: Number(annual_income),
-        work_location,
-        industry: 'TBD'
-      };
+  validateStep5(): boolean {
+    this.clearErrors();
+    const { age_from, age_to, height_from, height_to } = this.formData;
 
-      // Call createEducations and createProfessional
-      this.userApi.createEducations(education_data).subscribe(
-        () => {
-          this.userApi.createProfessional(professional_data).subscribe(
-            () => {
-              alert('Education and Professional details saved!');
-              this.step++;
-            },
-            () => {
-              alert('Failed to save professional details.');
-              // Stay in same step
-            }
-          );
-        },
-        () => {
-          alert('Failed to save education details.');
-          // Stay in same step
-        }
-      );
+    if (!age_from || isNaN(Number(age_from)) || Number(age_from) < 18) {
+      this.addError('age_from', 'Age from must be 18 or greater');
+      return false;
+    }
+
+    if (!age_to || isNaN(Number(age_to)) || Number(age_to) < Number(age_from)) {
+      this.addError('age_to', 'Age to must be greater than age from');
+      return false;
+    }
+
+    if (!height_from || isNaN(Number(height_from)) || Number(height_from) < 100) {
+      this.addError('height_from', 'Height from must be 100 cm or greater');
+      return false;
+    }
+
+    if (!height_to || isNaN(Number(height_to)) || Number(height_to) < Number(height_from)) {
+      this.addError('height_to', 'Height to must be greater than height from');
+      return false;
+    }
+
+    if (!this.formData.education_preference || this.formData.education_preference.length === 0) {
+      this.addError('education_preference', 'Please select at least one education preference');
+      return false;
+    }
+
+    if (!this.formData.occupation_preference || this.formData.occupation_preference.length === 0) {
+      this.addError('occupation_preference', 'Please select at least one occupation preference');
+      return false;
+    }
+
+    if (!this.formData.income_preference || this.formData.income_preference.length === 0) {
+      this.addError('income_preference', 'Please select at least one income preference');
+      return false;
+    }
+
+    if (!this.formData.location_preference || this.formData.location_preference.length === 0) {
+      this.addError('location_preference', 'Please select at least one location preference');
+      return false;
+    }
+
+    if (!this.formData.star_preference || this.formData.star_preference.length === 0) {
+      this.addError('star_preference', 'Please select at least one star preference');
+      return false;
+    }
+
+    if (!this.formData.rasi_preference || this.formData.rasi_preference.length === 0) {
+      this.addError('rasi_preference', 'Please select at least one rasi preference');
+      return false;
+    }
+
+    return true;
+  }
+
+  submitStep5(): void {
+    if (!this.validateStep5()) {
+      alert('Please fix all errors before proceeding');
       return;
     }
-    // Step 5: Partner Preferences
-    else if (this.step === 5) {
-      // Collect partner preferences
-      const age_from = (document.getElementById('age_from') as HTMLInputElement)?.value?.trim();
-      const age_to = (document.getElementById('age_to') as HTMLInputElement)?.value?.trim();
-      const height_from = (document.getElementById('height_from') as HTMLInputElement)?.value?.trim();
-      const height_to = (document.getElementById('height_to') as HTMLInputElement)?.value?.trim();
-      const education_preference = (document.getElementById('education_preference') as HTMLInputElement)?.value?.trim();
-      const occupation_preference = (document.getElementById('occupation_preference') as HTMLInputElement)?.value?.trim();
-      const income_preference = (document.getElementById('income_preference') as HTMLInputElement)?.value?.trim();
-      const star_preference = (document.getElementById('star_preference') as HTMLInputElement)?.value?.trim();
-      const rasi_preference = (document.getElementById('rasi_preference') as HTMLInputElement)?.value?.trim();
-      const location_preference = (document.getElementById('location_preference') as HTMLInputElement)?.value?.trim();
 
-      // Validation
-      if (!age_from || isNaN(Number(age_from)) || Number(age_from) < 18) {
-        alert('Please enter a valid age from (>=18).');
-        return;
-      }
-      if (!age_to || isNaN(Number(age_to)) || Number(age_to) < Number(age_from)) {
-        alert('Please enter a valid age to (>= age from).');
-        return;
-      }
-      if (!height_from || isNaN(Number(height_from)) || Number(height_from) < 100) {
-        alert('Please enter a valid height from (>=100 cm).');
-        return;
-      }
-      if (!height_to || isNaN(Number(height_to)) || Number(height_to) < Number(height_from)) {
-        alert('Please enter a valid height to (>= height from).');
-        return;
-      }
-      if (!education_preference) {
-        alert('Please enter education preference.');
-        return;
-      }
-      if (!occupation_preference) {
-        alert('Please enter occupation preference.');
-        return;
-      }
-      if (!income_preference) {
-        alert('Please enter income preference.');
-        return;
-      }
-      if (!star_preference) {
-        alert('Please enter star preference.');
-        return;
-      }
-      if (!rasi_preference) {
-        alert('Please enter rasi preference.');
-        return;
-      }
-      if (!location_preference) {
-        alert('Please enter location preference.');
-        return;
-      }
+    const preferencesData = {
+      profile_id: this.formData.profile_id,
+      age_from: Number(this.formData.age_from),
+      age_to: Number(this.formData.age_to),
+      height_from: Number(this.formData.height_from),
+      height_to: Number(this.formData.height_to),
+      education_preference: this.formData.education_preference.join(', '),
+      occupation_preference: this.formData.occupation_preference.join(', '),
+      income_preference: this.formData.income_preference.join(', '),
+      location_preference: this.formData.location_preference.join(', '),
+      star_preference: this.formData.star_preference.join(', '),
+      rasi_preference: this.formData.rasi_preference.join(', ')
+    };
 
-      // Save to formData
-      this.formData.age_from = age_from;
-      this.formData.age_to = age_to;
-      this.formData.height_from = height_from;
-      this.formData.height_to = height_to;
-      this.formData.education_preference = education_preference;
-      this.formData.occupation_preference = occupation_preference;
-      this.formData.income_preference = income_preference;
-      this.formData.star_preference = star_preference;
-      this.formData.rasi_preference = rasi_preference;
-      this.formData.location_preference = location_preference;
+    this.userApi.createPartnerPreferences(preferencesData).subscribe({
+      next: () => {
+        alert('Partner preferences saved!');
+        this.step++;
+      },
+      error: (err: any) => {
+        alert(`Failed to save partner preferences: ${err.error?.detail || 'Unknown error'}`);
+      }
+    });
+  }
 
-      // Prepare Partner_Preferences_data
-      const Partner_Preferences_data = {
-        profile_id: this.formData.profile_id,
-        age_from: Number(age_from),
-        age_to: Number(age_to),
-        height_from: Number(height_from),
-        height_to: Number(height_to),
-        education_preference,
-        occupation_preference,
-        income_preference,
-        star_preference,
-        rasi_preference,
-        location_preference,
-        caste_preference: 'TBD',
-        other_preferences: 'TBD'
-      };
+  onEducationPreferenceChanged(selected: string[]): void {
+    this.formData.education_preference = selected;
+  }
 
-      this.userApi.createPartnerPreferences(Partner_Preferences_data).subscribe(
-        () => {
-          alert('Partner preferences saved!');
-          this.step++;
-        },
-        () => {
-          alert('Failed to save partner preferences.');
-          // Stay in same step
-        }
-      );
-      return;
-    }
-    // Step 6: Verification (OTP)
-    else if (this.step === 6) {
-      this.formData.otp = (document.getElementById('otp') as HTMLInputElement)?.value;
-      // You can add OTP validation here
-      this.globalState.profileId = this.formData.profile_id;
-      this.globalState.isUserSignedIn = true;
-      console.log('Login successful, profileId:', this.formData.profile_id);
-      this.router.navigate(['/user-page']);
-    }
-    if (this.step < 6) {
-      this.step++;
+  onOccupationPreferenceChanged(selected: string[]): void {
+    this.formData.occupation_preference = selected;
+  }
+
+  onIncomePreferenceChanged(selected: string[]): void {
+    this.formData.income_preference = selected;
+  }
+
+  onLocationPreferenceChanged(selected: string[]): void {
+    this.formData.location_preference = selected;
+  }
+
+  onStarPreferenceChanged(selected: string[]): void {
+    this.formData.star_preference = selected;
+  }
+
+  onRasiPreferenceChanged(selected: string[]): void {
+    this.formData.rasi_preference = selected;
+  }
+
+  generateSerialNumber(id: number): string {
+    // Convert id to string
+    const idStr = id.toString();
+
+    // Pad with leading zeros to length 11
+    const padded = idStr.padStart(11, '0');
+
+    // Prefix with 'CVM'
+    return `CVM${padded}`;
+  }
+
+  // ==================== STEP 6: VERIFICATION & COMPLETION ====================
+
+  completeRegistration(): void {
+    this.globalState.profileId = this.formData.profile_id;
+    this.globalState.isUserSignedIn = true;
+
+    const serial_number = this.generateSerialNumber(this.formData.profile_id);
+    this.userApi.updateSerialNumberByProfileID(serial_number, this.formData.profile_id).subscribe({
+      error: (err: any) => {
+        alert(`Failed to set serial_number in Profile: ${err.error?.detail || 'Unknown error'}`);
+        this.router.navigate(['/login']);
+      }
+    });      
+
+    this.userApi.updateIsVerifiedbyProfileID(true, this.formData.profile_id).subscribe({
+      next: () => {
+        alert('Registration completed successfully!');
+        this.router.navigate(['/user-page']);
+      },
+      error: (err: any) => {
+        alert(`Failed to set Verify in User: ${err.error?.detail || 'Unknown error'}`);
+        this.router.navigate(['/login']);
+      }
+    });
+  }
+
+  // ==================== NAVIGATION ====================
+
+  nextStep(): void {
+    if (this.step === 0) {
+      this.submitStep0();
+    } else if (this.step === 1) {
+      this.submitStep1();
+    } else if (this.step === 2) {
+      this.submitStep2();
+    } else if (this.step === 3) {
+      this.submitStep3();
+    } else if (this.step === 4) {
+      this.submitStep4();
+    } else if (this.step === 5) {
+      this.submitStep5();
+    } else if (this.step === 6) {
+      this.completeRegistration();
     }
   }
 
-  prevStep() {
+  prevStep(): void {
     if (this.step > 0) {
       this.step--;
+      this.clearErrors();
     }
+  }
+
+  getStepTitle(): string {
+    const titles = [
+      'User Registration',
+      'Personal Details',
+      'Family Background',
+      'Astrological Details',
+      'Professional Information',
+      'Partner Preferences',
+      'Verification & Completion'
+    ];
+    return titles[this.step] || 'Registration';
   }
 }
