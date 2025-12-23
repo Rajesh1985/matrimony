@@ -19,10 +19,16 @@
       <!-- User Summary Card -->
       <div class="profile-card">
         <div class="profile-avatar">
-          <app-avatar 
-            [name]="currentProfile.name" 
-            size="xl">
-          </app-avatar>
+          <!-- Display photo if available, otherwise show avatar -->
+          <div *ngIf="profilePhotoUrl; else defaultAvatar" class="photo-container">
+            <img [src]="profilePhotoUrl" alt="Profile photo" class="profile-photo-img">
+          </div>
+          <ng-template #defaultAvatar>
+            <app-avatar 
+              [name]="currentProfile.name" 
+              size="xl">
+            </app-avatar>
+          </ng-template>
         </div>
 
         <div class="profile-summary">
@@ -266,16 +272,22 @@
           <!-- Profile Header with Photo & Quick Info -->
           <div class="profile-card-header">
             <div class="profile-photo">
-              <app-avatar 
-                [name]="profile.name" 
-                size="lg">
-              </app-avatar>
+              <!-- Display photo if available, otherwise show avatar -->
+              <div *ngIf="recommendedProfilePhotos[profile.match_profile_id]; else defaultProfileAvatar" class="photo-container">
+                <img [src]="recommendedProfilePhotos[profile.match_profile_id]" alt="Profile photo" class="profile-photo-img">
+              </div>
+              <ng-template #defaultProfileAvatar>
+                <app-avatar 
+                  [name]="profile.name" 
+                  size="lg">
+                </app-avatar>
+              </ng-template>
             </div>
 
             <div class="profile-header-info">
               <div>
                 <h3 class="profile-title">{{ profile.name }}</h3>
-                <p class="profile-subtitle">ID: {{ profile.match_profile_id }}</p>
+                <p class="profile-subtitle">ID: {{ profile.serial_number }}</p>
               </div>
               <div class="profile-meta">
                 <span class="age-badge">{{ profile.age }} Yrs</span>
@@ -299,15 +311,11 @@
             </div>
 
             <div class="profile-astro">
-              <span class="badge badge-sm">{{ profile.star }}</span>
-              <span class="badge badge-sm">{{ profile.rasi }}</span>
+              <span class="text-muted">{{ profile.star }}</span>
+              <span class="text-muted">{{ profile.rasi }}</span>
             </div>
 
             <p class="profile-about">{{ profile.about_me }}</p>
-
-            <p class="last-updated">
-              Updated {{ formatTimestamp(profile.preferences_updated_at) }}
-            </p>
           </div>
 
           <!-- Profile Footer: Actions -->
@@ -351,6 +359,253 @@
     <div class="modal-footer">
       <button class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
       <button class="btn btn-primary" (click)="saveSection()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Profile View Modal -->
+<div class="modal-overlay" *ngIf="showProfileModal && selectedProfile" (click)="closeProfileModal()">
+  <div class="modal profile-modal" (click)="$event.stopPropagation()">
+    <div class="modal-close-btn" (click)="closeProfileModal()">&times;</div>
+
+    <div class="profile-card">
+      <!-- Photo Slider -->
+      <div class="profile-avatar-slider">
+        <div *ngIf="selectedProfilePhotos.length > 0; else noPhotosAvailable" class="photo-slider-container">
+          <!-- Current Photo -->
+          <div class="slider-photo">
+            <img [src]="selectedProfilePhotos[selectedProfilePhotoIndex]" 
+                 alt="Profile photo" 
+                 class="profile-photo-img">
+          </div>
+
+          <!-- Navigation Arrows -->
+          <button class="slider-arrow slider-prev" (click)="prevPhoto()" *ngIf="selectedProfilePhotos.length > 1">
+            &#10094;
+          </button>
+          <button class="slider-arrow slider-next" (click)="nextPhoto()" *ngIf="selectedProfilePhotos.length > 1">
+            &#10095;
+          </button>
+
+          <!-- Photo Indicators -->
+          <div class="slider-indicators" *ngIf="selectedProfilePhotos.length > 1">
+            <ng-container *ngFor="let idx of [0, 1]">
+              <span *ngIf="idx < selectedProfilePhotos.length"
+                    class="indicator"
+                    [class.active]="idx === selectedProfilePhotoIndex">
+              </span>
+            </ng-container>
+          </div>
+        </div>
+        
+        <ng-template #noPhotosAvailable>
+          <div class="photo-placeholder">
+            <app-avatar 
+              [name]="selectedProfile.name" 
+              size="xl">
+            </app-avatar>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Profile Summary -->
+      <div class="profile-summary">
+        <h3 class="profile-name">{{ selectedProfile.name }}</h3>
+        <p class="profile-id">ID: {{ selectedProfile.serial_number }}</p>
+        
+        <div class="profile-quick-stats">
+          <div class="stat">
+            <span class="stat-label">Age</span>
+            <span class="stat-value">{{ selectedProfile.age }} Yrs</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Height</span>
+            <span class="stat-value">{{ selectedProfile.height_cm }} cm</span>
+          </div>
+        </div>
+
+        <div class="profile-quick-info">
+          <p><strong>{{ selectedProfile.occupation }}</strong></p>
+          <p class="text-muted">{{ selectedProfile.caste }}</p>
+          <p class="text-muted">{{ selectedProfile.city }}, {{ selectedProfile.state }}</p>
+        </div>
+
+        <div class="profile-badges">
+          <span class="badge badge-primary">{{ selectedProfile.star }}</span>
+          <span class="badge badge-secondary">{{ selectedProfile.rasi }}</span>
+        </div>
+
+        <p class="profile-about">{{ selectedProfile.about_me }}</p>
+
+        <!-- Expandable Sections in Modal -->
+        <div class="modal-sections-container">
+          
+          <!-- Personal Details Section -->
+          <div class="section">
+            <div class="section-header" (click)="toggleModalSection('personal')">
+              <h4>Personal Details</h4>
+              <span class="toggle-icon" [class.open]="modalExpandedSections.personal">▼</span>
+            </div>
+            <div class="section-content" *ngIf="modalExpandedSections.personal">
+              <div class="detail-row">
+                <span class="label">Height:</span>
+                <span class="value">{{ selectedProfile.height_cm }} cm</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Physical Status:</span>
+                <span class="value">{{ selectedProfile.physical_status }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Complexion:</span>
+                <span class="value">{{ selectedProfile.complexion }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Marital Status:</span>
+                <span class="value">{{ selectedProfile.marital_status }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Hobbies:</span>
+                <span class="value">{{ selectedProfile.hobbies || 'N/A' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Professional Section -->
+          <div class="section">
+            <div class="section-header" (click)="toggleModalSection('professional')">
+              <h4>Professional</h4>
+              <span class="toggle-icon" [class.open]="modalExpandedSections.professional">▼</span>
+            </div>
+            <div class="section-content" *ngIf="modalExpandedSections.professional">
+              <div class="detail-row">
+                <span class="label">Education:</span>
+                <span class="value">{{ selectedProfile.education }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Occupation:</span>
+                <span class="value">{{ selectedProfile.occupation }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Company:</span>
+                <span class="value">{{ selectedProfile.company_name }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Income:</span>
+                <span class="value">{{ selectedProfile.annual_income }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Work Location:</span>
+                <span class="value">{{ selectedProfile.work_location }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Family Section -->
+          <div class="section">
+            <div class="section-header" (click)="toggleModalSection('family')">
+              <h4>Family</h4>
+              <span class="toggle-icon" [class.open]="modalExpandedSections.family">▼</span>
+            </div>
+            <div class="section-content" *ngIf="modalExpandedSections.family">
+              <div class="detail-row">
+                <span class="label">Family Type:</span>
+                <span class="value">{{ selectedProfile.family_type }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Status:</span>
+                <span class="value">{{ selectedProfile.family_status }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Brothers:</span>
+                <span class="value">{{ selectedProfile.brothers }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Sisters:</span>
+                <span class="value">{{ selectedProfile.sisters }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Married Brothers:</span>
+                <span class="value">{{ selectedProfile.married_brothers }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Married Sisters:</span>
+                <span class="value">{{ selectedProfile.married_sisters }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Astrology Section -->
+          <div class="section">
+            <div class="section-header" (click)="toggleModalSection('astrology')">
+              <h4>Astrology</h4>
+              <span class="toggle-icon" [class.open]="modalExpandedSections.astrology">▼</span>
+            </div>
+            <div class="section-content" *ngIf="modalExpandedSections.astrology">
+              <div class="detail-row">
+                <span class="label">Star:</span>
+                <span class="value">{{ selectedProfile.star }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Rasi:</span>
+                <span class="value">{{ selectedProfile.rasi }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Lagnam:</span>
+                <span class="value">{{ selectedProfile.lagnam }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Birth Place:</span>
+                <span class="value">{{ selectedProfile.birth_place }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Address Section -->
+          <div class="section">
+            <div class="section-header" (click)="toggleModalSection('address')">
+              <h4>Address</h4>
+              <span class="toggle-icon" [class.open]="modalExpandedSections.address">▼</span>
+            </div>
+            <div class="section-content" *ngIf="modalExpandedSections.address">
+              <div class="detail-row">
+                <span class="label">Address Line 1:</span>
+                <span class="value">{{ selectedProfile.address_line1 }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Address Line 2:</span>
+                <span class="value">{{ selectedProfile.address_line2 || 'N/A' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">City:</span>
+                <span class="value">{{ selectedProfile.city }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">State:</span>
+                <span class="value">{{ selectedProfile.state }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Country:</span>
+                <span class="value">{{ selectedProfile.country }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Postal Code:</span>
+                <span class="value">{{ selectedProfile.postal_code }}</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="profile-actions">
+          <button class="btn btn-primary btn-block" (click)="sendInterest(selectedProfile)">
+            💌 Send Interest
+          </button>
+          <button class="btn btn-secondary btn-block" (click)="addToFavorites(selectedProfile)">
+            ❤️ Add to Favorites
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </div>

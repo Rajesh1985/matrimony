@@ -67,6 +67,7 @@ class CompleteProfileResponse(BaseModel):
     lagnam: Optional[str] = None
     birth_place: Optional[str] = None
     dosham_details: Optional[str] = None
+    astrology_file_id: Optional[str] = None
     
     # Professional Info
     education: Optional[str] = None
@@ -89,6 +90,9 @@ class CompleteProfileResponse(BaseModel):
     married_brothers: Optional[int] = None
     married_sisters: Optional[int] = None
     family_description: Optional[str] = None
+    community_file_id: Optional[str] = None
+    photo_file_id_1: Optional[str] = None
+    photo_file_id_2: Optional[str] = None
     
     # Partner Preferences Info
     age_from: Optional[int] = None

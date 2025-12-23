@@ -451,6 +451,76 @@
             class="form-control"
             rows="3"></textarea>
         </div>
+
+        <!-- PHOTO UPLOAD SECTION -->
+        <div class="photo-upload-section">
+          <h3 class="photo-section-title">Add Your Photos (Up to {{ maxPhotos }})</h3>
+          <p class="photo-section-description">Upload clear, recent photos to increase your profile visibility</p>
+
+          <!-- File Input -->
+          <div class="form-group">
+            <label for="photo_input" class="file-input-label">
+              <span class="file-input-icon">📷</span>
+              <span class="file-input-text">
+                {{ queuedFiles.length > 0 ? 
+                  queuedFiles.length + ' file(s) selected' : 
+                  'Click to select up to ' + (maxPhotos - photos.length - queuedFiles.length) + ' photo(s)' }}
+              </span>
+            </label>
+            <input 
+              id="photo_input"
+              type="file" 
+              multiple 
+              accept="image/*"
+              (change)="handlePhotoSelection($event)"
+              class="file-input"
+              [disabled]="photos.length + queuedFiles.length >= maxPhotos">
+            <small class="form-hint">Formats: JPG, PNG, GIF (Max 2 files)</small>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="photoUploadError" class="error-message photo-error">
+            ⚠️ {{ photoUploadError }}
+          </div>
+
+          <!-- Upload Progress -->
+          <div *ngIf="isUploadingPhotos" class="upload-progress">
+            <div class="spinner"></div>
+            <span class="progress-text">Uploading photos… please wait</span>
+          </div>
+
+          <!-- Uploaded Photos Grid -->
+          <div *ngIf="photos.length > 0" class="photos-grid">
+            <h4 class="grid-title">{{ photos.length }} Photo(s) Uploaded</h4>
+            <div class="grid-container">
+              <div *ngFor="let photo of photos" class="photo-card">
+                <img 
+                  [src]="getThumbnailUrl(photo.thumbnail_url)" 
+                  [alt]="'Photo ' + (photos.indexOf(photo) + 1)"
+                  class="photo-thumbnail"
+                  onerror="this.src='assets/images/placeholder.png'">
+                <button 
+                  type="button"
+                  (click)="deletePhoto(photo.file_id)"
+                  class="delete-button"
+                  title="Delete photo">
+                  ✕
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Queued Files Preview -->
+          <div *ngIf="queuedFiles.length > 0" class="queued-files">
+            <p class="queued-label">{{ queuedFiles.length }} file(s) selected (will be uploaded after saving)</p>
+            <ul class="queued-list">
+              <li *ngFor="let file of queuedFiles" class="queued-item">
+                <span class="file-icon">📄</span>
+                <span class="file-name">{{ file.name }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
       </div>
 
       <!-- STEP 3: ASTROLOGY DETAILS -->

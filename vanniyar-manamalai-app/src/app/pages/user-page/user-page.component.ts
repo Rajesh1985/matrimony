@@ -4,10 +4,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { NavbarComponent } from '../../layout/navbar/navbar.component';
 import { FooterComponent } from '../../layout/footer/footer.component';
 import { GlobalStateService } from '../../global-state.service';
 import { UserPageService, UserProfileComplete, RecommendedProfile } from '../../shared/services/user-page.service';
+import { UserApiService } from '../../user-api.service';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
 
 @Component({
@@ -28,6 +30,16 @@ export class UserPageComponent implements OnInit {
   // User profile data
   currentProfile: UserProfileComplete | null = null;
   recommendedProfiles: RecommendedProfile[] = [];
+  
+  // Profile photo URLs (for current and recommended profiles)
+  profilePhotoUrl: SafeUrl | null = null;
+  recommendedProfilePhotos: { [key: number]: SafeUrl | null } = {};
+  
+  // Profile modal state
+  selectedProfile: UserProfileComplete | null = null;
+  selectedProfilePhotos: SafeUrl[] = [];
+  selectedProfilePhotoIndex = 0;
+  showProfileModal = false;
 
   // Loading and error states
   isLoading = true;
@@ -44,6 +56,15 @@ export class UserPageComponent implements OnInit {
     preferences: false
   };
 
+  // Modal expandable sections state
+  modalExpandedSections = {
+    personal: false,
+    professional: false,
+    family: false,
+    astrology: false,
+    address: false
+  };
+
   // Edit modal state
   showEditModal = false;
   editingSection: string | null = null;
@@ -51,6 +72,8 @@ export class UserPageComponent implements OnInit {
 
   constructor(
     private userPageService: UserPageService,
+    private userApi: UserApiService,
+    private sanitizer: DomSanitizer,
     private globalState: GlobalStateService,
     private router: Router
   ) {}
@@ -76,7 +99,8 @@ export class UserPageComponent implements OnInit {
       next: (profile: UserProfileComplete) => {
         this.currentProfile = profile;
         this.isLoading = false;
-        this.loadRecommendedProfiles(profile.user_id);
+        this.loadProfilePhoto();
+        this.loadRecommendedProfiles(profile.profile_id);
       },
       error: (err: any) => {
         this.error = `Failed to load profile: ${err.error?.detail || 'Unknown error'}`;
@@ -87,26 +111,96 @@ export class UserPageComponent implements OnInit {
   }
 
   /**
+   * Load profile photo thumbnail
+   * If photo_file_id_1 exists, get the thumbnail blob and convert to safe URL
+   */
+  loadProfilePhoto(): void {
+    if (!this.currentProfile || (!this.currentProfile.photo_file_id_1 && !this.currentProfile.photo_file_id_2)) {
+      console.log('No photo file IDs available');
+      return;
+    }
+
+    // Prefer photo_file_id_1, fallback to photo_file_id_2
+    const fileId = this.currentProfile.photo_file_id_1 || this.currentProfile.photo_file_id_2;
+
+    if (!fileId) {
+      console.log('No photo file ID selected');
+      return;
+    }
+
+    this.userApi.getFileThumbnail(fileId).subscribe({
+      next: (blob: Blob) => {
+        // Create object URL from blob
+        const url = URL.createObjectURL(blob);
+        // Sanitize and set as safe URL for display
+        this.profilePhotoUrl = this.sanitizer.bypassSecurityTrustUrl(url);
+        console.log('Profile photo loaded successfully:', fileId);
+      },
+      error: (err: any) => {
+        console.error('Failed to load profile photo:', err);
+        // Fallback to avatar if photo fails to load
+        this.profilePhotoUrl = null;
+      }
+    });
+  }
+
+  /**
    * Load recommended profiles based on user's partner preferences
    */
-  loadRecommendedProfiles(userId: number): void {
-    this.userPageService.getRecommendedProfiles(userId, 20).subscribe({
+  loadRecommendedProfiles(profileId: number): void {
+    this.userPageService.getRecommendedProfiles(profileId, 20).subscribe({
       next: (profiles: RecommendedProfile[]) => {
-        // Sort by match score (descending) and then by last updated (descending)
+        // Sort by match score (descending)
         this.recommendedProfiles = profiles.sort((a, b) => {
-          if (b.match_score !== a.match_score) {
-            return b.match_score - a.match_score;
-          }
-          return new Date(b.preferences_updated_at).getTime() - 
-                 new Date(a.preferences_updated_at).getTime();
+          return b.match_score - a.match_score;
         });
         this.isLoadingRecommendations = false;
+        // Load photos for all recommended profiles
+        this.loadRecommendedProfilePhotos();
       },
       error: (err: any) => {
         console.error('Failed to load recommendations:', err);
         this.recommendedProfiles = [];
         this.isLoadingRecommendations = false;
       }
+    });
+  }
+
+  /**
+   * Load thumbnail photos for all recommended profiles
+   * Uses photo_file_id_1 if available, fallback to photo_file_id_2
+   */
+  loadRecommendedProfilePhotos(): void {
+    this.recommendedProfiles.forEach((profile: RecommendedProfile) => {
+      // Check if profile has valid photo file IDs
+      if (!profile.photo_file_id_1 && !profile.photo_file_id_2) {
+        this.recommendedProfilePhotos[profile.match_profile_id] = null;
+        return;
+      }
+
+      // Prefer photo_file_id_1, fallback to photo_file_id_2
+      const fileId = profile.photo_file_id_1 || profile.photo_file_id_2;
+
+      if (!fileId) {
+        this.recommendedProfilePhotos[profile.match_profile_id] = null;
+        return;
+      }
+
+      // Fetch thumbnail for this profile
+      this.userApi.getFileThumbnail(fileId).subscribe({
+        next: (blob: Blob) => {
+          // Create object URL from blob and sanitize
+          const url = URL.createObjectURL(blob);
+          this.recommendedProfilePhotos[profile.match_profile_id] = 
+            this.sanitizer.bypassSecurityTrustUrl(url);
+          console.log(`Photo loaded for profile ${profile.match_profile_id}:`, fileId);
+        },
+        error: (err: any) => {
+          console.error(`Failed to load photo for profile ${profile.match_profile_id}:`, err);
+          // Fallback to null (will show avatar)
+          this.recommendedProfilePhotos[profile.match_profile_id] = null;
+        }
+      });
     });
   }
 
@@ -161,6 +255,14 @@ export class UserPageComponent implements OnInit {
   toggleSection(section: string): void {
     this.expandedSections[section as keyof typeof this.expandedSections] = 
       !this.expandedSections[section as keyof typeof this.expandedSections];
+  }
+
+  /**
+   * Toggle modal section expansion
+   */
+  toggleModalSection(section: string): void {
+    this.modalExpandedSections[section as keyof typeof this.modalExpandedSections] = 
+      !this.modalExpandedSections[section as keyof typeof this.modalExpandedSections];
   }
 
   /**
@@ -296,15 +398,102 @@ export class UserPageComponent implements OnInit {
    * View full profile (navigate to detail page)
    */
   viewProfile(profile: RecommendedProfile): void {
-    // TODO: Navigate to profile detail page
-    console.log('View profile:', profile);
-    // this.router.navigate(['/profile', profile.match_profile_id]);
+    // Fetch complete profile data
+    this.userPageService.getCompleteUserProfile(profile.match_profile_id).subscribe({
+      next: (completeProfile: UserProfileComplete) => {
+        this.selectedProfile = completeProfile;
+        this.selectedProfilePhotoIndex = 0;
+        this.selectedProfilePhotos = [];
+        this.showProfileModal = true;
+        
+        // Load photos for the selected profile
+        this.loadSelectedProfilePhotos(completeProfile);
+      },
+      error: (err: any) => {
+        console.error('Failed to load complete profile:', err);
+        alert(`Failed to load profile: ${err.error?.detail || 'Unknown error'}`);
+      }
+    });
+  }
+
+  /**
+   * Load photos for the selected profile in modal
+   */
+  loadSelectedProfilePhotos(profile: UserProfileComplete): void {
+    const photoIds: string[] = [];
+    
+    // Collect available photo IDs (prefer photo_file_id_1 first)
+    if (profile.photo_file_id_1) {
+      photoIds.push(profile.photo_file_id_1);
+    }
+    if (profile.photo_file_id_2) {
+      photoIds.push(profile.photo_file_id_2);
+    }
+
+    // If no photos, reset the array
+    if (photoIds.length === 0) {
+      this.selectedProfilePhotos = [];
+      return;
+    }
+
+    // Fetch thumbnails for each photo
+    photoIds.forEach((fileId: string) => {
+      this.userApi.getFileThumbnail(fileId).subscribe({
+        next: (blob: Blob) => {
+          const url = URL.createObjectURL(blob);
+          const safeUrl = this.sanitizer.bypassSecurityTrustUrl(url);
+          this.selectedProfilePhotos.push(safeUrl);
+          console.log(`Photo loaded for modal:`, fileId);
+        },
+        error: (err: any) => {
+          console.error(`Failed to load photo in modal:`, err);
+        }
+      });
+    });
+  }
+
+  /**
+   * Navigate to next photo in modal
+   */
+  nextPhoto(): void {
+    if (this.selectedProfilePhotos.length > 0) {
+      this.selectedProfilePhotoIndex = 
+        (this.selectedProfilePhotoIndex + 1) % this.selectedProfilePhotos.length;
+    }
+  }
+
+  /**
+   * Navigate to previous photo in modal
+   */
+  prevPhoto(): void {
+    if (this.selectedProfilePhotos.length > 0) {
+      this.selectedProfilePhotoIndex = 
+        (this.selectedProfilePhotoIndex - 1 + this.selectedProfilePhotos.length) % this.selectedProfilePhotos.length;
+    }
+  }
+
+  /**
+   * Close profile modal
+   */
+  closeProfileModal(): void {
+    this.showProfileModal = false;
+    this.selectedProfile = null;
+    this.selectedProfilePhotos = [];
+    this.selectedProfilePhotoIndex = 0;
+    // Reset modal sections state
+    this.modalExpandedSections = {
+      personal: false,
+      professional: false,
+      family: false,
+      astrology: false,
+      address: false
+    };
   }
 
   /**
    * Send interest to profile (future feature)
    */
-  sendInterest(profile: RecommendedProfile): void {
+  sendInterest(profile: RecommendedProfile | UserProfileComplete): void {
     // TODO: Implement send interest functionality
     alert(`Interest sent to ${profile.name}!`);
   }
@@ -312,7 +501,7 @@ export class UserPageComponent implements OnInit {
   /**
    * Add to favorites (future feature)
    */
-  addToFavorites(profile: RecommendedProfile): void {
+  addToFavorites(profile: RecommendedProfile | UserProfileComplete): void {
     // TODO: Implement favorites functionality
     alert(`${profile.name} added to favorites!`);
   }

@@ -61,11 +61,18 @@ export interface UserProfileComplete {
   height_to: number;
   preferences_updated_at: string;
   profile_updated_at: string;
+  
+  // File IDs for photos and documents
+  astrology_file_id: string | null;
+  community_file_id: string | null;
+  photo_file_id_1: string | null;
+  photo_file_id_2: string | null;
 }
 
 export interface RecommendedProfile {
   match_profile_id: number;
   match_user_id: number;
+  serial_number: string;
   name: string;
   age: number;
   height_cm: number;
@@ -78,7 +85,8 @@ export interface RecommendedProfile {
   country: string;
   about_me: string;
   match_score: number;
-  preferences_updated_at: string;
+  photo_file_id_1: string | null;
+  photo_file_id_2: string | null;
 }
 
 @Injectable({
@@ -86,7 +94,7 @@ export interface RecommendedProfile {
 })
 export class UserPageService {
   private apiUrl = 'http://89.116.134.253:8000';
-  // private apiUrl =  'http://localhost:8000';
+  //private apiUrl =  'http://localhost:8000';
 
   constructor(private http: HttpClient) {}
 
@@ -112,11 +120,11 @@ export class UserPageService {
    * Get recommended profiles for user based on partner preferences
    */
   getRecommendedProfiles(
-    userId: number,
+    profileId: number,
     limit: number = 20
   ): Observable<RecommendedProfile[]> {
     return this.http.get<RecommendedProfile[]>(
-      `${this.apiUrl}/profiles/recommendations/${userId}?limit=${limit}`
+      `${this.apiUrl}/profiles/recommendations/${profileId}?limit=${limit}`
     );
   }
 

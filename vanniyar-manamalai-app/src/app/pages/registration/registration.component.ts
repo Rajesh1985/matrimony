@@ -127,6 +127,13 @@ export class RegistrationComponent implements OnInit {
   brothersArray: number[] = [];
   sistersArray: number[] = [];
 
+  // Photo upload properties
+  photos: Array<{ file_id: string; thumbnail_url: string }> = [];
+  queuedFiles: File[] = [];
+  isUploadingPhotos: boolean = false;
+  maxPhotos: number = 2;
+  photoUploadError: string = '';
+
   constructor(
     private userApi: UserApiService,
     private locationService: LocationService,
@@ -540,13 +547,152 @@ export class RegistrationComponent implements OnInit {
 
     this.userApi.createFamily(familyData).subscribe({
       next: () => {
-        alert('Family details saved!');
-        this.step++;
+        // Family details saved, now upload queued photos if any
+        if (this.queuedFiles.length > 0) {
+          this.uploadQueuedPhotos();
+        } else {
+          alert('Family details saved!');
+          this.step++;
+        }
       },
       error: (err: any) => {
         alert(`Failed to save family details: ${err.error?.detail || 'Unknown error'}`);
       }
     });
+  }
+
+  // ==================== STEP 2: PHOTO UPLOAD ====================
+
+  /**
+   * Handle file selection from input element
+   * Limits selection to max 2 files
+   */
+  handlePhotoSelection(event: any): void {
+    this.photoUploadError = '';
+    const selectedFiles = event.target.files as FileList;
+    
+    if (!selectedFiles || selectedFiles.length === 0) {
+      return;
+    }
+
+    // Convert FileList to array and check constraints
+    const newFiles = Array.from(selectedFiles) as File[];
+    const totalFiles = this.photos.length + this.queuedFiles.length + newFiles.length;
+
+    // Check max photo limit
+    if (totalFiles > this.maxPhotos) {
+      this.photoUploadError = `You can upload maximum ${this.maxPhotos} photos. You already have ${this.photos.length} uploaded.`;
+      event.target.value = ''; // Clear file input
+      return;
+    }
+
+    // Add new files to queue
+    this.queuedFiles.push(...newFiles);
+  }
+
+  /**
+   * Upload all queued files sequentially
+   */
+  uploadQueuedPhotos(): void {
+    if (this.queuedFiles.length === 0) {
+      this.step++;
+      return;
+    }
+
+    this.isUploadingPhotos = true;
+    this.photoUploadError = '';
+    this.uploadNextPhoto(0);
+  }
+
+  /**
+   * Recursively upload photos one by one
+   */
+  private uploadNextPhoto(index: number): void {
+    if (index >= this.queuedFiles.length) {
+      // All files uploaded successfully
+      this.isUploadingPhotos = false;
+      this.queuedFiles = [];
+      alert('All photos uploaded successfully!');
+      this.step++;
+      return;
+    }
+
+    const file = this.queuedFiles[index];
+    this.userApi.uploadProfilePhoto(file, this.formData.profile_id).subscribe({
+      next: (response: any) => {
+        // Backend returns: { status, file_id, thumbnail_url, profile_id, message }
+        if (response.status === 'success' && response.file_id && response.thumbnail_url) {
+          this.photos.push({
+            file_id: response.file_id,
+            thumbnail_url: response.thumbnail_url
+          });
+          // Upload next photo
+          this.uploadNextPhoto(index + 1);
+        } else {
+          this.handlePhotoUploadError(response, file.name);
+        }
+      },
+      error: (err: any) => {
+        this.handlePhotoUploadError(err, file.name);
+      }
+    });
+  }
+
+  /**
+   * Handle photo upload errors with detailed messages
+   */
+  private handlePhotoUploadError(error: any, fileName: string): void {
+    const errorDetail = error.error?.detail || error.message || 'Unknown error';
+    
+    let errorMessage = `Failed to upload ${fileName}: ${errorDetail}`;
+
+    // Handle specific error enums from backend
+    if (error.error?.detail) {
+      const detail = error.error.detail.toLowerCase();
+      
+      if (detail.includes('size_exceeded') || detail.includes('too large')) {
+        errorMessage = `File ${fileName} is too large. Please use a smaller image.`;
+      } else if (detail.includes('virus_found') || detail.includes('malicious')) {
+        errorMessage = `File ${fileName} failed security scan. Please try another image.`;
+      } else if (detail.includes('no_free_slot') || detail.includes('max') || detail.includes('limit')) {
+        errorMessage = `You've reached the maximum number of photos (${this.maxPhotos}). Please delete a photo before uploading another.`;
+      }
+    }
+
+    this.photoUploadError = errorMessage;
+    this.isUploadingPhotos = false;
+    alert(errorMessage);
+  }
+
+  /**
+   * Delete a photo by file_id
+   */
+  deletePhoto(file_id: string): void {
+    if (!confirm('Are you sure you want to delete this photo?')) {
+      return;
+    }
+
+    this.userApi.deleteProfilePhoto(file_id, this.formData.profile_id).subscribe({
+      next: () => {
+        // Remove from photos array
+        this.photos = this.photos.filter(p => p.file_id !== file_id);
+        alert('Photo deleted successfully');
+      },
+      error: (err: any) => {
+        const errorMsg = err.error?.detail || 'Failed to delete photo';
+        alert(`Error: ${errorMsg}`);
+      }
+    });
+  }
+
+  /**
+   * Get safe thumbnail URL with fallback
+   */
+  getThumbnailUrl(thumbnail_url: string): string {
+    if (!thumbnail_url) {
+      return 'assets/images/placeholder.png'; // Add a placeholder image
+    }
+    return thumbnail_url;
   }
 
   // ==================== STEP 3: ASTROLOGY DETAILS ====================

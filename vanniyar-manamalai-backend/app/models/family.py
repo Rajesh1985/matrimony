@@ -42,3 +42,7 @@ class FamilyDetails(Base):
     family_type = Column(String(20), default='nuclear')
     family_status = Column(Enum(FamilyStatusEnum))
     Family_description = Column(Text)  # Note: Capital 'F' to match DB
+    
+    # Photo references
+    photo_file_id_1 = Column(String(36), ForeignKey("files.id", ondelete="SET NULL"), nullable=True)
+    photo_file_id_2 = Column(String(36), ForeignKey("files.id", ondelete="SET NULL"), nullable=True)
