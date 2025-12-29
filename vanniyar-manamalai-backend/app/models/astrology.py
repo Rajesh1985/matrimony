@@ -61,4 +61,4 @@ class AstrologyDetails(Base):
     birth_place = Column(String(100))
     Kotturam = Column(Enum(KotturaEnum))
     dosham_details = Column(Text)
-    file_id = Column(CHAR(36), nullable=False)  # UUID for horoscope file reference
+    file_id = Column(CHAR(36), nullable=True)  # UUID for horoscope file reference (optional)

@@ -357,3 +357,63 @@ def generate_file_id() -> str:
         UUID v4 string
     """
     return str(uuid.uuid4())
+
+
+# ==================== PDF CONVERSION ====================
+
+def image_to_pdf(image_bytes: bytes, mime_type: str = "image/jpeg") -> Tuple[Optional[bytes], Optional[str]]:
+    """
+    Convert image to PDF
+    
+    Args:
+        image_bytes: Image file bytes
+        mime_type: MIME type of image
+    
+    Returns:
+        Tuple[pdf_bytes, error_message]
+        - (pdf_bytes, None) if successful
+        - (None, error_msg) if failed
+    
+    Purpose: Convert uploaded images (JPEG, PNG) to PDF for community certificates
+    Preserves image quality and dimensions
+    """
+    try:
+        # Open image from bytes
+        img = Image.open(io.BytesIO(image_bytes))
+        
+        # Convert RGBA to RGB if needed (PDF doesn't support transparency)
+        if img.mode == 'RGBA':
+            rgb_img = Image.new('RGB', img.size, (255, 255, 255))
+            rgb_img.paste(img, mask=img.split()[3])  # Use alpha channel as mask
+            img = rgb_img
+        elif img.mode != 'RGB':
+            img = img.convert('RGB')
+        
+        # Convert to PDF
+        pdf_bytes = io.BytesIO()
+        img.save(pdf_bytes, format='PDF', quality=95)
+        return pdf_bytes.getvalue(), None
+    
+    except Exception as e:
+        error_msg = f"Image to PDF conversion failed: {str(e)}"
+        print(f"[PDF CONVERSION ERROR] {error_msg}")
+        return None, error_msg
+
+
+def validate_pdf_file(file_content: bytes) -> Tuple[bool, Optional[str]]:
+    """
+    Validate PDF file
+    
+    Args:
+        file_content: File bytes
+    
+    Returns:
+        Tuple[is_valid, error_message]
+    """
+    try:
+        # Check PDF header
+        if not file_content.startswith(b'%PDF-'):
+            return False, "INVALID_PDF_FORMAT"
+        return True, None
+    except Exception as e:
+        return False, f"PDF validation error: {str(e)}"

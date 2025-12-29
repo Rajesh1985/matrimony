@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class UserApiService {
-  private baseUrl = 'http://89.116.134.253:8000';
-  //private baseUrl = 'http://localhost:8000';
+  //private baseUrl = 'http://89.116.134.253:8000';
+  private baseUrl = 'http://localhost:8000';
 
   constructor(private http: HttpClient) {}
 
@@ -709,5 +709,150 @@ export class UserApiService {
    */
   getFileStatistics(): Observable<any> {
     return this.http.get(`${this.baseUrl}/files/admin/statistics`);
+  }
+
+  /**
+   * Upload community certificate (PDF or image)
+   * POST /files/upload/comm-cert
+   * 
+   * Uploads a community certificate file (PDF or image).
+   * Backend processes:
+   * 1. Validate file size < 10MB
+   * 2. Validate file type (PDF, JPEG, PNG, GIF, WebP)
+   * 3. Scan for viruses with ClamAV
+   * 4. Convert images to PDF (if needed)
+   * 5. Check for duplicates
+   * 6. Store file with UUID
+   * 7. Auto-link to family_details.community_file_id
+   * 
+   * @param file - File to upload (PDF or image)
+   * @param profileId - Profile ID to associate file with
+   * @returns Observable with response: { status, file_id, filename, profile_id } or error
+   */
+  communityCertupload(file: File, profileId: number): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(
+      `${this.baseUrl}/files/upload/comm-cert?profile_id=${profileId}`,
+      formData
+    );
+  }
+
+  /**
+   * Get community certificate file
+   * GET /files/{file_id}/comm-cert
+   * 
+   * Purpose: Retrieve and serve community certificate file
+   * 
+   * Returns the community certificate file (PDF or converted image format).
+   * Backend returns FileResponse with certificate file from disk.
+   * 
+   * Response Type:
+   * - Media Type: application/pdf or image/* (based on file type)
+   * - Format: PDF or image format as stored
+   * 
+   * Error Handling:
+   * - 404 File not found: Invalid file_id
+   * - 404 Certificate not found: File exists but not a certificate
+   * - 403 Forbidden: Profile ID mismatch or no permission
+   * 
+   * Use Cases:
+   * - Download community certificate
+   * - View/preview certificate
+   * - Verify certificate authenticity
+   * 
+   * @param fileId - File ID to retrieve certificate for
+   * @returns Observable<Blob> - Certificate file blob
+   * 
+   * Example Usage:
+   * ```typescript
+   * this.userApi.getCommunityCert('uuid-string').subscribe(
+   *   (blob: Blob) => {
+   *     const url = URL.createObjectURL(blob);
+   *     // Download or preview the file
+   *   },
+   *   (error) => console.error('Failed to load certificate:', error)
+   * );
+   * ```
+   */
+  getCommunityCert(fileId: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/files/${fileId}/comm-cert`, {
+      responseType: 'blob'
+    });
+  }
+
+  /**
+   * Delete community certificate
+   * DELETE /files/delete/comm-cert/{file_id}
+   * 
+   * Delete community certificate file and auto-unlink from family_details.community_file_id
+   * 
+   * @param fileId - File ID to delete
+   * @param profileId - Profile ID (for verification)
+   * @returns Observable with response: { status, message } or error
+   */
+  deleteCommunityCert(fileId: string, profileId: number): Observable<any> {
+    return this.http.delete(
+      `${this.baseUrl}/files/delete/comm-cert/${fileId}?profile_id=${profileId}`
+    );
+  }
+
+  /**
+   * Upload horoscope file (PDF or image)
+   * POST /files/upload/horoscope
+   * 
+   * Uploads a horoscope file (PDF or image).
+   * Backend processes:
+   * 1. Validate file size < 10MB
+   * 2. Validate file type (PDF, JPEG, PNG, GIF, WebP)
+   * 3. Scan for viruses with ClamAV
+   * 4. Convert images to PDF (if needed)
+   * 5. Check for duplicates
+   * 6. Store file with UUID
+   * 7. Auto-link to astrology_details.file_id
+   * 
+   * @param file - File to upload (PDF or image)
+   * @param profileId - Profile ID to associate file with
+   * @returns Observable with response: { status, file_id, filename, profile_id } or error
+   */
+  uploadHoroscope(file: File, profileId: number): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(
+      `${this.baseUrl}/files/upload/horoscope?profile_id=${profileId}`,
+      formData
+    );
+  }
+
+  /**
+   * Get horoscope file
+   * GET /files/{file_id}/horoscope
+   * 
+   * Purpose: Retrieve and serve horoscope file
+   * 
+   * Returns the horoscope file (PDF) for download/preview.
+   * 
+   * @param fileId - File ID to retrieve horoscope for
+   * @returns Observable<Blob> - Horoscope file blob
+   */
+  getHoroscope(fileId: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/files/${fileId}/horoscope`, {
+      responseType: 'blob'
+    });
+  }
+
+  /**
+   * Delete horoscope file
+   * DELETE /files/delete/horoscope/{file_id}
+   * 
+   * Delete horoscope file and auto-unlink from astrology_details.file_id
+   * 
+   * @param fileId - File ID to delete
+   * @returns Observable with response: { status, message } or error
+   */
+  deleteHoroscope(fileId: string): Observable<any> {
+    return this.http.delete(
+      `${this.baseUrl}/files/delete/horoscope/${fileId}`
+    );
   }
 }

@@ -93,6 +93,7 @@ def update_profile_route(profile_id: int, profile: ProfileUpdate, db: Session = 
     
     Only mobile_number and city will be updated, other fields remain unchanged.
     """
+    print(f"[update_profile] Updating profile ID {profile_id} with data: {profile}")
     db_profile = update_profile(db, profile_id, profile)
     
     if db_profile is None:

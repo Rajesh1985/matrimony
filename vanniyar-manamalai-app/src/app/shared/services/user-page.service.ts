@@ -13,6 +13,8 @@ export interface UserProfileComplete {
   mobile: string;
   gender: string;
   age: number;
+  birth_date: string | null;
+  birth_time: string | null;
   height_cm: number;
   caste: string;
   religion: string;
@@ -93,8 +95,8 @@ export interface RecommendedProfile {
   providedIn: 'root'
 })
 export class UserPageService {
-  private apiUrl = 'http://89.116.134.253:8000';
-  //private apiUrl =  'http://localhost:8000';
+  //private apiUrl = 'http://89.116.134.253:8000';
+  private apiUrl =  'http://localhost:8000';
 
   constructor(private http: HttpClient) {}
 
@@ -142,7 +144,7 @@ export class UserPageService {
    * Update profile details (personal, address)
    */
   updateProfile(profileId: number, data: any): Observable<any> {
-    return this.http.put(
+    return this.http.patch(
       `${this.apiUrl}/profiles/${profileId}`,
       data
     );

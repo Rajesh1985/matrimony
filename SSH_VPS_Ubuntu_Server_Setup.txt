@@ -184,3 +184,5 @@ sudo systemctl restart nginx
 sudo supervisorctl restart manamalai_fastapi
 
 
+sudo apt update
+sudo apt install clamav -y

@@ -4,13 +4,14 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { DomSanitizer, SafeUrl, SafeResourceUrl } from '@angular/platform-browser';
 import { NavbarComponent } from '../../layout/navbar/navbar.component';
 import { FooterComponent } from '../../layout/footer/footer.component';
 import { GlobalStateService } from '../../global-state.service';
 import { UserPageService, UserProfileComplete, RecommendedProfile } from '../../shared/services/user-page.service';
 import { UserApiService } from '../../user-api.service';
 import { AvatarComponent } from '../../shared/components/avatar/avatar.component';
+import { REGISTRATION_DATA } from '../../shared/constants/registration-data.constants';
 
 @Component({
   selector: 'app-user-page',
@@ -69,6 +70,28 @@ export class UserPageComponent implements OnInit {
   showEditModal = false;
   editingSection: string | null = null;
   editFormData: any = {};
+
+  // Community certificate modal state
+  showCertificateModal = false;
+  certificateUrl: SafeResourceUrl | null = null;
+  certificateBlobUrl: string = ''; // Store the actual blob URL for downloads
+  certificateFileName: string = '';
+  certificateLoading = false;
+  certificateError: string | null = null;
+
+  // Horoscope modal state
+  showHoroscopeModal = false;
+  horoscopeUrl: SafeResourceUrl | null = null;
+  horoscopeBlobUrl: string = ''; // Store the actual blob URL for downloads
+  horoscopeFileName: string = '';
+  horoscopeLoading = false;
+  horoscopeError: string | null = null;
+
+  // Dropdown options for personal section
+  complexionOptions = REGISTRATION_DATA.COMPLEXION_OPTIONS;
+  physicalStatusOptions = REGISTRATION_DATA.PHYSICAL_STATUS_OPTIONS;
+  maritalStatusOptions = REGISTRATION_DATA.MARITAL_STATUS_OPTIONS;
+  foodPreferenceOptions = REGISTRATION_DATA.FOOD_PREFERENCE_OPTIONS;
 
   constructor(
     private userPageService: UserPageService,
@@ -276,11 +299,17 @@ export class UserPageComponent implements OnInit {
     switch (section) {
       case 'personal':
         this.editFormData = {
+          name: this.currentProfile?.name,
+          birth_date: this.currentProfile?.birth_date || null,
+          birth_time: this.currentProfile?.birth_time || null,
           height_cm: this.currentProfile?.height_cm,
-          physical_status: this.currentProfile?.physical_status,
           complexion: this.currentProfile?.complexion,
+          mobile_number: this.currentProfile?.mobile,
           hobbies: this.currentProfile?.hobbies,
-          about_me: this.currentProfile?.about_me
+          about_me: this.currentProfile?.about_me,
+          physical_status: this.currentProfile?.physical_status,
+          marital_status: this.currentProfile?.marital_status,
+          food_preference: this.currentProfile?.food_preference
         };
         break;
 
@@ -350,36 +379,49 @@ export class UserPageComponent implements OnInit {
     const profileId = this.currentProfile.profile_id;
 
     let updateObservable: any;
+    let successMessage = 'Section updated successfully!';
 
     switch (this.editingSection) {
       case 'personal':
-      case 'address':
-        // Both personal and address are in profiles table
+        // Send personal data as-is with mobile_number field
+        // Backend expects: name, birth_date (YYYY-MM-DD), birth_time (HH:MM:SS or null),
+        // height_cm, complexion, mobile_number, hobbies, about_me, physical_status,
+        // marital_status, food_preference
         updateObservable = this.userPageService.updateProfile(profileId, this.editFormData);
+        successMessage = 'Personal details updated successfully!';
+        break;
+      case 'address':
+        updateObservable = this.userPageService.updateProfile(profileId, this.editFormData);
+        successMessage = 'Address details updated successfully!';
         break;
       case 'professional':
         updateObservable = this.userPageService.updateProfessional(profileId, this.editFormData);
+        successMessage = 'Professional details updated successfully!';
         break;
       case 'family':
         updateObservable = this.userPageService.updateFamily(profileId, this.editFormData);
+        successMessage = 'Family details updated successfully!';
         break;
       case 'astrology':
         updateObservable = this.userPageService.updateAstrology(profileId, this.editFormData);
+        successMessage = 'Astrology details updated successfully!';
         break;
       case 'preferences':
         updateObservable = this.userPageService.updatePartnerPreferences(profileId, this.editFormData);
+        successMessage = 'Partner preferences updated successfully!';
         break;
     }
 
     if (updateObservable) {
       updateObservable.subscribe({
         next: () => {
-          alert('Section updated successfully!');
+          alert(successMessage);
           this.closeEditModal();
           this.loadUserProfile(); // Reload profile
         },
         error: (err: any) => {
-          alert(`Failed to update: ${err.error?.detail || 'Unknown error'}`);
+          const errorMessage = err.error?.detail || err.error?.message || 'Unknown error';
+          alert(`Failed to update: ${errorMessage}`);
         }
       });
     }
@@ -504,5 +546,147 @@ export class UserPageComponent implements OnInit {
   addToFavorites(profile: RecommendedProfile | UserProfileComplete): void {
     // TODO: Implement favorites functionality
     alert(`${profile.name} added to favorites!`);
+  }
+
+  /**
+   * View community certificate
+   * Loads the certificate file from backend and displays it in modal
+   */
+  viewCommunityCertificate(): void {
+    if (!this.currentProfile?.community_file_id) {
+      this.certificateError = 'No community certificate uploaded';
+      return;
+    }
+
+    this.certificateLoading = true;
+    this.certificateError = null;
+    this.certificateUrl = null;
+    this.certificateBlobUrl = '';
+
+    const fileId = this.currentProfile.community_file_id;
+
+    this.userApi.getCommunityCert(fileId).subscribe({
+      next: (blob: Blob) => {
+        // Create object URL from PDF blob
+        const url = URL.createObjectURL(blob);
+        // Store both the raw blob URL and sanitized version
+        this.certificateBlobUrl = url; // For downloads
+        this.certificateUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url); // For iframe
+        this.certificateFileName = `Community_Certificate_${this.currentProfile?.serial_number}.pdf`;
+        this.showCertificateModal = true;
+        this.certificateLoading = false;
+        console.log('Community certificate loaded successfully:', fileId);
+      },
+      error: (err: any) => {
+        console.error('Failed to load community certificate:', err);
+        this.certificateError = `Failed to load certificate: ${err.error?.detail || err.statusText || 'Unknown error'}`;
+        this.certificateLoading = false;
+      }
+    });
+  }
+
+  /**
+   * Close community certificate modal
+   */
+  closeCertificateModal(): void {
+    this.showCertificateModal = false;
+    // Clean up blob URL
+    if (this.certificateBlobUrl) {
+      URL.revokeObjectURL(this.certificateBlobUrl);
+    }
+    this.certificateUrl = null;
+    this.certificateBlobUrl = '';
+    this.certificateFileName = '';
+    this.certificateError = null;
+  }
+
+  /**
+   * Download community certificate
+   */
+  downloadCertificate(): void {
+    if (!this.certificateBlobUrl || !this.certificateFileName) {
+      alert('Certificate not loaded');
+      return;
+    }
+
+    // Create a temporary link to trigger download
+    const link = document.createElement('a');
+    link.href = this.certificateBlobUrl;
+    link.download = this.certificateFileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  /**
+   * View horoscope
+   * Loads the horoscope file from backend and displays it in modal
+   */
+  viewHoroscope(): void {
+    if (!this.currentProfile?.astrology_file_id) {
+      this.horoscopeError = 'No horoscope uploaded';
+      this.showHoroscopeModal = true;
+      return;
+    }
+
+    this.horoscopeLoading = true;
+    this.horoscopeError = null;
+    this.horoscopeUrl = null;
+    this.horoscopeBlobUrl = '';
+
+    const fileId = this.currentProfile.astrology_file_id;
+
+    this.userApi.getHoroscope(fileId).subscribe({
+      next: (blob: Blob) => {
+        // Create object URL from PDF blob
+        const url = URL.createObjectURL(blob);
+        // Store both the raw blob URL and sanitized version
+        this.horoscopeBlobUrl = url; // For downloads
+        this.horoscopeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url); // For iframe
+        this.horoscopeFileName = `${this.currentProfile?.serial_number}_horoscope.pdf`;
+        this.showHoroscopeModal = true;
+        this.horoscopeLoading = false;
+        console.log('Horoscope loaded successfully:', fileId);
+      },
+      error: (err: any) => {
+        console.error('Failed to load horoscope:', err);
+        this.horoscopeError = `Failed to load horoscope: ${err.error?.detail || err.statusText || 'Unknown error'}`;
+        this.horoscopeLoading = false;
+        this.showHoroscopeModal = true;
+      }
+    });
+  }
+
+  /**
+   * Close horoscope modal
+   */
+  closeHoroscopeModal(): void {
+    this.showHoroscopeModal = false;
+    // Clean up blob URL
+    if (this.horoscopeBlobUrl) {
+      URL.revokeObjectURL(this.horoscopeBlobUrl);
+    }
+    this.horoscopeUrl = null;
+    this.horoscopeBlobUrl = '';
+    this.horoscopeFileName = '';
+    this.horoscopeError = null;
+  }
+
+  /**
+   * Download horoscope
+   */
+  downloadHoroscope(): void {
+    if (!this.horoscopeBlobUrl || !this.horoscopeFileName) {
+      alert('Horoscope not loaded');
+      return;
+    }
+
+    // Create a temporary link to trigger download
+    const link = document.createElement('a');
+    link.href = this.horoscopeBlobUrl;
+    link.download = this.horoscopeFileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 }

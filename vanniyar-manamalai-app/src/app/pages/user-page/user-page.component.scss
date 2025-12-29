@@ -884,6 +884,111 @@ $bp-desktop: 1440px;
   }
 }
 
+// ==================== FORM STYLES ====================
+.edit-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    label {
+      font-weight: 600;
+      font-size: 13px;
+      color: $color-text;
+      text-transform: capitalize;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="date"],
+    input[type="time"],
+    textarea,
+    select {
+      padding: 10px 12px;
+      border: 1px solid $color-border;
+      border-radius: $border-radius;
+      font-size: 13px;
+      font-family: inherit;
+      color: $color-text;
+      background-color: $color-white;
+      transition: $transition;
+
+      &:focus {
+        outline: none;
+        border-color: $color-primary;
+        box-shadow: 0 0 0 3px rgba($color-primary, 0.1);
+      }
+
+      &::placeholder {
+        color: $color-muted;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        background-color: #3a3a3a;
+        color: #e0e0e0;
+        border-color: #555;
+
+        &::placeholder {
+          color: #999;
+        }
+
+        &:focus {
+          border-color: $color-primary;
+        }
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      max-height: 200px;
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+
+      @media (prefers-color-scheme: dark) {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23e0e0e0' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      }
+    }
+
+    &.error {
+      input,
+      textarea,
+      select {
+        border-color: #dc3545;
+
+        &:focus {
+          border-color: #dc3545;
+          box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+        }
+      }
+
+      .error-message {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 4px;
+      }
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .form-group label {
+      color: #e0e0e0;
+    }
+  }
+}
+
 // ==================== PROFILE MODAL ====================
 .profile-modal {
   max-width: 600px;
@@ -1121,6 +1226,190 @@ $bp-desktop: 1440px;
 // ==================== UTILITIES ====================
 .text-muted {
   color: $color-muted;
+}
+
+// Certificate Section
+.certificate-section {
+  padding: 12px 0;
+  border-top: 1px solid $color-border;
+
+  .btn-sm {
+    font-size: 12px;
+    padding: 6px 12px;
+    background: $color-primary;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover {
+      background: darken($color-primary, 10%);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// Certificate Modal
+.certificate-modal {
+  max-width: 900px;
+  width: 90%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+
+  .certificate-body {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #f5f5f5;
+
+    @media (prefers-color-scheme: dark) {
+      background: #1a1a1a;
+    }
+  }
+
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 40px;
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid $color-border;
+      border-top-color: $color-primary;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    p {
+      font-size: 16px;
+      color: $color-muted;
+    }
+  }
+
+  .error-state {
+    width: 100%;
+    padding: 20px;
+
+    .alert {
+      padding: 16px;
+      border-radius: $border-radius;
+      background: #ffe0e0;
+      color: #c00;
+      border: 1px solid #ff9999;
+
+      strong {
+        font-weight: 600;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        background: rgba(255, 0, 0, 0.1);
+        color: #ff6b6b;
+      }
+    }
+  }
+
+  .certificate-display {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+
+    .certificate-viewer {
+      width: 100%;
+      height: 100%;
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      border-radius: $border-radius;
+      overflow: hidden;
+
+      @media (prefers-color-scheme: dark) {
+        background: #2d2d2d;
+      }
+    }
+
+    .certificate-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      min-height: 400px;
+    }
+
+    .certificate-filename {
+      font-size: 14px;
+      color: $color-muted;
+      text-align: center;
+      margin: 0;
+      padding: 8px;
+      max-width: 100%;
+      word-break: break-word;
+    }
+  }
+
+  .horoscope-display {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+
+    .horoscope-viewer {
+      width: 100%;
+      height: 100%;
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      border-radius: $border-radius;
+      overflow: hidden;
+
+      @media (prefers-color-scheme: dark) {
+        background: #2d2d2d;
+      }
+    }
+
+    .horoscope-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      min-height: 400px;
+    }
+
+    .horoscope-filename {
+      font-size: 14px;
+      color: $color-muted;
+      text-align: center;
+      margin: 0;
+      padding: 8px;
+      max-width: 100%;
+      word-break: break-word;
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 // ==================== ACCESSIBILITY ====================

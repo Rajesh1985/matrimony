@@ -99,6 +99,7 @@ def find_duplicate_by_checksum(db: Session, checksum: str) -> Optional[File]:
     Returns:
         Existing File object if duplicate found, None otherwise
     """
+    print(f"[find_duplicate_by_checksum] Checking for duplicate with checksum: {checksum}")
     return db.query(File).filter(
         and_(
             File.checksum == checksum,
@@ -278,6 +279,69 @@ def unassign_photo_from_slot(db: Session, file_id: str) -> bool:
     elif family.photo_file_id_2 == file_id:
         family.photo_file_id_2 = None
     
+    db.commit()
+    return True
+
+
+# ==================== COMMUNITY CERTIFICATE ASSIGNMENT ====================
+
+def assign_community_cert_to_family(
+    db: Session,
+    profile_id: int,
+    file_id: str
+) -> Tuple[bool, Optional[str]]:
+    """
+    Assign community certificate file to family_details
+    
+    Args:
+        db: Database session
+        profile_id: Profile ID
+        file_id: File ID to assign
+    
+    Returns:
+        Tuple[success, error_message]
+        - (True, None) if successful
+        - (False, error_msg) if error (e.g., slot already taken)
+    """
+    family = db.query(FamilyDetails).filter(FamilyDetails.profile_id == profile_id).first()
+    
+    if not family:
+        # Create family record if doesn't exist
+        family = FamilyDetails(profile_id=profile_id)
+        db.add(family)
+        db.flush()
+    
+    # Check if community certificate already assigned
+    if family.community_file_id is not None:
+        return False, "Community certificate already uploaded for this profile"
+    
+    # Assign to community_file_id
+    family.community_file_id = file_id
+    db.commit()
+    return True, None
+
+
+def unassign_community_cert_from_family(db: Session, file_id: str) -> bool:
+    """
+    Unassign community certificate from family_details
+    
+    Args:
+        db: Database session
+        file_id: File ID to unassign
+    
+    Returns:
+        True if successful, False if not found
+    """
+    # Find family record with this file_id
+    family = db.query(FamilyDetails).filter(
+        FamilyDetails.community_file_id == file_id
+    ).first()
+    
+    if not family:
+        return False
+    
+    # Unassign from community_file_id
+    family.community_file_id = None
     db.commit()
     return True
 

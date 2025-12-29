@@ -25,12 +25,14 @@ class FileUploadResponse(BaseModel):
     """Successful file upload response"""
     status: str = "success"
     file_id: str
-    thumbnail_url: str
+    thumbnail_url: Optional[str] = None
+    filename: Optional[str] = None
     profile_id: Optional[int] = None
     original_name: Optional[str] = None
     mime_type: Optional[str] = None
     size_bytes: Optional[int] = None
     processing_status: str = "ready"
+    message: Optional[str] = None
 
     class Config:
         from_attributes = True

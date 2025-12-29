@@ -157,6 +157,16 @@
               <span class="label">Married Sisters:</span>
               <span class="value">{{ currentProfile.married_sisters }}</span>
             </div>
+            <!-- Community Certificate Section -->
+            <div class="detail-row certificate-section" *ngIf="currentProfile.community_file_id">
+              <span class="label">Community Certificate:</span>
+              <button class="btn btn-sm btn-primary" (click)="viewCommunityCertificate()">
+                📄 View Certificate
+              </button>
+            </div>
+            <div class="detail-row certificate-section" *ngIf="!currentProfile.community_file_id">
+              <span class="label text-muted">Community Certificate: Not uploaded</span>
+            </div>
             <button class="btn btn-edit" (click)="openEditModal('family')">Edit</button>
           </div>
         </div>
@@ -183,6 +193,16 @@
             <div class="detail-row">
               <span class="label">Birth Place:</span>
               <span class="value">{{ currentProfile.birth_place }}</span>
+            </div>
+            <!-- Horoscope Section -->
+            <div class="detail-row horoscope-section" *ngIf="currentProfile.astrology_file_id">
+              <span class="label">Horoscope:</span>
+              <button class="btn btn-sm btn-primary" (click)="viewHoroscope()">
+                📄 View Horoscope
+              </button>
+            </div>
+            <div class="detail-row horoscope-section" *ngIf="!currentProfile.astrology_file_id">
+              <span class="label text-muted">Horoscope: Not uploaded</span>
             </div>
             <button class="btn btn-edit" (click)="openEditModal('astrology')">Edit</button>
           </div>
@@ -351,14 +371,239 @@
     </div>
 
     <div class="modal-body">
-      <!-- Edit forms for each section would go here -->
-      <p>Edit form for {{ editingSection }} section</p>
-      <!-- Form fields would be dynamically generated based on editingSection -->
+      <!-- PERSONAL SECTION FORM -->
+      <div *ngIf="editingSection === 'personal'" class="edit-form-section">
+        <!-- Name -->
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input 
+            type="text" 
+            id="name" 
+            class="form-control"
+            [(ngModel)]="editFormData.name" 
+            placeholder="Full Name">
+        </div>
+
+        <!-- Birth Date -->
+        <div class="form-group">
+          <label for="birth_date">Date of Birth</label>
+          <input 
+            type="date" 
+            id="birth_date" 
+            class="form-control"
+            [(ngModel)]="editFormData.birth_date">
+        </div>
+
+        <!-- Birth Time -->
+        <div class="form-group">
+          <label for="birth_time">Time of Birth</label>
+          <input 
+            type="time" 
+            id="birth_time" 
+            class="form-control"
+            [(ngModel)]="editFormData.birth_time">
+        </div>
+
+        <!-- Height -->
+        <div class="form-group">
+          <label for="height_cm">Height (cm)</label>
+          <input 
+            type="number" 
+            id="height_cm" 
+            class="form-control"
+            [(ngModel)]="editFormData.height_cm" 
+            placeholder="Height in centimeters">
+        </div>
+
+        <!-- Complexion -->
+        <div class="form-group">
+          <label for="complexion">Complexion</label>
+          <select 
+            id="complexion" 
+            class="form-control"
+            [(ngModel)]="editFormData.complexion">
+            <option value="">Select Complexion</option>
+            <option *ngFor="let opt of complexionOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Mobile Number -->
+        <div class="form-group">
+          <label for="mobile_number">Mobile Number</label>
+          <input 
+            type="text" 
+            id="mobile_number" 
+            class="form-control"
+            [(ngModel)]="editFormData.mobile_number" 
+            placeholder="Mobile number">
+        </div>
+
+        <!-- Physical Status -->
+        <div class="form-group">
+          <label for="physical_status">Physical Status</label>
+          <select 
+            id="physical_status" 
+            class="form-control"
+            [(ngModel)]="editFormData.physical_status">
+            <option value="">Select Physical Status</option>
+            <option *ngFor="let opt of physicalStatusOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Marital Status -->
+        <div class="form-group">
+          <label for="marital_status">Marital Status</label>
+          <select 
+            id="marital_status" 
+            class="form-control"
+            [(ngModel)]="editFormData.marital_status">
+            <option value="">Select Marital Status</option>
+            <option *ngFor="let opt of maritalStatusOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Food Preference -->
+        <div class="form-group">
+          <label for="food_preference">Food Preference</label>
+          <select 
+            id="food_preference" 
+            class="form-control"
+            [(ngModel)]="editFormData.food_preference">
+            <option value="">Select Food Preference</option>
+            <option *ngFor="let opt of foodPreferenceOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Hobbies -->
+        <div class="form-group">
+          <label for="hobbies">Hobbies</label>
+          <textarea 
+            id="hobbies" 
+            class="form-control"
+            [(ngModel)]="editFormData.hobbies" 
+            placeholder="Your hobbies"
+            rows="3"></textarea>
+        </div>
+
+        <!-- About Me -->
+        <div class="form-group">
+          <label for="about_me">About Me</label>
+          <textarea 
+            id="about_me" 
+            class="form-control"
+            [(ngModel)]="editFormData.about_me" 
+            placeholder="Tell about yourself"
+            rows="4"></textarea>
+        </div>
+      </div>
+
+      <!-- OTHER SECTIONS (Placeholder for future sections) -->
+      <div *ngIf="editingSection !== 'personal'" class="edit-form-section">
+        <p>Edit form for {{ editingSection }} section</p>
+      </div>
     </div>
 
     <div class="modal-footer">
       <button class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
       <button class="btn btn-primary" (click)="saveSection()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Community Certificate Modal -->
+<div class="modal-overlay" *ngIf="showCertificateModal" (click)="closeCertificateModal()">
+  <div class="modal certificate-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Community Certificate</h3>
+      <button class="modal-close" (click)="closeCertificateModal()">&times;</button>
+    </div>
+
+    <div class="modal-body certificate-body">
+      <!-- Loading State -->
+      <div class="loading-state" *ngIf="certificateLoading">
+        <div class="spinner"></div>
+        <p>Loading certificate...</p>
+      </div>
+
+      <!-- Error State -->
+      <div class="error-state" *ngIf="certificateError && !certificateLoading">
+        <div class="alert alert-danger">
+          <strong>Error:</strong> {{ certificateError }}
+        </div>
+      </div>
+
+      <!-- Certificate Display -->
+      <div class="certificate-display" *ngIf="certificateUrl && !certificateLoading && !certificateError">
+        <div class="certificate-viewer">
+          <!-- For PDF, show in iframe -->
+          <iframe 
+            [attr.src]="certificateUrl"
+            class="certificate-iframe"
+            frameborder="0">
+          </iframe>
+        </div>
+        <p class="certificate-filename">{{ certificateFileName }}</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeCertificateModal()">Close</button>
+      <button class="btn btn-primary" (click)="downloadCertificate()" *ngIf="certificateUrl && !certificateLoading">
+        ⬇️ Download
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Horoscope Modal -->
+<div class="modal-overlay" *ngIf="showHoroscopeModal" (click)="closeHoroscopeModal()">
+  <div class="modal horoscope-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Horoscope</h3>
+      <button class="modal-close" (click)="closeHoroscopeModal()">&times;</button>
+    </div>
+
+    <div class="modal-body horoscope-body">
+      <!-- Loading State -->
+      <div class="loading-state" *ngIf="horoscopeLoading">
+        <div class="spinner"></div>
+        <p>Loading horoscope...</p>
+      </div>
+
+      <!-- Error State -->
+      <div class="error-state" *ngIf="horoscopeError && !horoscopeLoading">
+        <div class="alert alert-danger">
+          <strong>Error:</strong> {{ horoscopeError }}
+        </div>
+      </div>
+
+      <!-- Horoscope Display -->
+      <div class="horoscope-display" *ngIf="horoscopeUrl && !horoscopeLoading && !horoscopeError">
+        <div class="horoscope-viewer">
+          <!-- For PDF, show in iframe -->
+          <iframe 
+            [attr.src]="horoscopeUrl"
+            class="horoscope-iframe"
+            frameborder="0">
+          </iframe>
+        </div>
+        <p class="horoscope-filename">{{ horoscopeFileName }}</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeHoroscopeModal()">Close</button>
+      <button class="btn btn-primary" (click)="downloadHoroscope()" *ngIf="horoscopeUrl && !horoscopeLoading">
+        ⬇️ Download
+      </button>
     </div>
   </div>
 </div>

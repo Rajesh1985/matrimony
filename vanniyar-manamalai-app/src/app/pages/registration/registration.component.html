@@ -521,6 +521,69 @@
             </ul>
           </div>
         </div>
+
+        <!-- COMMUNITY CERTIFICATE UPLOAD SECTION -->
+        <div class="certificate-upload-section">
+          <h3 class="certificate-section-title">Community Certificate (Optional)</h3>
+          <p class="certificate-section-description">Upload your community certificate in PDF or image format</p>
+
+          <!-- File Input -->
+          <div class="form-group">
+            <label for="certificate_input" class="file-input-label">
+              <span class="file-input-icon">📄</span>
+              <span class="file-input-text">
+                {{ queuedCertificateFile ? 
+                  '✓ File selected: ' + queuedCertificateFile.name : 
+                  'Click to select community certificate (PDF or image)' }}
+              </span>
+            </label>
+            <input 
+              id="certificate_input"
+              type="file" 
+              accept=".pdf,image/*"
+              (change)="handleCommunityCertificateSelection($event)"
+              class="file-input"
+              [disabled]="communityCertificate !== null">
+            <small class="form-hint">Accepted formats: PDF, JPG, PNG, GIF, WebP (Max 10MB)</small>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="certificateUploadError" class="error-message certificate-error">
+            ⚠️ {{ certificateUploadError }}
+          </div>
+
+          <!-- Upload Progress -->
+          <div *ngIf="isUploadingCertificate" class="upload-progress">
+            <div class="spinner"></div>
+            <span class="progress-text">Uploading certificate… please wait</span>
+          </div>
+
+          <!-- Uploaded Certificate Display -->
+          <div *ngIf="communityCertificate" class="certificate-display">
+            <div class="certificate-item">
+              <div class="certificate-icon">
+                <img src="assets/images/icons/pdf-icon.png" alt="PDF Icon" class="pdf-icon">
+              </div>
+              <div class="certificate-info">
+                <p class="certificate-filename">{{ communityCertificate.filename }}</p>
+                <span class="certificate-label">Community Certificate</span>
+              </div>
+              <button 
+                type="button"
+                (click)="deleteCommunityCertificate(communityCertificate.file_id)"
+                class="delete-certificate-button"
+                title="Delete certificate">
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          <!-- Queued Certificate Preview -->
+          <div *ngIf="queuedCertificateFile && !communityCertificate" class="queued-certificate">
+            <p class="queued-label">File selected: <strong>{{ queuedCertificateFile.name }}</strong></p>
+            <p class="queued-hint">(will be uploaded after saving)</p>
+          </div>
+        </div>
       </div>
 
       <!-- STEP 3: ASTROLOGY DETAILS -->
@@ -605,6 +668,48 @@
             placeholder="Describe any dosham"
             class="form-control"
             rows="3"></textarea>
+        </div>
+
+        <!-- Horoscope File Upload -->
+        <div class="form-group">
+          <label for="horoscope_file">Horoscope File (PDF or Image - Optional)</label>
+          <div class="file-input-wrapper">
+            <input 
+              id="horoscope_file" 
+              type="file" 
+              accept=".pdf,image/*"
+              (change)="handleHoroscopeSelection($event)"
+              [disabled]="isUploadingHoroscope"
+              class="form-control"
+              hidden>
+            <label for="horoscope_file" class="file-input-label">
+              <span *ngIf="!horoscopeFile?.filename && !isUploadingHoroscope">Choose Horoscope File</span>
+              <span *ngIf="isUploadingHoroscope" class="uploading">
+                <span class="spinner"></span> Uploading...
+              </span>
+            </label>
+          </div>
+
+          <!-- Display uploaded horoscope file -->
+          <div *ngIf="horoscopeFile?.filename" class="uploaded-file-section">
+            <div class="uploaded-file-item">
+              <i class="fas fa-file-pdf"></i>
+              <span class="filename">{{ horoscopeFile!.filename }}</span>
+              <button 
+                type="button" 
+                (click)="deleteHoroscopeFile()"
+                [disabled]="isUploadingHoroscope"
+                class="btn-delete-file"
+                title="Delete horoscope file">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Horoscope upload error -->
+          <span class="error-message" *ngIf="horoscopeUploadError">
+            {{ horoscopeUploadError }}
+          </span>
         </div>
       </div>
 

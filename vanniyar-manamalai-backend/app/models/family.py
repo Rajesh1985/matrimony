@@ -46,3 +46,6 @@ class FamilyDetails(Base):
     # Photo references
     photo_file_id_1 = Column(String(36), ForeignKey("files.id", ondelete="SET NULL"), nullable=True)
     photo_file_id_2 = Column(String(36), ForeignKey("files.id", ondelete="SET NULL"), nullable=True)
+    
+    # Community certificate reference
+    community_file_id = Column(String(36), ForeignKey("files.id", ondelete="SET NULL"), nullable=True)
