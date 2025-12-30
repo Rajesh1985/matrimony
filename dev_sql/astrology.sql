@@ -10,9 +10,9 @@ CREATE TABLE astrology_details (
     profile_id INT NOT NULL,
     star ENUM(
         'Ashwini','Bharani','Krittika','Rohini','Arudra','Punarvasu','Pushya','Ashlesha',
-        'Magha','Purva Phalguni','Uttara Phalguni','Hasta','Chitra','Swati','Vishakha',
-        'Anuradha','Jyeshtha','Mula','Purva Ashadha','Uttara Ashadha','Shravana',
-        'Dhanishta','Shatabhisha','Purva Bhadrapada','Uttara Bhadrapada','Revati'
+        'Magha','Purva_Phalguni','Uttara_Phalguni','Hasta','Chitra','Swati','Vishakha',
+        'Anuradha','Jyeshtha','Mula','Purva_Ashadha','Uttara_Ashadha','Shravana',
+        'Dhanishta','Shatabhisha','Purva_Bhadrapada','Uttara_Bhadrapada','Revati'
     ),
     rasi ENUM(
         'Aries','Taurus','Gemini','Cancer','Leo','Virgo','Libra','Scorpio',

@@ -8,13 +8,14 @@ class StarEnum(str, Enum):
     Bharani = "Bharani"
     Krittika = "Krittika"
     Rohini = "Rohini"
+    Mrigashirsha = "Mrigashirsha"
     Arudra = "Arudra"
     Punarvasu = "Punarvasu"
     Pushya = "Pushya"
     Ashlesha = "Ashlesha"
     Magha = "Magha"
-    Purva_Phalguni = "Purva Phalguni"
-    Uttara_Phalguni = "Uttara Phalguni"
+    Purva_Phalguni = "Purva_Phalguni"
+    Uttara_Phalguni = "Uttara_Phalguni"
     Hasta = "Hasta"
     Chitra = "Chitra"
     Swati = "Swati"
@@ -22,13 +23,13 @@ class StarEnum(str, Enum):
     Anuradha = "Anuradha"
     Jyeshtha = "Jyeshtha"
     Mula = "Mula"
-    Purva_Ashadha = "Purva Ashadha"
-    Uttara_Ashadha = "Uttara Ashadha"
+    Purva_Ashadha = "Purva_Ashadha"
+    Uttara_Ashadha = "Uttara_Ashadha"
     Shravana = "Shravana"
     Dhanishta = "Dhanishta"
     Shatabhisha = "Shatabhisha"
-    Purva_Bhadrapada = "Purva Bhadrapada"
-    Uttara_Bhadrapada = "Uttara Bhadrapada"
+    Purva_Bhadrapada = "Purva_Bhadrapada"
+    Uttara_Bhadrapada = "Uttara_Bhadrapada"
     Revati = "Revati"
 
 class RasiEnum(str, Enum):
@@ -89,6 +90,7 @@ STAR_TAMIL_MAP = {
     "Bharani": "பரணி",
     "Krittika": "கார்த்திகை",
     "Rohini": "ரோகிணி",
+    "Mrigashirsha": "மிருகசீர்ஷம்",
     "Arudra": "திருவாதிரை",
     "Punarvasu": "புனர்பூசம்",
     "Pushya": "பூசம்",

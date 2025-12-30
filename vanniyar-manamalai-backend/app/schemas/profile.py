@@ -73,11 +73,11 @@ class ProfileCreate(ProfileBase):
 class ProfileUpdate(BaseModel):
     """Schema for updating profile - all fields optional"""
     name: Optional[str] = None
-    birth_date: Optional[str] = None  # Accept string, convert or leave None
+    birth_date: date  # Accept string, convert or leave None
     birth_time: Optional[str] = None  # Accept string, convert or leave None
     height_cm: Optional[int] = None
     complexion: Optional[str] = None
-    caste: Optional[str] = None
+    caste: Optional[str] = "Vanniyar"
     mobile_number: Optional[str] = None
     mobile: Optional[str] = None  # Alternative field name for mobile_number (for API compatibility)
     introducer_name: Optional[str] = None
@@ -88,7 +88,7 @@ class ProfileUpdate(BaseModel):
     physical_status: Optional[str] = None  # VARCHAR: Normal, Physically Challenged
     marital_status: Optional[str] = None  # VARCHAR: Unmarried, Widow_Widower, Divorced, Separated
     food_preference: Optional[str] = None  # VARCHAR: Veg, NonVeg
-    religion: Optional[str] = None
+    religion: Optional[str]  = "hindu"
     address_line1: Optional[str] = None
     address_line2: Optional[str] = None
     city: Optional[str] = None

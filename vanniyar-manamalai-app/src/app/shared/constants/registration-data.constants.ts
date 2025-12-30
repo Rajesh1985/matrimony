@@ -65,13 +65,14 @@ export const REGISTRATION_DATA = {
     { value: 'Bharani', label: 'Bharani' },
     { value: 'Krittika', label: 'Krittika' },
     { value: 'Rohini', label: 'Rohini' },
+    { value: 'Mrigashirsha', label: 'Mrigashirsha' },
     { value: 'Arudra', label: 'Arudra' },
     { value: 'Punarvasu', label: 'Punarvasu' },
     { value: 'Pushya', label: 'Pushya' },
     { value: 'Ashlesha', label: 'Ashlesha' },
     { value: 'Magha', label: 'Magha' },
-    { value: 'Purva Phalguni', label: 'Purva Phalguni' },
-    { value: 'Uttara Phalguni', label: 'Uttara Phalguni' },
+    { value: 'Purva_Phalguni', label: 'Purva Phalguni' },
+    { value: 'Uttara_Phalguni', label: 'Uttara Phalguni' },
     { value: 'Hastha', label: 'Hastha' },
     { value: 'Chitra', label: 'Chitra' },
     { value: 'Swati', label: 'Swati' },
@@ -79,13 +80,13 @@ export const REGISTRATION_DATA = {
     { value: 'Anuradha', label: 'Anuradha' },
     { value: 'Jyeshtha', label: 'Jyeshtha' },
     { value: 'Mula', label: 'Mula' },
-    { value: 'Purva Ashadha', label: 'Purva Ashadha' },
-    { value: 'Uttara Ashadha', label: 'Uttara Ashadha' },
+    { value: 'Purva_Ashadha', label: 'Purva Ashadha' },
+    { value: 'Uttara_Ashadha', label: 'Uttara Ashadha' },
     { value: 'Shravana', label: 'Shravana' },
     { value: 'Dhanishta', label: 'Dhanishta' },
     { value: 'Shatabhisha', label: 'Shatabhisha' },
-    { value: 'Purva Bhadrapada', label: 'Purva Bhadrapada' },
-    { value: 'Uttara Bhadrapada', label: 'Uttara Bhadrapada' },
+    { value: 'Purva_Bhadrapada', label: 'Purva Bhadrapada' },
+    { value: 'Uttara_Bhadrapada', label: 'Uttara Bhadrapada' },
     { value: 'Revati', label: 'Revati' }
   ],
 
@@ -146,6 +147,49 @@ export const REGISTRATION_DATA = {
     { value: '20-30 LPA', label: '15 Lakh to 20 Lakh' },
     { value: '30-50 LPA', label: '20 Lakh to 30 Lakh' },
     { value: '50+ LPA', label: '50 Lakh+' }
+  ],
+
+  // Professional - Occupation
+  OCCUPATION_OPTIONS: [
+    { value: 'Engineer', label: 'Engineer' },
+    { value: 'Doctor', label: 'Doctor' },
+    { value: 'Teacher', label: 'Teacher' },
+    { value: 'Software Developer', label: 'Software Developer' },
+    { value: 'Manager', label: 'Manager' },
+    { value: 'Business Owner', label: 'Business Owner' },
+    { value: 'Lawyer', label: 'Lawyer' },
+    { value: 'Accountant', label: 'Accountant' },
+    { value: 'Government Employee', label: 'Government Employee' },
+    { value: 'Bank Employee', label: 'Bank Employee' },
+    { value: 'Consultant', label: 'Consultant' },
+    { value: 'Entrepreneur', label: 'Entrepreneur' },
+    { value: 'Freelancer', label: 'Freelancer' },
+    { value: 'Architect', label: 'Architect' },
+    { value: 'Pharmacist', label: 'Pharmacist' },
+    { value: 'Nurse', label: 'Nurse' },
+    { value: 'Professor', label: 'Professor' },
+    { value: 'Scientist', label: 'Scientist' },
+    { value: 'Others', label: 'Others' }
+  ],
+
+  // Professional - Work Location
+  WORK_LOCATION_OPTIONS: [
+    { value: 'Chennai', label: 'Chennai' },
+    { value: 'Bangalore', label: 'Bangalore' },
+    { value: 'Hyderabad', label: 'Hyderabad' },
+    { value: 'Mumbai', label: 'Mumbai' },
+    { value: 'Delhi', label: 'Delhi' },
+    { value: 'Pune', label: 'Pune' },
+    { value: 'Coimbatore', label: 'Coimbatore' },
+    { value: 'Madurai', label: 'Madurai' },
+    { value: 'USA', label: 'USA' },
+    { value: 'UK', label: 'UK' },
+    { value: 'Canada', label: 'Canada' },
+    { value: 'Australia', label: 'Australia' },
+    { value: 'Singapore', label: 'Singapore' },
+    { value: 'UAE', label: 'UAE' },
+    { value: 'Germany', label: 'Germany' },
+    { value: 'Others', label: 'Others' }
   ]
 };
 

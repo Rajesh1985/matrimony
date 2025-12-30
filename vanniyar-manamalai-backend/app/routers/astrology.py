@@ -14,9 +14,8 @@ from ..crud.astrology import (
     get_astrology_by_profile,
     update_astrology,
     delete_astrology,
-    get_profiles_by_star,
-    get_profiles_by_rasi,
-    get_profiles_by_star_and_rasi
+    update_astrology_by_profile_id,
+    delete_astrology_by_profile_id
 )
 
 router = APIRouter(prefix="/astrology", tags=["astrology"])
@@ -112,136 +111,6 @@ def delete_astrology_route(astrology_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Astrology details not found")
     
     return None
-
-# ==================== MATCHING/SEARCH ENDPOINTS ====================
-
-@router.get("/search/by-star/{star}", response_model=list[AstrologyDetailsResponse])
-def search_by_star(
-    star: str, 
-    skip: int = 0, 
-    limit: int = 100, 
-    db: Session = Depends(get_db)
-):
-    """
-    Find profiles by star/nakshatra
-    
-    Purpose: Matrimony matching algorithm
-    
-    Why This is Needed:
-    In Tamil/Indian matrimony, astrological compatibility is critical:
-    - Star (nakshatra) determines marriage compatibility (போருத்தம்)
-    - Certain star combinations are considered auspicious
-    - Users search for compatible stars first, then view profiles
-    
-    Use Case:
-    User with Ashwini star wants to see all Ashlesha/Rohini matches
-    
-    Example:
-    GET /astrology/search/by-star/Rohini?skip=0&limit=20
-    
-    Returns: First 20 profiles with Rohini star
-    """
-    return get_profiles_by_star(db, star, skip, limit)
-
-@router.get("/search/by-rasi/{rasi}", response_model=list[AstrologyDetailsResponse])
-def search_by_rasi(
-    rasi: str, 
-    skip: int = 0, 
-    limit: int = 100, 
-    db: Session = Depends(get_db)
-):
-    """
-    Find profiles by rasi/zodiac sign
-    
-    Purpose: Matrimony matching by zodiac compatibility
-    
-    Why This is Needed:
-    - Rasi compatibility is second filter after star
-    - Certain rasi pairs are considered compatible
-    - Used in matching algorithm
-    
-    Use Case:
-    Show all Leo (சிம்மம்) profiles for Aries user
-    
-    Example:
-    GET /astrology/search/by-rasi/Leo?skip=0&limit=20
-    """
-    return get_profiles_by_rasi(db, rasi, skip, limit)
-
-@router.get("/search/by-star-rasi/", response_model=list[AstrologyDetailsResponse])
-def search_by_star_and_rasi(
-    star: str,
-    rasi: str,
-    skip: int = 0, 
-    limit: int = 100, 
-    db: Session = Depends(get_db)
-):
-    """
-    Find profiles by both star AND rasi (combined filter)
-    
-    Purpose: Precise astrological matching
-    
-    Why This is Needed:
-    - Most accurate compatibility check
-    - Reduces false matches
-    - Used in advanced search filters
-    
-    Use Case:
-    Find profiles with BOTH Rohini star AND Taurus rasi
-    
-    Example:
-    GET /astrology/search/by-star-rasi/?star=Rohini&rasi=Taurus&skip=0&limit=20
-    
-    Returns: Profiles matching BOTH conditions
-    """
-    return get_profiles_by_star_and_rasi(db, star, rasi, skip, limit)
-
-@router.get("/mappings/stars", response_model=dict)
-def get_star_mappings():
-    """
-    Get English-Tamil star mappings
-    
-    Purpose: Frontend bilingual display
-    
-    Why This is Needed:
-    - Users prefer native language (Tamil) display
-    - Database stores English values
-    - Frontend needs mapping for UI localization
-    
-    Use Case:
-    Display "ரோகிணி" instead of "Rohini" in Tamil UI
-    
-    Returns:
-    {
-        "Ashwini": "அசுவனி",
-        "Bharani": "பரணி",
-        ...
-    }
-    """
-    return STAR_TAMIL_MAP
-
-@router.get("/mappings/rasi", response_model=dict)
-def get_rasi_mappings():
-    """
-    Get English-Tamil rasi mappings
-    
-    Purpose: Frontend bilingual display
-    
-    Why This is Needed:
-    - Display zodiac signs in Tamil
-    - Localization for better UX
-    
-    Use Case:
-    Display "சிம்மம்" instead of "Leo" in Tamil UI
-    
-    Returns:
-    {
-        "Aries": "மேஷம்",
-        "Taurus": "ரிஷபம்",
-        ...
-    }
-    """
-    return RASI_TAMIL_MAP
 
 @router.patch("/profile/{profile_id}", response_model=AstrologyDetailsResponse)
 def update_astrology_by_profile(

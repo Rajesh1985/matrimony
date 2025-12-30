@@ -22,6 +22,7 @@ export interface UserProfileComplete {
   rasi: string;
   lagnam: string;
   birth_place: string;
+  dosham_details: string;
   occupation: string;
   company_name: string;
   annual_income: string;
@@ -51,12 +52,12 @@ export interface UserProfileComplete {
   education: string;
   employment_type: string;
   work_location: string;
-  education_preference: string;
-  occupation_preference: string;
-  income_preference: string;
-  location_preference: string;
-  star_preference: string;
-  rasi_preference: string;
+  education_preference: string | string[];
+  occupation_preference: string | string[];
+  income_preference: string | string[];
+  location_preference: string | string[];
+  star_preference: string | string[];
+  rasi_preference: string | string[];
   age_from: number;
   age_to: number;
   height_from: number;
@@ -154,8 +155,8 @@ export class UserPageService {
    * Update professional details
    */
   updateProfessional(profileId: number, data: any): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/profiles/${profileId}/professional`,
+    return this.http.patch(
+      `${this.apiUrl}/professional/profile/${profileId}`,
       data
     );
   }
@@ -164,8 +165,8 @@ export class UserPageService {
    * Update partner preferences
    */
   updatePartnerPreferences(profileId: number, data: any): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/profiles/${profileId}/partner-preferences`,
+    return this.http.patch(
+      `${this.apiUrl}/partner-preferences/profile/${profileId}`,
       data
     );
   }
@@ -174,8 +175,8 @@ export class UserPageService {
    * Update family details
    */
   updateFamily(profileId: number, data: any): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/profiles/${profileId}/family`,
+    return this.http.patch(
+      `${this.apiUrl}/family/profile/${profileId}`,
       data
     );
   }
@@ -184,8 +185,8 @@ export class UserPageService {
    * Update astrology details
    */
   updateAstrology(profileId: number, data: any): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/profiles/${profileId}/astrology`,
+    return this.http.patch(
+      `${this.apiUrl}/astrology/profile/${profileId}`,
       data
     );
   }

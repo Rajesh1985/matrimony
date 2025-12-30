@@ -11,6 +11,7 @@ import { UserApiService } from '../../user-api.service';
 import { LocationService, CountryCode } from '../../shared/services/location.service';
 import { GlobalStateService } from '../../global-state.service';
 import { REGISTRATION_DATA, LOCATION_DATA } from '../../shared/constants/registration-data.constants';
+import { STAR_TAMIL_MAP, RASI_TAMIL_MAP } from '../../shared/constants/astrology-maps';
 
 @Component({
   selector: 'app-registration',
@@ -180,12 +181,12 @@ export class RegistrationComponent implements OnInit {
 
     this.starOptions = this.registrationData.STAR_OPTIONS.map(opt => ({
       value: opt.value,
-      label: opt.label
+      label: this.getStarDisplay(opt.value)
     }));
 
     this.rasiOptions = this.registrationData.RASI_OPTIONS.map(opt => ({
       value: opt.value,
-      label: opt.label
+      label: this.getRasiDisplay(opt.value)
     }));
 
     // Load location options from LOCATION_DATA cities
@@ -268,6 +269,24 @@ export class RegistrationComponent implements OnInit {
 
   hasError(field: string): boolean {
     return !!this.errors[field];
+  }
+
+  /**
+   * Get bilingual display for star (English + Tamil)
+   */
+  getStarDisplay(star: string): string {
+    if (!star) return '';
+    const tamilName = STAR_TAMIL_MAP[star];
+    return tamilName ? `${star} (${tamilName})` : star;
+  }
+
+  /**
+   * Get bilingual display for rasi (English + Tamil)
+   */
+  getRasiDisplay(rasi: string): string {
+    if (!rasi) return '';
+    const tamilName = RASI_TAMIL_MAP[rasi];
+    return tamilName ? `${rasi} (${tamilName})` : rasi;
   }
 
   // ==================== STEP 0: USER REGISTRATION ====================

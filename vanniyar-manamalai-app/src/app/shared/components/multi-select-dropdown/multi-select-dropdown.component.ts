@@ -1,6 +1,6 @@
 // src/app/shared/components/multi-select-dropdown/multi-select-dropdown.component.ts
 
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -142,7 +142,7 @@ export interface DropdownOption {
     }
   `]
 })
-export class MultiSelectDropdownComponent implements OnInit {
+export class MultiSelectDropdownComponent implements OnInit, OnChanges {
   @Input() options: DropdownOption[] = [];
   @Input() selectedValues: string[] = [];
   @Input() placeholder: string = 'Select options';
@@ -154,6 +154,15 @@ export class MultiSelectDropdownComponent implements OnInit {
   ngOnInit(): void {
     if (!this.selectedValues) {
       this.selectedValues = [];
+    }
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['selectedValues'] && !changes['selectedValues'].firstChange) {
+      // Ensure selectedValues is always an array
+      if (!Array.isArray(this.selectedValues)) {
+        this.selectedValues = [];
+      }
     }
   }
 
