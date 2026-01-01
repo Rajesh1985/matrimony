@@ -170,6 +170,7 @@ sudo supervisorctl stop all
 npm install --force
 npm audit fix
 ng build --configuration production
+rm -rf /var/www/html/*
 sudo cp -r ./dist/vanniyar-manamalai-app/browser/* /var/www/html/
 
 python3 -m venv venv
@@ -186,3 +187,5 @@ sudo supervisorctl restart manamalai_fastapi
 
 sudo apt update
 sudo apt install clamav -y
+
+DELETE FROM Users WHERE id = 1;
