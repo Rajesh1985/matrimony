@@ -1264,7 +1264,9 @@ export class RegistrationComponent implements OnInit {
       }
     });      
 
-    this.userApi.updateIsVerifiedbyProfileID(true, this.formData.profile_id).subscribe({
+    alert('Registration completed successfully!');
+    this.router.navigate(['/user-page']);
+    /*this.userApi.updateIsVerifiedbyProfileID(true, this.formData.profile_id).subscribe({
       next: () => {
         alert('Registration completed successfully!');
         this.router.navigate(['/user-page']);
@@ -1273,7 +1275,7 @@ export class RegistrationComponent implements OnInit {
         alert(`Failed to set Verify in User: ${err.error?.detail || 'Unknown error'}`);
         this.router.navigate(['/login']);
       }
-    });
+    });*/
   }
 
   // ==================== NAVIGATION ====================
