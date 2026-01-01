@@ -6,8 +6,8 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class UserApiService {
-  //private baseUrl = 'http://89.116.134.253:8000';
-  private baseUrl = 'http://localhost:8000';
+  private baseUrl = 'http://89.116.134.253:8000';
+  //private baseUrl = 'http://localhost:8000';
 
   constructor(private http: HttpClient) {}
 
