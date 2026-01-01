@@ -12,3 +12,4 @@ fastapi-cors
 pydantic[email]
 python-multipart
 Pillow
+python-dateutil

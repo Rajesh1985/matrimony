@@ -57,6 +57,22 @@
             <span class="badge badge-secondary">{{ getRasiDisplay(currentProfile.rasi) }}</span>
           </div>
 
+          <!-- Membership Section -->
+          <div class="membership-section" *ngIf="currentProfile.plan_name; else noPlan">
+            <span class="membership-badge" [ngClass]="currentProfile.plan_name.toLowerCase()">
+              {{ currentProfile.plan_name }}
+            </span>
+            <span class="validity" *ngIf="!isExpired(currentProfile.end_date)">
+              Valid till: {{ formatDate(currentProfile.end_date) }}
+            </span>
+            <span class="expired" *ngIf="isExpired(currentProfile.end_date)">
+              {{ currentProfile.plan_name }} expired
+            </span>
+          </div>
+          <ng-template #noPlan>
+            <div class="no-plan">No active plan</div>
+          </ng-template>
+
           <p class="profile-about">{{ currentProfile.about_me }}</p>
         </div>
       </div>
@@ -300,85 +316,95 @@
 
     <!-- Right Section: Recommended Profiles -->
     <main class="main-content">
-      <div class="main-header">
-        <h2>Recommended Profiles</h2>
-        <p class="text-muted" *ngIf="recommendedProfiles.length > 0">
-          {{ recommendedProfiles.length }} Profile{{ recommendedProfiles.length !== 1 ? 's' : '' }} found
-        </p>
-      </div>
+      <!-- Recommended Profiles (visible only with active membership) -->
+      <div *ngIf="hasActiveMembership(); else membershipBanner">
+        <div class="main-header">
+          <h2>Recommended Profiles</h2>
+          <p class="text-muted" *ngIf="recommendedProfiles.length > 0">
+            {{ recommendedProfiles.length }} Profile{{ recommendedProfiles.length !== 1 ? 's' : '' }} found
+          </p>
+        </div>
 
-      <!-- Loading State -->
-      <div class="loading-container" *ngIf="isLoadingRecommendations">
-        <div class="spinner"></div>
-        <p>Loading recommended profiles...</p>
-      </div>
+        <!-- Loading State -->
+        <div class="loading-container" *ngIf="isLoadingRecommendations">
+          <div class="spinner"></div>
+          <p>Loading recommended profiles...</p>
+        </div>
 
-      <!-- No Profiles -->
-      <div class="no-profiles" *ngIf="!isLoadingRecommendations && recommendedProfiles.length === 0">
-        <p>No matching profiles found. Update your preferences to see recommendations.</p>
-      </div>
+        <!-- No Profiles -->
+        <div class="no-profiles" *ngIf="!isLoadingRecommendations && recommendedProfiles.length === 0">
+          <p>No matching profiles found. Update your preferences to see recommendations.</p>
+        </div>
 
-      <!-- Profiles Grid -->
-      <div class="profiles-grid" *ngIf="!isLoadingRecommendations && recommendedProfiles.length > 0">
-        <div class="profile-card-item" *ngFor="let profile of recommendedProfiles">
-          
-          <!-- Profile Header with Photo & Quick Info -->
-          <div class="profile-card-header">
-            <div class="profile-photo">
-              <!-- Display photo if available, otherwise show avatar -->
-              <div *ngIf="recommendedProfilePhotos[profile.match_profile_id]; else defaultProfileAvatar" class="photo-container">
-                <img [src]="recommendedProfilePhotos[profile.match_profile_id]" alt="Profile photo" class="profile-photo-img">
+        <!-- Profiles Grid -->
+        <div class="profiles-grid" *ngIf="!isLoadingRecommendations && recommendedProfiles.length > 0">
+          <div class="profile-card-item" *ngFor="let profile of recommendedProfiles">
+            
+            <!-- Profile Header with Photo & Quick Info -->
+            <div class="profile-card-header">
+              <div class="profile-photo">
+                <!-- Display photo if available, otherwise show avatar -->
+                <div *ngIf="recommendedProfilePhotos[profile.match_profile_id]; else defaultProfileAvatar" class="photo-container">
+                  <img [src]="recommendedProfilePhotos[profile.match_profile_id]" alt="Profile photo" class="profile-photo-img">
+                </div>
+                <ng-template #defaultProfileAvatar>
+                  <app-avatar 
+                    [name]="profile.name" 
+                    size="lg">
+                  </app-avatar>
+                </ng-template>
               </div>
-              <ng-template #defaultProfileAvatar>
-                <app-avatar 
-                  [name]="profile.name" 
-                  size="lg">
-                </app-avatar>
-              </ng-template>
-            </div>
 
-            <div class="profile-header-info">
-              <div>
-                <h3 class="profile-title">{{ profile.name }}</h3>
-                <p class="profile-subtitle">ID: {{ profile.serial_number }}</p>
+              <div class="profile-header-info">
+                <div>
+                  <h3 class="profile-title">{{ profile.name }}</h3>
+                  <p class="profile-subtitle">ID: {{ profile.serial_number }}</p>
+                </div>
+                <div class="profile-meta">
+                  <span class="age-badge">{{ profile.age }} Yrs</span>
+                  <span class="height-badge">{{ profile.height_cm }} cm</span>
+                </div>
               </div>
-              <div class="profile-meta">
-                <span class="age-badge">{{ profile.age }} Yrs</span>
-                <span class="height-badge">{{ profile.height_cm }} cm</span>
+
+              <div class="match-score">
+                <div class="score-circle" [class]="'score-' + profile.match_score">
+                  {{ profile.match_score }}/8
+                </div>
+                <small>Match</small>
               </div>
             </div>
 
-            <div class="match-score">
-              <div class="score-circle" [class]="'score-' + profile.match_score">
-                {{ profile.match_score }}/8
+            <!-- Profile Body -->
+            <div class="profile-card-body">
+              <div class="profile-detail">
+                <strong>{{ profile.occupation }}</strong>
+                <span class="text-muted">{{ profile.city }}, {{ profile.state }}</span>
               </div>
-              <small>Match</small>
-            </div>
-          </div>
 
-          <!-- Profile Body -->
-          <div class="profile-card-body">
-            <div class="profile-detail">
-              <strong>{{ profile.occupation }}</strong>
-              <span class="text-muted">{{ profile.city }}, {{ profile.state }}</span>
+              <div class="profile-astro">
+                <span class="astrology-bilingual">{{ getStarDisplay(profile.star) }}</span>
+                <span class="astrology-bilingual">{{ getRasiDisplay(profile.rasi) }}</span>
+              </div>
+
+              <p class="profile-about">{{ profile.about_me }}</p>
             </div>
 
-            <div class="profile-astro">
-              <span class="astrology-bilingual">{{ getStarDisplay(profile.star) }}</span>
-              <span class="astrology-bilingual">{{ getRasiDisplay(profile.rasi) }}</span>
+            <!-- Profile Footer: Actions -->
+            <div class="profile-card-footer">
+              <button class="btn btn-primary btn-block" (click)="viewProfile(profile)">
+                View Profile
+              </button>
             </div>
-
-            <p class="profile-about">{{ profile.about_me }}</p>
-          </div>
-
-          <!-- Profile Footer: Actions -->
-          <div class="profile-card-footer">
-            <button class="btn btn-primary btn-block" (click)="viewProfile(profile)">
-              View Profile
-            </button>
           </div>
         </div>
       </div>
+
+      <!-- Membership Banner (shown when no active membership) -->
+      <ng-template #membershipBanner>
+        <div class="membership-banner">
+          <p>Please subscribe to a plan available in Membership to view recommended profiles.</p>
+        </div>
+      </ng-template>
     </main>
   </div>
 

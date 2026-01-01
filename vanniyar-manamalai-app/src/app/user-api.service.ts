@@ -200,6 +200,14 @@ export class UserApiService {
   }
 
   /**
+   * Validate admin user
+   * POST /profiles/admin/validate
+   */
+  validateAdminUser(username: string, password: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/profiles/admin/validate`, { username, password });
+  }
+
+  /**
    * Delete user account
    * DELETE /users/{user_id}
    */
@@ -854,5 +862,45 @@ export class UserApiService {
     return this.http.delete(
       `${this.baseUrl}/files/delete/horoscope/${fileId}`
     );
+  }
+
+  /**
+   * Get approved users count
+   * GET /profiles/Approved_list/count
+   */
+  getApprovedUsersCount(): Observable<any> {
+    return this.http.get(`${this.baseUrl}/profiles/Approved_list/count`);
+  }
+
+  /**
+   * Get approved users list
+   * GET /profiles/Approved_list/all
+   */
+  getApprovedUsers(limit: number, offset: number): Observable<any> {
+    return this.http.get(`${this.baseUrl}/profiles/Approved_list/all?limit=${limit}&offset=${offset}`);
+  }
+
+  getUnapprovedUsersCount(): Observable<{ count: number }> {
+    return this.http.get<{ count: number }>(`${this.baseUrl}/profiles/Unapproved_list/count`);
+  }
+  getUnapprovedUsers(limit: number, offset: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/profiles/Unapproved_list/all?limit=${limit}&offset=${offset}`);
+  }
+
+  getExpiredUsersCount(): Observable<{ count: number }> {
+    return this.http.get<{ count: number }>(`${this.baseUrl}/profiles/exipred_list/count`);
+  }
+  getExpiredUsers(limit: number, offset: number): Observable<any[]> {
+    return this.http.get<any[]>(`${this.baseUrl}/profiles/exipred_list/all?limit=${limit}&offset=${offset}`);
+  }
+
+  getMembership(profileId: string): Observable<any> {
+    return this.http.get(`${this.baseUrl}/membership/${profileId}`);
+  }
+  updateMembership(profileId: string, planName: string): Observable<any> {
+    return this.http.patch(`${this.baseUrl}/membership/${profileId}`, { plan_name: planName });
+  }
+  createMembership(profileId: string, planName: string): Observable<any> {
+    return this.http.post(`${this.baseUrl}/membership/`, { profile_id: profileId, plan_name: planName });
   }
 }

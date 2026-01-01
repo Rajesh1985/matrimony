@@ -98,6 +98,10 @@ class CompleteProfileResponse(BaseModel):
     star_preference: Optional[str] = None
     rasi_preference: Optional[str] = None
 
+    plan_name: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
+
     class Config:
         use_enum_values = True
         orm_mode = True

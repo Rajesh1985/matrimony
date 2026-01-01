@@ -24,4 +24,12 @@ export class NavbarComponent {
     this.globalState.profileId = null;
     window.location.href = '/login';
   }
+
+  get showAdminLogout(): boolean {
+    return this.globalState.isAdmin;
+  } 
+  adminLogout() {
+    this.globalState.isAdmin = false;
+    window.location.href = '/admin-login';
+  } 
 }

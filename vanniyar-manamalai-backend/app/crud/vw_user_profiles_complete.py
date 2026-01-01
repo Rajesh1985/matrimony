@@ -31,7 +31,8 @@ def get_profiles_complete(db: Session, profile_id: int) -> Optional[dict]:
         family_description, community_file_id, photo_file_id_1, photo_file_id_2,
         age_from, age_to, height_from, height_to, education_preference,
         occupation_preference, income_preference, location_preference,
-        star_preference, rasi_preference, age
+        star_preference, rasi_preference, age,
+        plan_name, start_date, end_date
     FROM vw_user_profiles_complete
     WHERE profile_id = :profile_id
     """
@@ -56,7 +57,8 @@ def get_profiles_complete(db: Session, profile_id: int) -> Optional[dict]:
         'family_description', 'community_file_id', 'photo_file_id_1', 'photo_file_id_2',
         'age_from', 'age_to', 'height_from', 'height_to', 'education_preference',
         'occupation_preference', 'income_preference', 'location_preference',
-        'star_preference', 'rasi_preference', 'age'
+        'star_preference', 'rasi_preference', 'age',
+        'plan_name', 'start_date', 'end_date'
     ]
     
     return dict(zip(columns, result))
@@ -92,7 +94,8 @@ def get_all_profiles_complete(db: Session, skip: int = 0, limit: int = 100) -> L
         family_description, community_file_id, photo_file_id_1, photo_file_id_2,
         age_from, age_to, height_from, height_to, education_preference,
         occupation_preference, income_preference, location_preference,
-        star_preference, rasi_preference, age
+        star_preference, rasi_preference, age,
+        plan_name, start_date, end_date
     FROM vw_user_profiles_complete
     ORDER BY profile_id DESC
     LIMIT :limit OFFSET :skip
@@ -114,7 +117,8 @@ def get_all_profiles_complete(db: Session, skip: int = 0, limit: int = 100) -> L
         'family_description', 'community_file_id', 'photo_file_id_1', 'photo_file_id_2',
         'age_from', 'age_to', 'height_from', 'height_to', 'education_preference',
         'occupation_preference', 'income_preference', 'location_preference',
-        'star_preference', 'rasi_preference', 'age'
+        'star_preference', 'rasi_preference', 'age',
+        'plan_name', 'start_date', 'end_date'
     ]
     
     return [dict(zip(columns, row)) for row in results]
@@ -190,7 +194,8 @@ def get_profiles_complete_by_city(db: Session, city: str, skip: int = 0, limit: 
         family_description,
         age_from, age_to, height_from, height_to, education_preference,
         occupation_preference, income_preference, location_preference,
-        star_preference, rasi_preference, age
+        star_preference, rasi_preference, age,
+        plan_name, start_date, end_date
     FROM vw_user_profiles_complete
     WHERE city = :city
     ORDER BY profile_id DESC
@@ -213,7 +218,8 @@ def get_profiles_complete_by_city(db: Session, city: str, skip: int = 0, limit: 
         'family_description',
         'age_from', 'age_to', 'height_from', 'height_to', 'education_preference',
         'occupation_preference', 'income_preference', 'location_preference',
-        'star_preference', 'rasi_preference', 'age'
+        'star_preference', 'rasi_preference', 'age',
+        'plan_name', 'start_date', 'end_date'
     ]
     
     return [dict(zip(columns, row)) for row in results]
@@ -250,7 +256,8 @@ def get_profiles_complete_by_gender(db: Session, gender: str, skip: int = 0, lim
         family_description,
         age_from, age_to, height_from, height_to, education_preference,
         occupation_preference, income_preference, location_preference,
-        star_preference, rasi_preference, age
+        star_preference, rasi_preference, age,
+        plan_name, start_date, end_date
     FROM vw_user_profiles_complete
     WHERE gender = :gender
     ORDER BY profile_id DESC
@@ -273,7 +280,8 @@ def get_profiles_complete_by_gender(db: Session, gender: str, skip: int = 0, lim
         'family_description',
         'age_from', 'age_to', 'height_from', 'height_to', 'education_preference',
         'occupation_preference', 'income_preference', 'location_preference',
-        'star_preference', 'rasi_preference', 'age'
+        'star_preference', 'rasi_preference', 'age',
+        'plan_name', 'start_date', 'end_date'
     ]
     
     return [dict(zip(columns, row)) for row in results]

@@ -70,6 +70,11 @@ export interface UserProfileComplete {
   community_file_id: string | null;
   photo_file_id_1: string | null;
   photo_file_id_2: string | null;
+
+  // Membership Details
+  plan_name: string | null;
+  start_date: string | null;
+  end_date: string | null;
 }
 
 export interface RecommendedProfile {

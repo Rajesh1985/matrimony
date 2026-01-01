@@ -1,0 +1,68 @@
+
+<h2>Welcome to Admin User Page</h2>
+<div class="admin-user-page-grid">
+  <div class="sidebar">
+    <button mat-raised-button color="primary" [class.active-tab]="activeTab==='approved'" (click)="setTab('approved')">Approved Users</button>
+    <button mat-raised-button color="accent" [class.active-tab]="activeTab==='unapproved'" (click)="setTab('unapproved')">UnApproved Users</button>
+    <button mat-raised-button color="warn" [class.active-tab]="activeTab==='expired'" (click)="setTab('expired')">Membership Expired Users</button>
+  </div>
+  <div class="main-content">
+    <ng-container *ngIf="loading">
+      <div class="banner">Loading...</div>
+    </ng-container>
+    <ng-container *ngIf="error && !loading">
+      <div class="banner">{{ error }}</div>
+    </ng-container>
+    <ng-container *ngIf="!loading && !error && tableData.length">
+      <h2 *ngIf="activeTab==='approved'">Approved User List</h2>
+      <h2 *ngIf="activeTab==='unapproved'">Unapproved User List</h2>
+      <h2 *ngIf="activeTab==='expired'">Membership Expired User List</h2>
+      <div class="responsive-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Profile ID</th>
+              <th>Serial Number</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Mobile</th>
+              <th>Gender</th>
+              <th>State</th>
+              <th>City</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of tableData">
+              <td>{{ user.profile_id }}</td>
+              <td>{{ user.serial_number }}</td>
+              <td>{{ user.name }}</td>
+              <td>{{ user.email_id }}</td>
+              <td>{{ user.mobile }}</td>
+              <td>{{ user.gender }}</td>
+              <td>{{ user.state }}</td>
+              <td>{{ user.city }}</td>
+              <td class="actions">
+                <ng-container *ngIf="activeTab==='approved'">
+                  <button mat-button color="primary" (click)="viewCommunityCert(user)">View Community Certificate</button>
+                </ng-container>
+                <ng-container *ngIf="activeTab==='unapproved'">
+                  <button mat-button color="primary" (click)="viewCommunityCert(user)">View Community Certificate</button>
+                  <button mat-button color="accent" (click)="approveProfile(user)">Approve</button>
+                </ng-container>
+                <ng-container *ngIf="activeTab==='expired'">
+                  <button mat-button color="warn" (click)="openSetMembershipDialog(user)">Set Membership</button>
+                </ng-container>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" *ngIf="counts[activeTab] > PAGE_LIMIT">
+        <button mat-button (click)="prevPage()" [disabled]="pages[activeTab].page === 1">Previous</button>
+        <span>Page {{ pages[activeTab].page }} of {{ totalPages }}</span>
+        <button mat-button (click)="nextPage()" [disabled]="(pages[activeTab].page * PAGE_LIMIT) >= counts[activeTab]">Next</button>
+      </div>
+    </ng-container>
+  </div>
+</div>

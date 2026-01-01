@@ -7,11 +7,15 @@ import { ContactUsComponent } from './pages/contact-us/contact-us.component';
 import { MembershipComponent } from './pages/membership/membership.component';
 import { RegistrationComponent } from './pages/registration/registration.component';
 import { UserPageComponent } from './pages/user-page/user-page.component';
+import { AdminLoginComponent } from './pages/admin-login/admin-login.component';
+import { AdminUserPageComponent } from './pages/admin-user-page/admin-user-page.component';  
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
   { path: 'registration', component: RegistrationComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'admin-login', component: AdminLoginComponent },
+  { path: 'admin-user-page', component: AdminUserPageComponent },
   { path: 'about-us', component: AboutUsComponent },
   { path: 'success-stories', component: SuccessStoriesComponent },
   { path: 'contact-us', component: ContactUsComponent },

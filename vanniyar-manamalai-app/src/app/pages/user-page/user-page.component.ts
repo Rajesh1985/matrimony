@@ -326,7 +326,15 @@ export class UserPageComponent implements OnInit {
         this.currentProfile = profile;
         this.isLoading = false;
         this.loadProfilePhoto();
-        this.loadRecommendedProfiles(profile.profile_id);
+        
+        // Only load recommended profiles if membership is active
+        if (this.hasActiveMembership()) {
+          this.loadRecommendedProfiles(profile.profile_id);
+        } else {
+          // No active membership - don't load recommendations
+          this.recommendedProfiles = [];
+          this.isLoadingRecommendations = false;
+        }
       },
       error: (err: any) => {
         this.error = `Failed to load profile: ${err.error?.detail || 'Unknown error'}`;
@@ -448,13 +456,40 @@ export class UserPageComponent implements OnInit {
   /**
    * Format date for display
    */
-  formatDate(date: string): string {
+  formatDate(date: string | null): string {
     if (!date) return 'N/A';
-    return new Date(date).toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+    return new Date(date).toLocaleDateString('en-GB');
+  }
+
+  /**
+   * Check if membership has expired
+   */
+  isExpired(endDate: string | null): boolean {
+    if (!endDate) return false;
+    try {
+      const today = new Date();
+      const end = new Date(endDate);
+      return end < today;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Check if user has active membership
+   */
+  hasActiveMembership(): boolean {
+    if (!this.currentProfile) return false;
+    if (!this.currentProfile.plan_name) return false;
+    if (!this.currentProfile.end_date) return false;
+    
+    try {
+      const today = new Date();
+      const endDate = new Date(this.currentProfile.end_date);
+      return endDate >= today;
+    } catch {
+      return false;
+    }
   }
 
   /**

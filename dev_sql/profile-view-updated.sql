@@ -2,7 +2,7 @@
 -- This view merges all tables to provide complete profile information for display and matching
 
 CREATE OR REPLACE VIEW vw_user_profiles_complete AS
-SELECT 
+SELECT DISTINCT
   -- User Info
   u.id AS user_id,
   u.name,
@@ -80,6 +80,11 @@ SELECT
   pp.star_preference,
   pp.rasi_preference,
   
+  -- Membership Info
+  md.plan_name,
+  md.start_date,
+  md.end_date,
+  
   -- Calculate age from birth_date
   YEAR(CURDATE()) - YEAR(p.birth_date) - (DATE_FORMAT(p.birth_date, '%m%d') > DATE_FORMAT(CURDATE(), '%m%d')) AS age
   
@@ -89,6 +94,7 @@ LEFT JOIN astrology_details ast ON p.id = ast.profile_id
 LEFT JOIN professional_details prof ON p.id = prof.profile_id
 LEFT JOIN family_details fam ON p.id = fam.profile_id
 LEFT JOIN partner_preferences pp ON p.id = pp.profile_id
+LEFT JOIN membership_details md ON p.id = md.profile_id
 WHERE p.id IS NOT NULL;
 
 -- Indexes for optimal query performance
