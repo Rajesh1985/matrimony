@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from datetime import date
 from enum import Enum
@@ -15,7 +15,8 @@ class MembershipBase(BaseModel):
     """Base membership schema"""
     plan_name: Optional[str] = Field(None, description="Membership plan name: Silver, Gold, or Platinum")
 
-    @validator('plan_name')
+    @field_validator('plan_name')
+    @classmethod
     def validate_plan_name(cls, v):
         """Validate plan_name is one of the valid options or None"""
         if v is not None and v not in {"Silver", "Gold", "Platinum"}:
@@ -28,7 +29,8 @@ class MembershipCreateRequest(BaseModel):
     profile_id: int = Field(..., gt=0, description="Profile ID (must be positive)")
     plan_name: str = Field(..., description="Membership plan name: Silver, Gold, or Platinum")
 
-    @validator('plan_name')
+    @field_validator('plan_name')
+    @classmethod
     def validate_plan_name(cls, v):
         """Validate plan_name is one of the valid options"""
         if v not in {"Silver", "Gold", "Platinum"}:
@@ -40,7 +42,8 @@ class MembershipUpdateRequest(BaseModel):
     """Schema for updating membership"""
     plan_name: Optional[str] = Field(None, description="Membership plan name: Silver, Gold, Platinum, or null to cancel")
 
-    @validator('plan_name')
+    @field_validator('plan_name')
+    @classmethod
     def validate_plan_name(cls, v):
         """Validate plan_name is one of the valid options or None"""
         if v is not None and v not in {"Silver", "Gold", "Platinum"}:
