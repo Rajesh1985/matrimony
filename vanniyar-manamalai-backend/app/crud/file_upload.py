@@ -13,8 +13,6 @@ from sqlalchemy import and_
 from app.models.file import File, ProcessingStatusEnum, FileKindEnum
 from app.models.family import FamilyDetails
 from app.models.profile import Profile
-from app.schemas.file import FileCreate
-import uuid
 from datetime import datetime
 from typing import Optional, Tuple
 

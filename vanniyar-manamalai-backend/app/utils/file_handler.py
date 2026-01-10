@@ -163,6 +163,7 @@ def convert_to_webp(file_content: bytes, quality: int = 85) -> Tuple[bytes, Opti
         try:
             exif_data = img.info.get('exif')
         except Exception:
+            # EXIF data may not be present in all images; continue without it
             pass
 
         # Convert to RGB if necessary (for RGBA images)

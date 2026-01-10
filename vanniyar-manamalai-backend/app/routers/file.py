@@ -10,9 +10,9 @@ from app.crud.file import (
     get_images_by_dimensions
 )
 from app.crud.file_upload import (
-    create_file_record, find_duplicate_by_checksum as find_dup,
+    find_duplicate_by_checksum as find_dup,
     assign_photo_to_slot, unassign_photo_from_slot,
-    get_profile_serial_number, find_available_photo_slot,
+    find_available_photo_slot,
     get_profile_with_family, assign_community_cert_to_family,
     unassign_community_cert_from_family
 )
@@ -21,19 +21,18 @@ from app.schemas.file import (
     FileUploadResponse, FileMetadata, FileStatistics, 
     FileKindEnum, ProcessingStatusEnum
 )
-from app.schemas.file_upload import FileUploadResponse as PhotoUploadResponse, FileUploadErrorResponse, ErrorCodeEnum, FileDeleteResponse
+from app.schemas.file_upload import FileUploadResponse as PhotoUploadResponse, ErrorCodeEnum, FileDeleteResponse
 from app.utils.file_handler import (
     validate_file_size, validate_mime_type, calculate_checksum as calc_checksum,
     scan_file_with_clamav, convert_to_webp, generate_thumbnail,
     ensure_directory, save_file_to_disk, delete_file_from_disk,
-    generate_photo_filename, image_to_pdf, validate_pdf_file
+    image_to_pdf, validate_pdf_file
 )
 from typing import List, Optional
 import os
 import shutil
 from pathlib import Path
 import uuid
-import io
 import platform
 
 # ==================== CONFIGURATION ====================

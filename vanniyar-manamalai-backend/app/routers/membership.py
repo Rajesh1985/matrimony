@@ -12,7 +12,6 @@ from app.crud.membership import (
     update_membership,
     delete_membership
 )
-from app.models.membership import MembershipDetails
 
 router = APIRouter(prefix="/membership", tags=["Membership"])
 
