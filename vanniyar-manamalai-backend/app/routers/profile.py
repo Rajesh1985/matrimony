@@ -81,7 +81,7 @@ def get_unapproved_profiles_count(db: Session = Depends(get_db)):
     return {"count": count}
 
 
-@router.get("/exipred_list/count", response_model=ProfileCountResponse)
+@router.get("/expired_list/count", response_model=ProfileCountResponse)
 def get_expired_profiles_count(db: Session = Depends(get_db)):
     """
     Get count of expired profiles (membership expired or missing)
@@ -170,7 +170,7 @@ def get_unapproved_profiles(limit: int = Query(20, ge=1), offset: int = Query(0,
     return profiles
 
 
-@router.get("/exipred_list/all", response_model=None)
+@router.get("/expired_list/all", response_model=None)
 def get_expired_profiles(limit: int = Query(20, ge=1), offset: int = Query(0, ge=0), db: Session = Depends(get_db)):
     """
     Get all expired profiles (membership expired or missing)
