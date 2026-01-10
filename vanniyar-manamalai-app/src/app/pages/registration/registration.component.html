@@ -451,6 +451,139 @@
             class="form-control"
             rows="3"></textarea>
         </div>
+
+        <!-- PHOTO UPLOAD SECTION -->
+        <div class="photo-upload-section">
+          <h3 class="photo-section-title">Add Your Photos (Up to {{ maxPhotos }})</h3>
+          <p class="photo-section-description">Upload clear, recent photos to increase your profile visibility</p>
+
+          <!-- File Input -->
+          <div class="form-group">
+            <label for="photo_input" class="file-input-label">
+              <span class="file-input-icon">📷</span>
+              <span class="file-input-text">
+                {{ queuedFiles.length > 0 ? 
+                  queuedFiles.length + ' file(s) selected' : 
+                  'Click to select up to ' + (maxPhotos - photos.length - queuedFiles.length) + ' photo(s)' }}
+              </span>
+            </label>
+            <input 
+              id="photo_input"
+              type="file" 
+              multiple 
+              accept="image/*"
+              (change)="handlePhotoSelection($event)"
+              class="file-input"
+              [disabled]="photos.length + queuedFiles.length >= maxPhotos">
+            <small class="form-hint">Formats: JPG, PNG, GIF (Max 2 files)</small>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="photoUploadError" class="error-message photo-error">
+            ⚠️ {{ photoUploadError }}
+          </div>
+
+          <!-- Upload Progress -->
+          <div *ngIf="isUploadingPhotos" class="upload-progress">
+            <div class="spinner"></div>
+            <span class="progress-text">Uploading photos… please wait</span>
+          </div>
+
+          <!-- Uploaded Photos Grid -->
+          <div *ngIf="photos.length > 0" class="photos-grid">
+            <h4 class="grid-title">{{ photos.length }} Photo(s) Uploaded</h4>
+            <div class="grid-container">
+              <div *ngFor="let photo of photos" class="photo-card">
+                <img 
+                  [src]="getThumbnailUrl(photo.thumbnail_url)" 
+                  [alt]="'Photo ' + (photos.indexOf(photo) + 1)"
+                  class="photo-thumbnail"
+                  onerror="this.src='assets/images/placeholder.png'">
+                <button 
+                  type="button"
+                  (click)="deletePhoto(photo.file_id)"
+                  class="delete-button"
+                  title="Delete photo">
+                  ✕
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Queued Files Preview -->
+          <div *ngIf="queuedFiles.length > 0" class="queued-files">
+            <p class="queued-label">{{ queuedFiles.length }} file(s) selected (will be uploaded after saving)</p>
+            <ul class="queued-list">
+              <li *ngFor="let file of queuedFiles" class="queued-item">
+                <span class="file-icon">📄</span>
+                <span class="file-name">{{ file.name }}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- COMMUNITY CERTIFICATE UPLOAD SECTION -->
+        <div class="certificate-upload-section">
+          <h3 class="certificate-section-title">Community Certificate (Optional)</h3>
+          <p class="certificate-section-description">Upload your community certificate in PDF or image format</p>
+
+          <!-- File Input -->
+          <div class="form-group">
+            <label for="certificate_input" class="file-input-label">
+              <span class="file-input-icon">📄</span>
+              <span class="file-input-text">
+                {{ queuedCertificateFile ? 
+                  '✓ File selected: ' + queuedCertificateFile.name : 
+                  'Click to select community certificate (PDF or image)' }}
+              </span>
+            </label>
+            <input 
+              id="certificate_input"
+              type="file" 
+              accept=".pdf,image/*"
+              (change)="handleCommunityCertificateSelection($event)"
+              class="file-input"
+              [disabled]="communityCertificate !== null">
+            <small class="form-hint">Accepted formats: PDF, JPG, PNG, GIF, WebP (Max 10MB)</small>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="certificateUploadError" class="error-message certificate-error">
+            ⚠️ {{ certificateUploadError }}
+          </div>
+
+          <!-- Upload Progress -->
+          <div *ngIf="isUploadingCertificate" class="upload-progress">
+            <div class="spinner"></div>
+            <span class="progress-text">Uploading certificate… please wait</span>
+          </div>
+
+          <!-- Uploaded Certificate Display -->
+          <div *ngIf="communityCertificate" class="certificate-display">
+            <div class="certificate-item">
+              <div class="certificate-icon">
+                <img src="assets/images/icons/pdf-icon.png" alt="PDF Icon" class="pdf-icon">
+              </div>
+              <div class="certificate-info">
+                <p class="certificate-filename">{{ communityCertificate.filename }}</p>
+                <span class="certificate-label">Community Certificate</span>
+              </div>
+              <button 
+                type="button"
+                (click)="deleteCommunityCertificate(communityCertificate.file_id)"
+                class="delete-certificate-button"
+                title="Delete certificate">
+                🗑️
+              </button>
+            </div>
+          </div>
+
+          <!-- Queued Certificate Preview -->
+          <div *ngIf="queuedCertificateFile && !communityCertificate" class="queued-certificate">
+            <p class="queued-label">File selected: <strong>{{ queuedCertificateFile.name }}</strong></p>
+            <p class="queued-hint">(will be uploaded after saving)</p>
+          </div>
+        </div>
       </div>
 
       <!-- STEP 3: ASTROLOGY DETAILS -->
@@ -467,7 +600,7 @@
               class="form-control"
               [class.has-error]="hasError('star')">
               <option value="">Select Star</option>
-              <option *ngFor="let opt of registrationData.STAR_OPTIONS" [value]="opt.value">
+              <option *ngFor="let opt of starOptions" [value]="opt.value">
                 {{ opt.label }}
               </option>
             </select>
@@ -482,7 +615,7 @@
               class="form-control"
               [class.has-error]="hasError('rasi')">
               <option value="">Select Rasi</option>
-              <option *ngFor="let opt of registrationData.RASI_OPTIONS" [value]="opt.value">
+              <option *ngFor="let opt of rasiOptions" [value]="opt.value">
                 {{ opt.label }}
               </option>
             </select>
@@ -535,6 +668,48 @@
             placeholder="Describe any dosham"
             class="form-control"
             rows="3"></textarea>
+        </div>
+
+        <!-- Horoscope File Upload -->
+        <div class="form-group">
+          <label for="horoscope_file">Horoscope File (PDF or Image - Optional)</label>
+          <div class="file-input-wrapper">
+            <input 
+              id="horoscope_file" 
+              type="file" 
+              accept=".pdf,image/*"
+              (change)="handleHoroscopeSelection($event)"
+              [disabled]="isUploadingHoroscope"
+              class="form-control"
+              hidden>
+            <label for="horoscope_file" class="file-input-label">
+              <span *ngIf="!horoscopeFile?.filename && !isUploadingHoroscope">Choose Horoscope File</span>
+              <span *ngIf="isUploadingHoroscope" class="uploading">
+                <span class="spinner"></span> Uploading...
+              </span>
+            </label>
+          </div>
+
+          <!-- Display uploaded horoscope file -->
+          <div *ngIf="horoscopeFile?.filename" class="uploaded-file-section">
+            <div class="uploaded-file-item">
+              <i class="fas fa-file-pdf"></i>
+              <span class="filename">{{ horoscopeFile!.filename }}</span>
+              <button 
+                type="button" 
+                (click)="deleteHoroscopeFile()"
+                [disabled]="isUploadingHoroscope"
+                class="btn-delete-file"
+                title="Delete horoscope file">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Horoscope upload error -->
+          <span class="error-message" *ngIf="horoscopeUploadError">
+            {{ horoscopeUploadError }}
+          </span>
         </div>
       </div>
 

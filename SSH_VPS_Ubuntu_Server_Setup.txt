@@ -163,6 +163,29 @@ sudo supervisorctl status
 
 
 
+sudo systemctl stop nginx
+sudo supervisorctl stop all
 
-npm install
+
+npm install --force
 npm audit fix
+ng build --configuration production
+rm -rf /var/www/html/*
+sudo cp -r ./dist/vanniyar-manamalai-app/browser/* /var/www/html/
+
+python3 -m venv venv
+source venv/bin/activate
+cd ./app/
+pip install -r requirements.txt
+
+Test FastAPI locally:
+uvicorn main:app --host 0.0.0.0 --port 8000
+
+sudo systemctl restart nginx
+sudo supervisorctl restart manamalai_fastapi
+
+
+sudo apt update
+sudo apt install clamav -y
+
+DELETE FROM Users WHERE id = 1;

@@ -1,31 +1,23 @@
 from pydantic import BaseModel
 from typing import Optional
 from datetime import date, time, datetime
-from enum import Enum
 
-class GenderEnum(str, Enum):
-    Male = "Male"
-    Female = "Female"
-    Other = "Other"
+# ============================================================================
+# VALIDATION CONSTANTS
+# ============================================================================
+# These constants define valid values for VARCHAR fields
+# Keep in sync with frontend registration-data.constants.ts
 
-class PhysicalStatusEnum(str, Enum):
-    Normal = "Normal"
-    Physically_Challenged = "Physically_Challenged"
-
-class MaritalStatusEnum(str, Enum):
-    Unmarried = "Unmarried"
-    Widow_Widower = "Widow_Widower"
-    Divorced = "Divorced"
-    Separated = "Separated"
-
-class FoodPreferenceEnum(str, Enum):
-    Veg = "Veg"
-    Non_Veg = "NonVeg"
+VALID_GENDERS = {"Male", "Female", "Other"}
+VALID_PHYSICAL_STATUS = {"Normal", "Physically Challenged"}
+VALID_MARITAL_STATUS = {"Unmarried", "Widow_Widower", "Divorced", "Separated"}
+VALID_FOOD_PREFERENCES = {"Veg", "NonVeg"}
 
 class CompleteProfileResponse(BaseModel):
     """
     Complete Profile Response Schema
     Combines data from multiple tables: Users, Profiles, Astrology, Professional, Family, Partner Preferences
+    All ENUM fields converted to VARCHAR with validation
     """
     
     # User Info
@@ -44,12 +36,12 @@ class CompleteProfileResponse(BaseModel):
     height_cm: Optional[int] = None
     complexion: Optional[str] = None
     caste: Optional[str] = None
-    gender: GenderEnum
+    gender: str  # VARCHAR: Male, Female, Other
     hobbies: Optional[str] = None
     about_me: Optional[str] = None
-    physical_status: Optional[PhysicalStatusEnum] = None
-    marital_status: Optional[MaritalStatusEnum] = None
-    food_preference: Optional[FoodPreferenceEnum] = None
+    physical_status: Optional[str] = None  # VARCHAR: Normal, Physically Challenged
+    marital_status: Optional[str] = None  # VARCHAR: Unmarried, Widow_Widower, Divorced, Separated
+    food_preference: Optional[str] = None  # VARCHAR: Veg, NonVeg
     religion: Optional[str] = None
     address_line1: Optional[str] = None
     address_line2: Optional[str] = None
@@ -67,6 +59,7 @@ class CompleteProfileResponse(BaseModel):
     lagnam: Optional[str] = None
     birth_place: Optional[str] = None
     dosham_details: Optional[str] = None
+    astrology_file_id: Optional[str] = None
     
     # Professional Info
     education: Optional[str] = None
@@ -89,6 +82,9 @@ class CompleteProfileResponse(BaseModel):
     married_brothers: Optional[int] = None
     married_sisters: Optional[int] = None
     family_description: Optional[str] = None
+    community_file_id: Optional[str] = None
+    photo_file_id_1: Optional[str] = None
+    photo_file_id_2: Optional[str] = None
     
     # Partner Preferences Info
     age_from: Optional[int] = None
@@ -101,6 +97,10 @@ class CompleteProfileResponse(BaseModel):
     location_preference: Optional[str] = None
     star_preference: Optional[str] = None
     rasi_preference: Optional[str] = None
+
+    plan_name: Optional[str] = None
+    start_date: Optional[date] = None
+    end_date: Optional[date] = None
 
     class Config:
         use_enum_values = True

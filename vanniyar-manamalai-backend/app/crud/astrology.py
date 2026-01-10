@@ -80,51 +80,6 @@ def delete_astrology(db: Session, astrology_id: int):
     db.commit()
     return db_astrology
 
-def get_profiles_by_star(db: Session, star: str, skip: int = 0, limit: int = 100):
-    """
-    Find profiles by star/nakshatra
-    
-    Purpose: Matching algorithm - find compatible partners by star
-    Use Case: "Find all Rohini star profiles"
-    """
-    return (
-        db.query(AstrologyDetails)
-        .filter(AstrologyDetails.star == star)
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
-
-def get_profiles_by_rasi(db: Session, rasi: str, skip: int = 0, limit: int = 100):
-    """
-    Find profiles by rasi/zodiac sign
-    
-    Purpose: Matching algorithm - find compatible partners by rasi
-    Use Case: "Find all Leo/சிம்மம் profiles"
-    """
-    return (
-        db.query(AstrologyDetails)
-        .filter(AstrologyDetails.rasi == rasi)
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
-
-def get_profiles_by_star_and_rasi(db: Session, star: str, rasi: str, skip: int = 0, limit: int = 100):
-    """
-    Find profiles by both star and rasi
-    
-    Purpose: Advanced matching - more precise astrological compatibility
-    Use Case: "Find profiles with Rohini star AND Taurus rasi"
-    """
-    return (
-        db.query(AstrologyDetails)
-        .filter(AstrologyDetails.star == star, AstrologyDetails.rasi == rasi)
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
-
 def update_astrology_by_profile_id(db: Session, profile_id: int, astrology_data: AstrologyDetailsUpdate):
     """
     Update astrology details by profile_id (partial update)

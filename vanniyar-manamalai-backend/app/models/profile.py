@@ -1,28 +1,23 @@
-from sqlalchemy import Column, Integer, String, Date, Time, Boolean, DateTime, Enum
+from sqlalchemy import Column, Integer, String, Date, Time, Boolean, DateTime
 from datetime import datetime
 from app.database import Base
-import enum
 
-class GenderEnum(str, enum.Enum):
-    Male = "Male"
-    Female = "Female"
-    Other = "Other"
+# ============================================================================
+# VALIDATION CONSTANTS
+# ============================================================================
+# These constants define valid values for VARCHAR fields
+# Keep in sync with frontend registration-data.constants.ts
 
-class PhysicalStatusEnum(str, enum.Enum):
-    Normal = "Normal"
-    Physically_Challenged = "Physically Challenged"
-
-class MaritalStatusEnum(str, enum.Enum):
-    Unmarried = "Unmarried"
-    Widow_Widower = "Widow_Widower"
-    Divorced = "Divorced"
-    Separated = "Separated"
-
-class FoodPreferenceEnum(str, enum.Enum):
-    Veg = "Veg"
-    NonVeg = "NonVeg"
+VALID_GENDERS = {"Male", "Female", "Other"}
+VALID_PHYSICAL_STATUS = {"Normal", "Physically Challenged"}
+VALID_MARITAL_STATUS = {"Unmarried", "Widow_Widower", "Divorced", "Separated"}
+VALID_FOOD_PREFERENCES = {"Veg", "NonVeg"}
 
 class Profile(Base):
+    """
+    Profile Model - SQLAlchemy ORM model for profiles table
+    All ENUM fields converted to VARCHAR with validation in Pydantic schemas
+    """
     __tablename__ = "profiles"
     __table_args__ = {'implicit_returning': False}
 
@@ -37,12 +32,12 @@ class Profile(Base):
     mobile_number = Column(String(20))
     introducer_name = Column(String(100))
     introducer_mobile = Column(String(20))
-    gender = Column(Enum(GenderEnum, native_enum=True), nullable=False)
+    gender = Column(String(20), nullable=False)  # VARCHAR: Male, Female, Other
     hobbies = Column(String(500))
     about_me = Column(String(2048))
-    physical_status = Column(Enum(PhysicalStatusEnum, native_enum=True))
-    marital_status = Column(Enum(MaritalStatusEnum, native_enum=True))
-    food_preference = Column(Enum(FoodPreferenceEnum, native_enum=True))
+    physical_status = Column(String(50))  # VARCHAR: Normal, Physically Challenged
+    marital_status = Column(String(50))  # VARCHAR: Unmarried, Widow_Widower, Divorced, Separated
+    food_preference = Column(String(20))  # VARCHAR: Veg, NonVeg
     religion = Column(String(50), default='hindu')
     address_line1 = Column(String(255))
     address_line2 = Column(String(255))

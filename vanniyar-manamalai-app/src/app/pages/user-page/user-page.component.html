@@ -19,10 +19,16 @@
       <!-- User Summary Card -->
       <div class="profile-card">
         <div class="profile-avatar">
-          <app-avatar 
-            [name]="currentProfile.name" 
-            size="xl">
-          </app-avatar>
+          <!-- Display photo if available, otherwise show avatar -->
+          <div *ngIf="profilePhotoUrl; else defaultAvatar" class="photo-container">
+            <img [src]="profilePhotoUrl" alt="Profile photo" class="profile-photo-img">
+          </div>
+          <ng-template #defaultAvatar>
+            <app-avatar 
+              [name]="currentProfile.name" 
+              size="xl">
+            </app-avatar>
+          </ng-template>
         </div>
 
         <div class="profile-summary">
@@ -47,9 +53,25 @@
           </div>
 
           <div class="profile-badges">
-            <span class="badge badge-primary">{{ currentProfile.star }}</span>
-            <span class="badge badge-secondary">{{ currentProfile.rasi }}</span>
+            <span class="badge badge-primary">{{ getStarDisplay(currentProfile.star) }}</span>
+            <span class="badge badge-secondary">{{ getRasiDisplay(currentProfile.rasi) }}</span>
           </div>
+
+          <!-- Membership Section -->
+          <div class="membership-section" *ngIf="currentProfile.plan_name; else noPlan">
+            <span class="membership-badge" [ngClass]="currentProfile.plan_name.toLowerCase()">
+              {{ currentProfile.plan_name }}
+            </span>
+            <span class="validity" *ngIf="!isExpired(currentProfile.end_date)">
+              Valid till: {{ formatDate(currentProfile.end_date) }}
+            </span>
+            <span class="expired" *ngIf="isExpired(currentProfile.end_date)">
+              {{ currentProfile.plan_name }} expired
+            </span>
+          </div>
+          <ng-template #noPlan>
+            <div class="no-plan">No active plan</div>
+          </ng-template>
 
           <p class="profile-about">{{ currentProfile.about_me }}</p>
         </div>
@@ -85,6 +107,34 @@
               <span class="label">Hobbies:</span>
               <span class="value">{{ currentProfile.hobbies || 'N/A' }}</span>
             </div>
+
+            <!-- Address Details Sub-section -->
+            <div class="address-details-heading">Address Details</div>
+            <div class="detail-row">
+              <span class="label">Address Line 1:</span>
+              <span class="value">{{ currentProfile.address_line1 }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Address Line 2:</span>
+              <span class="value">{{ currentProfile.address_line2 || 'N/A' }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">City:</span>
+              <span class="value">{{ currentProfile.city }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">State:</span>
+              <span class="value">{{ currentProfile.state }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Country:</span>
+              <span class="value">{{ currentProfile.country }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Postal Code:</span>
+              <span class="value">{{ currentProfile.postal_code }}</span>
+            </div>
+
             <button class="btn btn-edit" (click)="openEditModal('personal')">Edit</button>
           </div>
         </div>
@@ -151,6 +201,16 @@
               <span class="label">Married Sisters:</span>
               <span class="value">{{ currentProfile.married_sisters }}</span>
             </div>
+            <!-- Community Certificate Section -->
+            <div class="detail-row certificate-section" *ngIf="currentProfile.community_file_id">
+              <span class="label">Community Certificate:</span>
+              <button class="btn btn-sm btn-primary" (click)="viewCommunityCertificate(currentProfile.community_file_id || '')">
+                📄 View Certificate
+              </button>
+            </div>
+            <div class="detail-row certificate-section" *ngIf="!currentProfile.community_file_id">
+              <span class="label text-muted">Community Certificate: Not uploaded</span>
+            </div>
             <button class="btn btn-edit" (click)="openEditModal('family')">Edit</button>
           </div>
         </div>
@@ -164,11 +224,11 @@
           <div class="section-content" *ngIf="expandedSections.astrology">
             <div class="detail-row">
               <span class="label">Star:</span>
-              <span class="value">{{ currentProfile.star }}</span>
+              <span class="value astrology-bilingual">{{ getStarDisplay(currentProfile.star) }}</span>
             </div>
             <div class="detail-row">
               <span class="label">Rasi:</span>
-              <span class="value">{{ currentProfile.rasi }}</span>
+              <span class="value astrology-bilingual">{{ getRasiDisplay(currentProfile.rasi) }}</span>
             </div>
             <div class="detail-row">
               <span class="label">Lagnam:</span>
@@ -178,42 +238,17 @@
               <span class="label">Birth Place:</span>
               <span class="value">{{ currentProfile.birth_place }}</span>
             </div>
+            <!-- Horoscope Section -->
+            <div class="detail-row horoscope-section" *ngIf="currentProfile.astrology_file_id">
+              <span class="label">Horoscope:</span>
+              <button class="btn btn-sm btn-primary" (click)="viewHoroscope(currentProfile.astrology_file_id || '')">
+                📄 View Horoscope
+              </button>
+            </div>
+            <div class="detail-row horoscope-section" *ngIf="!currentProfile.astrology_file_id">
+              <span class="label text-muted">Horoscope: Not uploaded</span>
+            </div>
             <button class="btn btn-edit" (click)="openEditModal('astrology')">Edit</button>
-          </div>
-        </div>
-
-        <!-- Address Section -->
-        <div class="section">
-          <div class="section-header" (click)="toggleSection('address')">
-            <h4>Address</h4>
-            <span class="toggle-icon" [class.open]="expandedSections.address">▼</span>
-          </div>
-          <div class="section-content" *ngIf="expandedSections.address">
-            <div class="detail-row">
-              <span class="label">Address Line 1:</span>
-              <span class="value">{{ currentProfile.address_line1 }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Address Line 2:</span>
-              <span class="value">{{ currentProfile.address_line2 || 'N/A' }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">City:</span>
-              <span class="value">{{ currentProfile.city }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">State:</span>
-              <span class="value">{{ currentProfile.state }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Country:</span>
-              <span class="value">{{ currentProfile.country }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="label">Postal Code:</span>
-              <span class="value">{{ currentProfile.postal_code }}</span>
-            </div>
-            <button class="btn btn-edit" (click)="openEditModal('address')">Edit</button>
           </div>
         </div>
 
@@ -224,14 +259,54 @@
             <span class="toggle-icon" [class.open]="expandedSections.preferences">▼</span>
           </div>
           <div class="section-content" *ngIf="expandedSections.preferences">
+            <!-- Education Preference -->
+            <div class="detail-row" *ngIf="currentProfile.education_preference && (Array.isArray(currentProfile.education_preference) ? currentProfile.education_preference.length > 0 : currentProfile.education_preference)">
+              <span class="label">Education:</span>
+              <span class="value">{{ Array.isArray(currentProfile.education_preference) ? currentProfile.education_preference.join(', ') : currentProfile.education_preference }}</span>
+            </div>
+
+            <!-- Occupation Preference -->
+            <div class="detail-row" *ngIf="currentProfile.occupation_preference && (Array.isArray(currentProfile.occupation_preference) ? currentProfile.occupation_preference.length > 0 : currentProfile.occupation_preference)">
+              <span class="label">Occupation:</span>
+              <span class="value">{{ Array.isArray(currentProfile.occupation_preference) ? currentProfile.occupation_preference.join(', ') : currentProfile.occupation_preference }}</span>
+            </div>
+
+            <!-- Income Preference -->
+            <div class="detail-row" *ngIf="currentProfile.income_preference && (Array.isArray(currentProfile.income_preference) ? currentProfile.income_preference.length > 0 : currentProfile.income_preference)">
+              <span class="label">Income:</span>
+              <span class="value">{{ Array.isArray(currentProfile.income_preference) ? currentProfile.income_preference.join(', ') : currentProfile.income_preference }}</span>
+            </div>
+
+            <!-- Star Preference -->
+            <div class="detail-row" *ngIf="currentProfile.star_preference && (Array.isArray(currentProfile.star_preference) ? currentProfile.star_preference.length > 0 : currentProfile.star_preference)">
+              <span class="label">Star:</span>
+              <span class="value">{{ Array.isArray(currentProfile.star_preference) ? currentProfile.star_preference.join(', ') : currentProfile.star_preference }}</span>
+            </div>
+
+            <!-- Rasi Preference -->
+            <div class="detail-row" *ngIf="currentProfile.rasi_preference && (Array.isArray(currentProfile.rasi_preference) ? currentProfile.rasi_preference.length > 0 : currentProfile.rasi_preference)">
+              <span class="label">Rasi:</span>
+              <span class="value">{{ Array.isArray(currentProfile.rasi_preference) ? currentProfile.rasi_preference.join(', ') : currentProfile.rasi_preference }}</span>
+            </div>
+
+            <!-- Location Preference -->
+            <div class="detail-row" *ngIf="currentProfile.location_preference && (Array.isArray(currentProfile.location_preference) ? currentProfile.location_preference.length > 0 : currentProfile.location_preference)">
+              <span class="label">Location:</span>
+              <span class="value">{{ Array.isArray(currentProfile.location_preference) ? currentProfile.location_preference.join(', ') : currentProfile.location_preference }}</span>
+            </div>
+
+            <!-- Age Range -->
             <div class="detail-row">
               <span class="label">Age Range:</span>
               <span class="value">{{ currentProfile.age_from }} - {{ currentProfile.age_to }} Yrs</span>
             </div>
+
+            <!-- Height Range -->
             <div class="detail-row">
               <span class="label">Height Range:</span>
               <span class="value">{{ currentProfile.height_from }} - {{ currentProfile.height_to }} cm</span>
             </div>
+
             <button class="btn btn-edit" (click)="openEditModal('preferences')">Edit</button>
           </div>
         </div>
@@ -241,89 +316,95 @@
 
     <!-- Right Section: Recommended Profiles -->
     <main class="main-content">
-      <div class="main-header">
-        <h2>Recommended Profiles</h2>
-        <p class="text-muted" *ngIf="recommendedProfiles.length > 0">
-          {{ recommendedProfiles.length }} Profile{{ recommendedProfiles.length !== 1 ? 's' : '' }} found
-        </p>
-      </div>
+      <!-- Recommended Profiles (visible only with active membership) -->
+      <div *ngIf="hasActiveMembership(); else membershipBanner">
+        <div class="main-header">
+          <h2>Recommended Profiles</h2>
+          <p class="text-muted" *ngIf="recommendedProfiles.length > 0">
+            {{ recommendedProfiles.length }} Profile{{ recommendedProfiles.length !== 1 ? 's' : '' }} found
+          </p>
+        </div>
 
-      <!-- Loading State -->
-      <div class="loading-container" *ngIf="isLoadingRecommendations">
-        <div class="spinner"></div>
-        <p>Loading recommended profiles...</p>
-      </div>
+        <!-- Loading State -->
+        <div class="loading-container" *ngIf="isLoadingRecommendations">
+          <div class="spinner"></div>
+          <p>Loading recommended profiles...</p>
+        </div>
 
-      <!-- No Profiles -->
-      <div class="no-profiles" *ngIf="!isLoadingRecommendations && recommendedProfiles.length === 0">
-        <p>No matching profiles found. Update your preferences to see recommendations.</p>
-      </div>
+        <!-- No Profiles -->
+        <div class="no-profiles" *ngIf="!isLoadingRecommendations && recommendedProfiles.length === 0">
+          <p>No matching profiles found. Update your preferences to see recommendations.</p>
+        </div>
 
-      <!-- Profiles Grid -->
-      <div class="profiles-grid" *ngIf="!isLoadingRecommendations && recommendedProfiles.length > 0">
-        <div class="profile-card-item" *ngFor="let profile of recommendedProfiles">
-          
-          <!-- Profile Header with Photo & Quick Info -->
-          <div class="profile-card-header">
-            <div class="profile-photo">
-              <app-avatar 
-                [name]="profile.name" 
-                size="lg">
-              </app-avatar>
-            </div>
-
-            <div class="profile-header-info">
-              <div>
-                <h3 class="profile-title">{{ profile.name }}</h3>
-                <p class="profile-subtitle">ID: {{ profile.match_profile_id }}</p>
+        <!-- Profiles Grid -->
+        <div class="profiles-grid" *ngIf="!isLoadingRecommendations && recommendedProfiles.length > 0">
+          <div class="profile-card-item" *ngFor="let profile of recommendedProfiles">
+            
+            <!-- Profile Header with Photo & Quick Info -->
+            <div class="profile-card-header">
+              <div class="profile-photo">
+                <!-- Display photo if available, otherwise show avatar -->
+                <div *ngIf="recommendedProfilePhotos[profile.match_profile_id]; else defaultProfileAvatar" class="photo-container">
+                  <img [src]="recommendedProfilePhotos[profile.match_profile_id]" alt="Profile photo" class="profile-photo-img">
+                </div>
+                <ng-template #defaultProfileAvatar>
+                  <app-avatar 
+                    [name]="profile.name" 
+                    size="lg">
+                  </app-avatar>
+                </ng-template>
               </div>
-              <div class="profile-meta">
-                <span class="age-badge">{{ profile.age }} Yrs</span>
-                <span class="height-badge">{{ profile.height_cm }} cm</span>
+
+              <div class="profile-header-info">
+                <div>
+                  <h3 class="profile-title">{{ profile.name }}</h3>
+                  <p class="profile-subtitle">ID: {{ profile.serial_number }}</p>
+                </div>
+                <div class="profile-meta">
+                  <span class="age-badge">{{ profile.age }} Yrs</span>
+                  <span class="height-badge">{{ profile.height_cm }} cm</span>
+                </div>
+              </div>
+
+              <div class="match-score">
+                <div class="score-circle" [class]="'score-' + profile.match_score">
+                  {{ profile.match_score }}/8
+                </div>
+                <small>Match</small>
               </div>
             </div>
 
-            <div class="match-score">
-              <div class="score-circle" [class]="'score-' + profile.match_score">
-                {{ profile.match_score }}/8
+            <!-- Profile Body -->
+            <div class="profile-card-body">
+              <div class="profile-detail">
+                <strong>{{ profile.occupation }}</strong>
+                <span class="text-muted">{{ profile.city }}, {{ profile.state }}</span>
               </div>
-              <small>Match</small>
-            </div>
-          </div>
 
-          <!-- Profile Body -->
-          <div class="profile-card-body">
-            <div class="profile-detail">
-              <strong>{{ profile.occupation }}</strong>
-              <span class="text-muted">{{ profile.city }}, {{ profile.state }}</span>
+              <div class="profile-astro">
+                <span class="astrology-bilingual">{{ getStarDisplay(profile.star) }}</span>
+                <span class="astrology-bilingual">{{ getRasiDisplay(profile.rasi) }}</span>
+              </div>
+
+              <p class="profile-about">{{ profile.about_me }}</p>
             </div>
 
-            <div class="profile-astro">
-              <span class="badge badge-sm">{{ profile.star }}</span>
-              <span class="badge badge-sm">{{ profile.rasi }}</span>
+            <!-- Profile Footer: Actions -->
+            <div class="profile-card-footer">
+              <button class="btn btn-primary btn-block" (click)="viewProfile(profile)">
+                View Profile
+              </button>
             </div>
-
-            <p class="profile-about">{{ profile.about_me }}</p>
-
-            <p class="last-updated">
-              Updated {{ formatTimestamp(profile.preferences_updated_at) }}
-            </p>
-          </div>
-
-          <!-- Profile Footer: Actions -->
-          <div class="profile-card-footer">
-            <button class="btn btn-primary btn-block" (click)="viewProfile(profile)">
-              👁️ View Profile
-            </button>
-            <button class="btn btn-secondary" (click)="sendInterest(profile)">
-              💌 Interest
-            </button>
-            <button class="btn btn-outline" (click)="addToFavorites(profile)">
-              ❤️
-            </button>
           </div>
         </div>
       </div>
+
+      <!-- Membership Banner (shown when no active membership) -->
+      <ng-template #membershipBanner>
+        <div class="membership-banner">
+          <p>Please subscribe to a plan available in Membership to view recommended profiles.</p>
+        </div>
+      </ng-template>
     </main>
   </div>
 
@@ -343,14 +424,1159 @@
     </div>
 
     <div class="modal-body">
-      <!-- Edit forms for each section would go here -->
-      <p>Edit form for {{ editingSection }} section</p>
-      <!-- Form fields would be dynamically generated based on editingSection -->
+      <!-- PERSONAL SECTION FORM -->
+      <div *ngIf="editingSection === 'personal'" class="edit-form-section">
+        <!-- Name -->
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input 
+            type="text" 
+            id="name" 
+            class="form-control"
+            [(ngModel)]="editFormData.name" 
+            placeholder="Full Name">
+        </div>
+
+        <!-- Birth Date -->
+        <div class="form-group">
+          <label for="birth_date">Date of Birth</label>
+          <input 
+            type="date" 
+            id="birth_date" 
+            class="form-control"
+            [(ngModel)]="editFormData.birth_date">
+        </div>
+
+        <!-- Birth Time -->
+        <div class="form-group">
+          <label for="birth_time">Time of Birth</label>
+          <input 
+            type="time" 
+            id="birth_time" 
+            class="form-control"
+            [(ngModel)]="editFormData.birth_time">
+        </div>
+
+        <!-- Height -->
+        <div class="form-group">
+          <label for="height_cm">Height (cm)</label>
+          <input 
+            type="number" 
+            id="height_cm" 
+            class="form-control"
+            [(ngModel)]="editFormData.height_cm" 
+            placeholder="Height in centimeters">
+        </div>
+
+        <!-- Complexion -->
+        <div class="form-group">
+          <label for="complexion">Complexion</label>
+          <select 
+            id="complexion" 
+            class="form-control"
+            [(ngModel)]="editFormData.complexion">
+            <option value="">Select Complexion</option>
+            <option *ngFor="let opt of complexionOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Mobile Number -->
+        <div class="form-group">
+          <label for="mobile_number">Mobile Number</label>
+          <input 
+            type="text" 
+            id="mobile_number" 
+            class="form-control"
+            [(ngModel)]="editFormData.mobile_number" 
+            placeholder="Mobile number">
+        </div>
+
+        <!-- Physical Status -->
+        <div class="form-group">
+          <label for="physical_status">Physical Status</label>
+          <select 
+            id="physical_status" 
+            class="form-control"
+            [(ngModel)]="editFormData.physical_status">
+            <option value="">Select Physical Status</option>
+            <option *ngFor="let opt of physicalStatusOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Marital Status -->
+        <div class="form-group">
+          <label for="marital_status">Marital Status</label>
+          <select 
+            id="marital_status" 
+            class="form-control"
+            [(ngModel)]="editFormData.marital_status">
+            <option value="">Select Marital Status</option>
+            <option *ngFor="let opt of maritalStatusOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Food Preference -->
+        <div class="form-group">
+          <label for="food_preference">Food Preference</label>
+          <select 
+            id="food_preference" 
+            class="form-control"
+            [(ngModel)]="editFormData.food_preference">
+            <option value="">Select Food Preference</option>
+            <option *ngFor="let opt of foodPreferenceOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Hobbies -->
+        <div class="form-group">
+          <label for="hobbies">Hobbies</label>
+          <textarea 
+            id="hobbies" 
+            class="form-control"
+            [(ngModel)]="editFormData.hobbies" 
+            placeholder="Your hobbies"
+            rows="3"></textarea>
+        </div>
+
+        <!-- About Me -->
+        <div class="form-group">
+          <label for="about_me">About Me</label>
+          <textarea 
+            id="about_me" 
+            class="form-control"
+            [(ngModel)]="editFormData.about_me" 
+            placeholder="Tell about yourself"
+            rows="4"></textarea>
+        </div>
+
+        <!-- Address Details Heading -->
+        <div class="address-details-form-heading">Address Details</div>
+
+        <!-- Address Line 1 -->
+        <div class="form-group">
+          <label for="address_line1">Address Line 1 <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="address_line1" 
+            class="form-control"
+            [(ngModel)]="editFormData.address_line1" 
+            placeholder="Enter your address">
+        </div>
+
+        <!-- Address Line 2 -->
+        <div class="form-group">
+          <label for="address_line2">Address Line 2</label>
+          <input 
+            type="text" 
+            id="address_line2" 
+            class="form-control"
+            [(ngModel)]="editFormData.address_line2" 
+            placeholder="Enter additional address details (optional)">
+        </div>
+
+        <!-- Country -->
+        <div class="form-group">
+          <label for="country">Country <span class="required">*</span></label>
+          <select 
+            id="country"
+            class="form-control"
+            [(ngModel)]="editFormData.country"
+            (change)="onCountryChange(editFormData.country)">
+            <option value="">Select a country</option>
+            <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
+          </select>
+        </div>
+
+        <!-- State -->
+        <div class="form-group">
+          <label for="state">State <span class="required">*</span></label>
+          <select 
+            id="state"
+            class="form-control"
+            [(ngModel)]="editFormData.state"
+            (change)="onStateChange(editFormData.state)"
+            [disabled]="!editFormData.country">
+            <option value="">Select a state</option>
+            <option *ngFor="let state of states" [value]="state">{{ state }}</option>
+          </select>
+        </div>
+
+        <!-- City -->
+        <div class="form-group">
+          <label for="city">City <span class="required">*</span></label>
+          <select 
+            id="city"
+            class="form-control"
+            [(ngModel)]="editFormData.city"
+            [disabled]="!editFormData.state">
+            <option value="">Select a city</option>
+            <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
+          </select>
+        </div>
+
+        <!-- Postal Code -->
+        <div class="form-group">
+          <label for="postal_code">Postal Code <span class="required">*</span></label>
+          <input 
+            type="text" 
+            id="postal_code" 
+            class="form-control"
+            [(ngModel)]="editFormData.postal_code" 
+            placeholder="Enter your postal code">
+        </div>
+      </div>
+
+      <!-- PROFESSIONAL SECTION FORM -->
+      <div *ngIf="editingSection === 'professional'" class="edit-form-section">
+        <!-- Education -->
+        <div class="form-group">
+          <label for="education">Education</label>
+          <select 
+            id="education" 
+            class="form-control"
+            [(ngModel)]="editFormData.education">
+            <option value="">Select Education</option>
+            <option *ngFor="let opt of educationOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Employment Type -->
+        <div class="form-group">
+          <label for="employment_type">Employment Type</label>
+          <select 
+            id="employment_type" 
+            class="form-control"
+            [(ngModel)]="editFormData.employment_type">
+            <option value="">Select Employment Type</option>
+            <option *ngFor="let opt of employmentTypeOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Occupation -->
+        <div class="form-group">
+          <label for="occupation">Occupation</label>
+          <select 
+            id="occupation" 
+            class="form-control"
+            [(ngModel)]="editFormData.occupation">
+            <option value="">Select Occupation</option>
+            <option *ngFor="let opt of occupationOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Company Name -->
+        <div class="form-group">
+          <label for="company_name">Company/Organization</label>
+          <input 
+            type="text" 
+            id="company_name" 
+            class="form-control"
+            [(ngModel)]="editFormData.company_name" 
+            placeholder="Enter company name">
+        </div>
+
+        <!-- Annual Income -->
+        <div class="form-group">
+          <label for="annual_income">Annual Income</label>
+          <select 
+            id="annual_income" 
+            class="form-control"
+            [(ngModel)]="editFormData.annual_income">
+            <option value="">Select Income Range</option>
+            <option *ngFor="let opt of annualIncomeOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Work Location -->
+        <div class="form-group">
+          <label for="work_location">Work Location</label>
+          <select 
+            id="work_location" 
+            class="form-control"
+            [(ngModel)]="editFormData.work_location">
+            <option value="">Select Work Location</option>
+            <option *ngFor="let opt of workLocationOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+
+      <!-- FAMILY SECTION FORM -->
+      <div *ngIf="editingSection === 'family'" class="edit-form-section">
+        <!-- Family Type -->
+        <div class="form-group">
+          <label for="family_type">Family Type</label>
+          <select 
+            id="family_type" 
+            class="form-control"
+            [(ngModel)]="editFormData.family_type">
+            <option value="">Select Family Type</option>
+            <option *ngFor="let opt of familyTypeOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Family Status -->
+        <div class="form-group">
+          <label for="family_status">Family Status</label>
+          <select 
+            id="family_status" 
+            class="form-control"
+            [(ngModel)]="editFormData.family_status">
+            <option value="">Select Family Status</option>
+            <option *ngFor="let opt of familyStatusOptions" [value]="opt.value">
+              {{ opt.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Father's Name -->
+        <div class="form-group">
+          <label for="father_name">Father's Name</label>
+          <input 
+            type="text" 
+            id="father_name" 
+            class="form-control"
+            [(ngModel)]="editFormData.father_name" 
+            placeholder="Enter father's name">
+        </div>
+
+        <!-- Father's Occupation -->
+        <div class="form-group">
+          <label for="father_occupation">Father's Occupation</label>
+          <input 
+            type="text" 
+            id="father_occupation" 
+            class="form-control"
+            [(ngModel)]="editFormData.father_occupation" 
+            placeholder="Enter father's occupation">
+        </div>
+
+        <!-- Mother's Name -->
+        <div class="form-group">
+          <label for="mother_name">Mother's Name</label>
+          <input 
+            type="text" 
+            id="mother_name" 
+            class="form-control"
+            [(ngModel)]="editFormData.mother_name" 
+            placeholder="Enter mother's name">
+        </div>
+
+        <!-- Mother's Occupation -->
+        <div class="form-group">
+          <label for="mother_occupation">Mother's Occupation</label>
+          <input 
+            type="text" 
+            id="mother_occupation" 
+            class="form-control"
+            [(ngModel)]="editFormData.mother_occupation" 
+            placeholder="Enter mother's occupation">
+        </div>
+
+        <!-- Brothers -->
+        <div class="form-group">
+          <label for="brothers">Number of Brothers</label>
+          <input 
+            type="number" 
+            id="brothers" 
+            class="form-control"
+            [(ngModel)]="editFormData.brothers" 
+            min="0" 
+            placeholder="Number of brothers">
+        </div>
+
+        <!-- Married Brothers -->
+        <div class="form-group">
+          <label for="married_brothers">Married Brothers</label>
+          <input 
+            type="number" 
+            id="married_brothers" 
+            class="form-control"
+            [(ngModel)]="editFormData.married_brothers" 
+            min="0" 
+            placeholder="Number of married brothers">
+        </div>
+
+        <!-- Sisters -->
+        <div class="form-group">
+          <label for="sisters">Number of Sisters</label>
+          <input 
+            type="number" 
+            id="sisters" 
+            class="form-control"
+            [(ngModel)]="editFormData.sisters" 
+            min="0" 
+            placeholder="Number of sisters">
+        </div>
+
+        <!-- Married Sisters -->
+        <div class="form-group">
+          <label for="married_sisters">Married Sisters</label>
+          <input 
+            type="number" 
+            id="married_sisters" 
+            class="form-control"
+            [(ngModel)]="editFormData.married_sisters" 
+            min="0" 
+            placeholder="Number of married sisters">
+        </div>
+
+        <!-- Family Description -->
+        <div class="form-group">
+          <label for="family_description">Family Description</label>
+          <textarea 
+            id="family_description" 
+            class="form-control"
+            [(ngModel)]="editFormData.family_description" 
+            placeholder="Describe your family"
+            rows="3"></textarea>
+        </div>
+
+        <!-- Community Certificate File Upload Section -->
+        <div class="form-group file-upload-group">
+          <label>Community Certificate</label>
+          <div class="file-upload-controls">
+            <button 
+              type="button"
+              class="btn btn-sm btn-info"
+              (click)="viewCommunityCertificate(currentProfile?.community_file_id || '')"
+              [disabled]="!currentProfile?.community_file_id || isUploadingCommunityCert"
+              title="View community certificate">
+              👁️ View
+            </button>
+            <button 
+              type="button"
+              class="btn btn-sm btn-danger"
+              (click)="deleteCommunityCert(currentProfile?.community_file_id || '')"
+              [disabled]="!currentProfile?.community_file_id || isUploadingCommunityCert"
+              title="Delete community certificate">
+              🗑️ Delete
+            </button>
+            <input 
+              type="file" 
+              #communityCertInput
+              class="file-input-hidden"
+              (change)="handleCommunityCertUpload($event)"
+              accept=".pdf,.jpg,.jpeg,.png,.gif,.webp">
+            <button 
+              type="button"
+              class="btn btn-sm btn-success"
+              (click)="communityCertInput.click()"
+              [disabled]="currentProfile?.community_file_id !== null && currentProfile?.community_file_id !== undefined || isUploadingCommunityCert"
+              title="Upload community certificate">
+              📤 Upload
+            </button>
+            <span *ngIf="isUploadingCommunityCert" class="upload-status">Uploading...</span>
+          </div>
+          <span class="error-message" *ngIf="certificateUploadError">{{ certificateUploadError }}</span>
+        </div>
+
+        <!-- Profile Photo 1 File Upload Section -->
+        <div class="form-group file-upload-group">
+          <label>Profile Photo 1</label>
+          <div class="file-upload-controls">
+            <button 
+              type="button"
+              class="btn btn-sm btn-info"
+              (click)="viewProfilePhoto(currentProfile?.photo_file_id_1 || '')"
+              [disabled]="!currentProfile?.photo_file_id_1 || isUploadingProfilePhoto"
+              title="View profile photo 1">
+              👁️ View
+            </button>
+            <button 
+              type="button"
+              class="btn btn-sm btn-danger"
+              (click)="deleteProfilePhoto(currentProfile?.photo_file_id_1 || '')"
+              [disabled]="!currentProfile?.photo_file_id_1 || isUploadingProfilePhoto"
+              title="Delete profile photo 1">
+              🗑️ Delete
+            </button>
+            <input 
+              type="file" 
+              #photo1Input
+              class="file-input-hidden"
+              (change)="handleProfilePhotoUpload($event)"
+              accept=".jpg,.jpeg,.png,.webp">
+            <button 
+              type="button"
+              class="btn btn-sm btn-success"
+              (click)="photo1Input.click()"
+              [disabled]="currentProfile?.photo_file_id_1 !== null && currentProfile?.photo_file_id_1 !== undefined || isUploadingProfilePhoto"
+              title="Upload profile photo 1">
+              📤 Upload
+            </button>
+            <span *ngIf="isUploadingProfilePhoto" class="upload-status">Uploading...</span>
+          </div>
+          <span class="error-message" *ngIf="photoUploadError">{{ photoUploadError }}</span>
+        </div>
+
+        <!-- Profile Photo 2 File Upload Section -->
+        <div class="form-group file-upload-group">
+          <label>Profile Photo 2</label>
+          <div class="file-upload-controls">
+            <button 
+              type="button"
+              class="btn btn-sm btn-info"
+              (click)="viewProfilePhoto(currentProfile?.photo_file_id_2 || '')"
+              [disabled]="!currentProfile?.photo_file_id_2 || isUploadingProfilePhoto"
+              title="View profile photo 2">
+              👁️ View
+            </button>
+            <button 
+              type="button"
+              class="btn btn-sm btn-danger"
+              (click)="deleteProfilePhoto(currentProfile?.photo_file_id_2 || '')"
+              [disabled]="!currentProfile?.photo_file_id_2 || isUploadingProfilePhoto"
+              title="Delete profile photo 2">
+              🗑️ Delete
+            </button>
+            <input 
+              type="file" 
+              #photo2Input
+              class="file-input-hidden"
+              (change)="handleProfilePhotoUpload($event)"
+              accept=".jpg,.jpeg,.png,.webp">
+            <button 
+              type="button"
+              class="btn btn-sm btn-success"
+              (click)="photo2Input.click()"
+              [disabled]="currentProfile?.photo_file_id_2 !== null && currentProfile?.photo_file_id_2 !== undefined || isUploadingProfilePhoto"
+              title="Upload profile photo 2">
+              📤 Upload
+            </button>
+            <span *ngIf="isUploadingProfilePhoto" class="upload-status">Uploading...</span>
+          </div>
+          <span class="error-message" *ngIf="photoUploadError">{{ photoUploadError }}</span>
+        </div>
+      </div>
+
+      <!-- ASTROLOGY SECTION -->
+      <div *ngIf="editingSection === 'astrology'" class="edit-form-section astrology-section">
+        <!-- Star -->
+        <div class="form-group">
+          <label for="star">Star <span class="required">*</span></label>
+          <select 
+            id="star"
+            class="form-control"
+            [(ngModel)]="editFormData.star">
+            <option value="">Select a star</option>
+            <option *ngFor="let star of starOptions" [value]="star.value">{{ getStarDisplay(star.value) }}</option>
+          </select>
+        </div>
+
+        <!-- Rasi -->
+        <div class="form-group">
+          <label for="rasi">Rasi <span class="required">*</span></label>
+          <select 
+            id="rasi"
+            class="form-control"
+            [(ngModel)]="editFormData.rasi">
+            <option value="">Select a rasi</option>
+            <option *ngFor="let rasi of rasiOptions" [value]="rasi.value">{{ getRasiDisplay(rasi.value) }}</option>
+          </select>
+        </div>
+
+        <!-- Lagnam -->
+        <div class="form-group">
+          <label for="lagnam">Lagnam</label>
+          <input 
+            type="text" 
+            id="lagnam" 
+            class="form-control"
+            [(ngModel)]="editFormData.lagnam" 
+            placeholder="Enter your lagnam">
+        </div>
+
+        <!-- Birth Place -->
+        <div class="form-group">
+          <label for="birth_place">Birth Place</label>
+          <input 
+            type="text" 
+            id="birth_place" 
+            class="form-control"
+            [(ngModel)]="editFormData.birth_place" 
+            placeholder="Enter your birth place">
+        </div>
+
+        <!-- Dosham Details -->
+        <div class="form-group">
+          <label for="dosham_details">Dosham Details</label>
+          <textarea 
+            id="dosham_details" 
+            class="form-control"
+            [(ngModel)]="editFormData.dosham_details" 
+            placeholder="Enter any dosham details"
+            rows="3"></textarea>
+        </div>
+
+        <!-- Horoscope File Upload Section -->
+        <div class="form-group file-upload-group horoscope-section">
+          <label>Horoscope</label>
+          <div class="file-upload-controls">
+            <button 
+              type="button"
+              class="btn btn-sm btn-info"
+              (click)="viewHoroscope(currentProfile?.astrology_file_id || '')"
+              [disabled]="!currentProfile?.astrology_file_id || isUploadingHoroscope"
+              title="View horoscope">
+              👁️ View
+            </button>
+            <button 
+              type="button"
+              class="btn btn-sm btn-danger"
+              (click)="deleteHoroscope(currentProfile?.astrology_file_id || '')"
+              [disabled]="!currentProfile?.astrology_file_id || isUploadingHoroscope"
+              title="Delete horoscope">
+              🗑️ Delete
+            </button>
+            <input 
+              type="file" 
+              #horoscopeInput
+              class="file-input-hidden"
+              (change)="handleHoroscopeUpload($event)"
+              accept=".pdf,.jpg,.jpeg,.png,.gif,.webp">
+            <button 
+              type="button"
+              class="btn btn-sm btn-success"
+              (click)="horoscopeInput.click()"
+              [disabled]="currentProfile?.astrology_file_id !== null && currentProfile?.astrology_file_id !== undefined || isUploadingHoroscope"
+              title="Upload horoscope">
+              📤 Upload
+            </button>
+            <span *ngIf="isUploadingHoroscope" class="upload-status">Uploading...</span>
+          </div>
+          <span class="error-message" *ngIf="horoscopeUploadError">{{ horoscopeUploadError }}</span>
+        </div>
+      </div>
+
+      <!-- PREFERENCES SECTION -->
+      <div *ngIf="editingSection === 'preferences'" class="edit-form-section preferences-section">
+        <!-- Education Preference -->
+        <div class="form-group">
+          <label for="education_preference">Education Preference</label>
+          <app-multi-select-dropdown
+            [options]="educationPreferenceOptions"
+            [selectedValues]="editFormData.education_preference"
+            placeholder="Select education preferences"
+            [showSelectAll]="true"
+            (selectionChanged)="onEducationPreferenceChanged($event)">
+          </app-multi-select-dropdown>
+        </div>
+
+        <!-- Occupation Preference -->
+        <div class="form-group">
+          <label for="occupation_preference">Occupation Preference</label>
+          <app-multi-select-dropdown
+            [options]="occupationPreferenceOptions"
+            [selectedValues]="editFormData.occupation_preference"
+            placeholder="Select occupation preferences"
+            [showSelectAll]="true"
+            (selectionChanged)="onOccupationPreferenceChanged($event)">
+          </app-multi-select-dropdown>
+        </div>
+
+        <!-- Income Preference -->
+        <div class="form-group">
+          <label for="income_preference">Income Preference</label>
+          <app-multi-select-dropdown
+            [options]="incomePreferenceOptions"
+            [selectedValues]="editFormData.income_preference"
+            placeholder="Select income preferences"
+            [showSelectAll]="true"
+            (selectionChanged)="onIncomePreferenceChanged($event)">
+          </app-multi-select-dropdown>
+        </div>
+
+        <!-- Star Preference -->
+        <div class="form-group">
+          <label for="star_preference">Star Preference</label>
+          <app-multi-select-dropdown
+            [options]="starPreferenceOptions"
+            [selectedValues]="editFormData.star_preference"
+            placeholder="Select star preferences"
+            [showSelectAll]="false"
+            (selectionChanged)="onStarPreferenceChanged($event)">
+          </app-multi-select-dropdown>
+        </div>
+
+        <!-- Rasi Preference -->
+        <div class="form-group">
+          <label for="rasi_preference">Rasi Preference</label>
+          <app-multi-select-dropdown
+            [options]="rasiPreferenceOptions"
+            [selectedValues]="editFormData.rasi_preference"
+            placeholder="Select rasi preferences"
+            [showSelectAll]="false"
+            (selectionChanged)="onRasiPreferenceChanged($event)">
+          </app-multi-select-dropdown>
+        </div>
+
+        <!-- Location Preference -->
+        <div class="form-group">
+          <label for="location_preference">Location Preference</label>
+          <app-multi-select-dropdown
+            [options]="locationPreferenceDropdownOptions"
+            [selectedValues]="editFormData.location_preference"
+            placeholder="Select location preferences"
+            [showSelectAll]="false"
+            (selectionChanged)="onLocationPreferenceChanged($event)">
+          </app-multi-select-dropdown>
+        </div>
+
+        <!-- Age Range Section -->
+        <div class="range-section">
+          <h5>Age Range</h5>
+          <div class="form-row">
+            <!-- Age From -->
+            <div class="form-group">
+              <label for="age_from">Age From <span class="required">*</span></label>
+              <input 
+                type="number" 
+                id="age_from"
+                class="form-control"
+                [(ngModel)]="editFormData.age_from"
+                min="18"
+                max="100"
+                placeholder="18">
+            </div>
+
+            <!-- Age To -->
+            <div class="form-group">
+              <label for="age_to">Age To <span class="required">*</span></label>
+              <input 
+                type="number" 
+                id="age_to"
+                class="form-control"
+                [(ngModel)]="editFormData.age_to"
+                min="18"
+                max="100"
+                placeholder="50">
+            </div>
+          </div>
+        </div>
+
+        <!-- Height Range Section -->
+        <div class="range-section">
+          <h5>Height Range (cm)</h5>
+          <div class="form-row">
+            <!-- Height From -->
+            <div class="form-group">
+              <label for="height_from">Height From <span class="required">*</span></label>
+              <input 
+                type="number" 
+                id="height_from"
+                class="form-control"
+                [(ngModel)]="editFormData.height_from"
+                min="140"
+                max="220"
+                placeholder="140">
+            </div>
+
+            <!-- Height To -->
+            <div class="form-group">
+              <label for="height_to">Height To <span class="required">*</span></label>
+              <input 
+                type="number" 
+                id="height_to"
+                class="form-control"
+                [(ngModel)]="editFormData.height_to"
+                min="140"
+                max="220"
+                placeholder="180">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OTHER SECTIONS (Placeholder for future sections) -->
+      <div *ngIf="editingSection !== 'personal' && editingSection !== 'professional' && editingSection !== 'family' && editingSection !== 'astrology' && editingSection !== 'preferences'" class="edit-form-section">
+        <p>Edit form for {{ editingSection }} section</p>
+      </div>
     </div>
 
     <div class="modal-footer">
       <button class="btn btn-secondary" (click)="closeEditModal()">Cancel</button>
       <button class="btn btn-primary" (click)="saveSection()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Profile View Modal -->
+<div class="modal-overlay" *ngIf="showProfileModal && selectedProfile" (click)="closeProfileModal()">
+  <div class="modal profile-modal" (click)="$event.stopPropagation()">
+    <div class="modal-close-btn" (click)="closeProfileModal()">&times;</div>
+
+    <div class="profile-card">
+      <!-- Photo Slider -->
+      <div class="profile-avatar-slider">
+        <div *ngIf="selectedProfilePhotos.length > 0; else noPhotosAvailable" class="photo-slider-container">
+          <!-- Current Photo -->
+          <div class="slider-photo">
+            <img [src]="selectedProfilePhotos[selectedProfilePhotoIndex]" 
+                 alt="Profile photo" 
+                 class="profile-photo-img">
+          </div>
+
+          <!-- Navigation Arrows -->
+          <button class="slider-arrow slider-prev" (click)="prevPhoto()" *ngIf="selectedProfilePhotos.length > 1">
+            &#10094;
+          </button>
+          <button class="slider-arrow slider-next" (click)="nextPhoto()" *ngIf="selectedProfilePhotos.length > 1">
+            &#10095;
+          </button>
+
+          <!-- Photo Indicators -->
+          <div class="slider-indicators" *ngIf="selectedProfilePhotos.length > 1">
+            <ng-container *ngFor="let idx of [0, 1]">
+              <span *ngIf="idx < selectedProfilePhotos.length"
+                    class="indicator"
+                    [class.active]="idx === selectedProfilePhotoIndex">
+              </span>
+            </ng-container>
+          </div>
+        </div>
+        
+        <ng-template #noPhotosAvailable>
+          <div class="photo-placeholder">
+            <app-avatar 
+              [name]="selectedProfile.name" 
+              size="xl">
+            </app-avatar>
+          </div>
+        </ng-template>
+      </div>
+
+      <!-- Profile Summary -->
+      <div class="profile-summary">
+        <h3 class="profile-name">{{ selectedProfile.name }}</h3>
+        <p class="profile-id">ID: {{ selectedProfile.serial_number }}</p>
+        
+        <div class="profile-quick-stats">
+          <div class="stat">
+            <span class="stat-label">Age</span>
+            <span class="stat-value">{{ selectedProfile.age }} Yrs</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Height</span>
+            <span class="stat-value">{{ selectedProfile.height_cm }} cm</span>
+          </div>
+        </div>
+
+        <div class="profile-quick-info">
+          <p><strong>{{ selectedProfile.occupation }}</strong></p>
+          <p class="text-muted">{{ selectedProfile.caste }}</p>
+          <p class="text-muted">{{ selectedProfile.city }}, {{ selectedProfile.state }}</p>
+        </div>
+
+        <div class="profile-badges">
+          <span class="badge badge-primary">{{ getStarDisplay(selectedProfile.star) }}</span>
+          <span class="badge badge-secondary">{{ getRasiDisplay(selectedProfile.rasi) }}</span>
+        </div>
+
+        <p class="profile-about">{{ selectedProfile.about_me }}</p>
+
+        <!-- Expandable Sections in Modal -->
+        <div class="modal-sections-container">
+          
+          <!-- Personal Details Section -->
+          <div class="section">
+            <div class="section-header" (click)="toggleModalSection('personal')">
+              <h4>Personal Details</h4>
+              <span class="toggle-icon" [class.open]="modalExpandedSections.personal">▼</span>
+            </div>
+            <div class="section-content" *ngIf="modalExpandedSections.personal">
+              <div class="detail-row">
+                <span class="label">Height:</span>
+                <span class="value">{{ selectedProfile.height_cm }} cm</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Physical Status:</span>
+                <span class="value">{{ selectedProfile.physical_status }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Complexion:</span>
+                <span class="value">{{ selectedProfile.complexion }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Marital Status:</span>
+                <span class="value">{{ selectedProfile.marital_status }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Hobbies:</span>
+                <span class="value">{{ selectedProfile.hobbies || 'N/A' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Professional Section -->
+          <div class="section">
+            <div class="section-header" (click)="toggleModalSection('professional')">
+              <h4>Professional</h4>
+              <span class="toggle-icon" [class.open]="modalExpandedSections.professional">▼</span>
+            </div>
+            <div class="section-content" *ngIf="modalExpandedSections.professional">
+              <div class="detail-row">
+                <span class="label">Education:</span>
+                <span class="value">{{ selectedProfile.education }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Occupation:</span>
+                <span class="value">{{ selectedProfile.occupation }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Company:</span>
+                <span class="value">{{ selectedProfile.company_name }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Income:</span>
+                <span class="value">{{ selectedProfile.annual_income }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Work Location:</span>
+                <span class="value">{{ selectedProfile.work_location }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Family Section -->
+          <div class="section">
+            <div class="section-header" (click)="toggleModalSection('family')">
+              <h4>Family</h4>
+              <span class="toggle-icon" [class.open]="modalExpandedSections.family">▼</span>
+            </div>
+            <div class="section-content" *ngIf="modalExpandedSections.family">
+              <div class="detail-row">
+                <span class="label">Family Type:</span>
+                <span class="value">{{ selectedProfile.family_type }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Status:</span>
+                <span class="value">{{ selectedProfile.family_status }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Brothers:</span>
+                <span class="value">{{ selectedProfile.brothers }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Sisters:</span>
+                <span class="value">{{ selectedProfile.sisters }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Married Brothers:</span>
+                <span class="value">{{ selectedProfile.married_brothers }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Married Sisters:</span>
+                <span class="value">{{ selectedProfile.married_sisters }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Astrology Section -->
+          <div class="section">
+            <div class="section-header" (click)="toggleModalSection('astrology')">
+              <h4>Astrology</h4>
+              <span class="toggle-icon" [class.open]="modalExpandedSections.astrology">▼</span>
+            </div>
+            <div class="section-content" *ngIf="modalExpandedSections.astrology">
+              <div class="detail-row">
+                <span class="label">Star:</span>
+                <span class="value">{{ getStarDisplay(selectedProfile.star) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Rasi:</span>
+                <span class="value">{{ getRasiDisplay(selectedProfile.rasi) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Lagnam:</span>
+                <span class="value">{{ selectedProfile.lagnam }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Birth Place:</span>
+                <span class="value">{{ selectedProfile.birth_place }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Address Section -->
+          <div class="section">
+            <div class="section-header" (click)="toggleModalSection('address')">
+              <h4>Address</h4>
+              <span class="toggle-icon" [class.open]="modalExpandedSections.address">▼</span>
+            </div>
+            <div class="section-content" *ngIf="modalExpandedSections.address">
+              <div class="detail-row">
+                <span class="label">Address Line 1:</span>
+                <span class="value">{{ selectedProfile.address_line1 }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Address Line 2:</span>
+                <span class="value">{{ selectedProfile.address_line2 || 'N/A' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">City:</span>
+                <span class="value">{{ selectedProfile.city }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">State:</span>
+                <span class="value">{{ selectedProfile.state }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Country:</span>
+                <span class="value">{{ selectedProfile.country }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Postal Code:</span>
+                <span class="value">{{ selectedProfile.postal_code }}</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Community Certificate View Modal (from Family Edit) -->
+<div class="modal-overlay" *ngIf="showCommunityCertViewModal" (click)="closeCommunityCertViewModal()">
+  <div class="modal certificate-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Community Certificate</h3>
+      <button class="modal-close" (click)="closeCommunityCertViewModal()">&times;</button>
+    </div>
+
+    <div class="modal-body certificate-body">
+      <!-- Loading State -->
+      <div class="loading-state" *ngIf="communityCertViewLoading">
+        <div class="spinner"></div>
+        <p>Loading certificate...</p>
+      </div>
+
+      <!-- Error State -->
+      <div class="error-state" *ngIf="communityCertViewError && !communityCertViewLoading">
+        <div class="alert alert-danger">
+          <strong>Error:</strong> {{ communityCertViewError }}
+        </div>
+      </div>
+
+      <!-- Certificate Display -->
+      <div class="certificate-display" *ngIf="communityCertViewUrl && !communityCertViewLoading && !communityCertViewError">
+        <div class="certificate-viewer">
+          <iframe 
+            [attr.src]="communityCertViewUrl"
+            class="certificate-iframe"
+            frameborder="0">
+          </iframe>
+        </div>
+        <p class="certificate-filename">{{ communityCertViewFileName }}</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeCommunityCertViewModal()">Close</button>
+      <button class="btn btn-primary" (click)="downloadCommunityCert()" *ngIf="communityCertViewUrl && !communityCertViewLoading">
+        ⬇️ Download
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Photo View Modal (from Family Edit) -->
+<div class="modal-overlay" *ngIf="showProfilePhotoViewModal" (click)="closeProfilePhotoViewModal()">
+  <div class="modal photo-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Profile Photo</h3>
+      <button class="modal-close" (click)="closeProfilePhotoViewModal()">&times;</button>
+    </div>
+
+    <div class="modal-body photo-body">
+      <!-- Loading State -->
+      <div class="loading-state" *ngIf="profilePhotoViewLoading">
+        <div class="spinner"></div>
+        <p>Loading photo...</p>
+      </div>
+
+      <!-- Error State -->
+      <div class="error-state" *ngIf="profilePhotoViewError && !profilePhotoViewLoading">
+        <div class="alert alert-danger">
+          <strong>Error:</strong> {{ profilePhotoViewError }}
+        </div>
+      </div>
+
+      <!-- Photo Display -->
+      <div class="photo-display" *ngIf="profilePhotoViewUrl && !profilePhotoViewLoading && !profilePhotoViewError">
+        <div class="photo-viewer">
+          <img [src]="profilePhotoViewUrl" alt="Profile photo" class="photo-preview">
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeProfilePhotoViewModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Horoscope View Modal (from Astrology Edit) -->
+<div class="modal-overlay" *ngIf="showHoroscopeViewModal" (click)="closeHoroscopeViewModal()">
+  <div class="modal horoscope-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Horoscope</h3>
+      <button class="modal-close" (click)="closeHoroscopeViewModal()">&times;</button>
+    </div>
+
+    <div class="modal-body horoscope-body">
+      <!-- Loading State -->
+      <div class="loading-state" *ngIf="horoscopeViewLoading">
+        <div class="spinner"></div>
+        <p>Loading horoscope...</p>
+      </div>
+
+      <!-- Error State -->
+      <div class="error-state" *ngIf="horoscopeViewError && !horoscopeViewLoading">
+        <div class="alert alert-danger">
+          <strong>Error:</strong> {{ horoscopeViewError }}
+        </div>
+      </div>
+
+      <!-- Horoscope Display -->
+      <div class="horoscope-display" *ngIf="horoscopeViewUrl && !horoscopeViewLoading && !horoscopeViewError">
+        <div class="horoscope-viewer">
+          <iframe 
+            [attr.src]="horoscopeViewUrl"
+            class="horoscope-iframe"
+            frameborder="0">
+          </iframe>
+        </div>
+        <p class="horoscope-filename">{{ horoscopeViewFileName }}</p>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="closeHoroscopeViewModal()">Close</button>
+      <button class="btn btn-primary" (click)="downloadHoroscope()" *ngIf="horoscopeViewUrl && !horoscopeViewLoading">
+        ⬇️ Download
+      </button>
     </div>
   </div>
 </div>

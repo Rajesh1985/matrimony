@@ -11,6 +11,7 @@ import { UserApiService } from '../../user-api.service';
 import { LocationService, CountryCode } from '../../shared/services/location.service';
 import { GlobalStateService } from '../../global-state.service';
 import { REGISTRATION_DATA, LOCATION_DATA } from '../../shared/constants/registration-data.constants';
+import { STAR_TAMIL_MAP, RASI_TAMIL_MAP } from '../../shared/constants/astrology-maps';
 
 @Component({
   selector: 'app-registration',
@@ -127,6 +128,25 @@ export class RegistrationComponent implements OnInit {
   brothersArray: number[] = [];
   sistersArray: number[] = [];
 
+  // Photo upload properties
+  photos: Array<{ file_id: string; thumbnail_url: string }> = [];
+  queuedFiles: File[] = [];
+  isUploadingPhotos: boolean = false;
+  maxPhotos: number = 2;
+  photoUploadError: string = '';
+
+  // Community certificate properties
+  communityCertificate: { file_id: string; filename: string; icon_url: string } | null = null;
+  queuedCertificateFile: File | null = null;
+  isUploadingCertificate: boolean = false;
+  certificateUploadError: string = '';
+
+  // Horoscope file properties
+  horoscopeFile: { file_id: string; filename: string } | null = null;
+  queuedHoroscopeFile: File | null = null;
+  isUploadingHoroscope: boolean = false;
+  horoscopeUploadError: string = '';
+
   constructor(
     private userApi: UserApiService,
     private locationService: LocationService,
@@ -161,12 +181,12 @@ export class RegistrationComponent implements OnInit {
 
     this.starOptions = this.registrationData.STAR_OPTIONS.map(opt => ({
       value: opt.value,
-      label: opt.label
+      label: this.getStarDisplay(opt.value)
     }));
 
     this.rasiOptions = this.registrationData.RASI_OPTIONS.map(opt => ({
       value: opt.value,
-      label: opt.label
+      label: this.getRasiDisplay(opt.value)
     }));
 
     // Load location options from LOCATION_DATA cities
@@ -249,6 +269,24 @@ export class RegistrationComponent implements OnInit {
 
   hasError(field: string): boolean {
     return !!this.errors[field];
+  }
+
+  /**
+   * Get bilingual display for star (English + Tamil)
+   */
+  getStarDisplay(star: string): string {
+    if (!star) return '';
+    const tamilName = STAR_TAMIL_MAP[star];
+    return tamilName ? `${star} (${tamilName})` : star;
+  }
+
+  /**
+   * Get bilingual display for rasi (English + Tamil)
+   */
+  getRasiDisplay(rasi: string): string {
+    if (!rasi) return '';
+    const tamilName = RASI_TAMIL_MAP[rasi];
+    return tamilName ? `${rasi} (${tamilName})` : rasi;
   }
 
   // ==================== STEP 0: USER REGISTRATION ====================
@@ -540,11 +578,282 @@ export class RegistrationComponent implements OnInit {
 
     this.userApi.createFamily(familyData).subscribe({
       next: () => {
-        alert('Family details saved!');
-        this.step++;
+        // Family details saved, now handle file uploads
+        if (this.queuedFiles.length > 0 || this.queuedCertificateFile) {
+          // Upload photos first
+          if (this.queuedFiles.length > 0) {
+            this.uploadQueuedPhotos();
+          } else if (this.queuedCertificateFile) {
+            // If no photos but certificate, upload certificate directly
+            this.uploadQueuedCertificate();
+          }
+        } else {
+          alert('Family details saved!');
+          this.step++;
+        }
       },
       error: (err: any) => {
         alert(`Failed to save family details: ${err.error?.detail || 'Unknown error'}`);
+      }
+    });
+  }
+
+  // ==================== STEP 2: PHOTO UPLOAD ====================
+
+  /**
+   * Handle file selection from input element
+   * Limits selection to max 2 files
+   */
+  handlePhotoSelection(event: any): void {
+    this.photoUploadError = '';
+    const selectedFiles = event.target.files as FileList;
+    
+    if (!selectedFiles || selectedFiles.length === 0) {
+      return;
+    }
+
+    // Convert FileList to array and check constraints
+    const newFiles = Array.from(selectedFiles) as File[];
+    const totalFiles = this.photos.length + this.queuedFiles.length + newFiles.length;
+
+    // Check max photo limit
+    if (totalFiles > this.maxPhotos) {
+      this.photoUploadError = `You can upload maximum ${this.maxPhotos} photos. You already have ${this.photos.length} uploaded.`;
+      event.target.value = ''; // Clear file input
+      return;
+    }
+
+    // Add new files to queue
+    this.queuedFiles.push(...newFiles);
+  }
+
+  /**
+   * Upload all queued files sequentially
+   */
+  uploadQueuedPhotos(): void {
+    if (this.queuedFiles.length === 0) {
+      this.step++;
+      return;
+    }
+
+    this.isUploadingPhotos = true;
+    this.photoUploadError = '';
+    this.uploadNextPhoto(0);
+  }
+
+  /**
+   * Recursively upload photos one by one
+   */
+  private uploadNextPhoto(index: number): void {
+    if (index >= this.queuedFiles.length) {
+      // All photos uploaded successfully, now upload certificate if any
+      this.isUploadingPhotos = false;
+      this.queuedFiles = [];
+      
+      if (this.queuedCertificateFile) {
+        alert('All photos uploaded successfully! Now uploading certificate...');
+        this.uploadQueuedCertificate();
+      } else {
+        alert('All photos uploaded successfully!');
+        this.step++;
+      }
+      return;
+    }
+
+    const file = this.queuedFiles[index];
+    this.userApi.uploadProfilePhoto(file, this.formData.profile_id).subscribe({
+      next: (response: any) => {
+        // Backend returns: { status, file_id, thumbnail_url, profile_id, message }
+        if (response.status === 'success' && response.file_id && response.thumbnail_url) {
+          this.photos.push({
+            file_id: response.file_id,
+            thumbnail_url: response.thumbnail_url
+          });
+          // Upload next photo
+          this.uploadNextPhoto(index + 1);
+        } else {
+          this.handlePhotoUploadError(response, file.name);
+        }
+      },
+      error: (err: any) => {
+        this.handlePhotoUploadError(err, file.name);
+      }
+    });
+  }
+
+  /**
+   * Handle photo upload errors with detailed messages
+   */
+  private handlePhotoUploadError(error: any, fileName: string): void {
+    const errorDetail = error.error?.detail || error.message || 'Unknown error';
+    
+    let errorMessage = `Failed to upload ${fileName}: ${errorDetail}`;
+
+    // Handle specific error enums from backend
+    if (error.error?.detail) {
+      const detail = error.error.detail.toLowerCase();
+      
+      if (detail.includes('size_exceeded') || detail.includes('too large')) {
+        errorMessage = `File ${fileName} is too large. Please use a smaller image.`;
+      } else if (detail.includes('virus_found') || detail.includes('malicious')) {
+        errorMessage = `File ${fileName} failed security scan. Please try another image.`;
+      } else if (detail.includes('no_free_slot') || detail.includes('max') || detail.includes('limit')) {
+        errorMessage = `You've reached the maximum number of photos (${this.maxPhotos}). Please delete a photo before uploading another.`;
+      }
+    }
+
+    this.photoUploadError = errorMessage;
+    this.isUploadingPhotos = false;
+    alert(errorMessage);
+  }
+
+  /**
+   * Delete a photo by file_id
+   */
+  deletePhoto(file_id: string): void {
+    if (!confirm('Are you sure you want to delete this photo?')) {
+      return;
+    }
+
+    this.userApi.deleteProfilePhoto(file_id, this.formData.profile_id).subscribe({
+      next: () => {
+        // Remove from photos array
+        this.photos = this.photos.filter(p => p.file_id !== file_id);
+        alert('Photo deleted successfully');
+      },
+      error: (err: any) => {
+        const errorMsg = err.error?.detail || 'Failed to delete photo';
+        alert(`Error: ${errorMsg}`);
+      }
+    });
+  }
+
+  /**
+   * Get safe thumbnail URL with fallback
+   */
+  getThumbnailUrl(thumbnail_url: string): string {
+    if (!thumbnail_url) {
+      return 'assets/images/placeholder.png'; // Add a placeholder image
+    }
+    return thumbnail_url;
+  }
+
+  // ==================== STEP 2: COMMUNITY CERTIFICATE UPLOAD ====================
+
+  /**
+   * Handle community certificate file selection
+   * Limits to one file only
+   */
+  handleCommunityCertificateSelection(event: any): void {
+    this.certificateUploadError = '';
+    const selectedFiles = event.target.files as FileList;
+    
+    if (!selectedFiles || selectedFiles.length === 0) {
+      return;
+    }
+
+    // Only allow one file
+    if (selectedFiles.length > 1) {
+      this.certificateUploadError = 'You can only upload one community certificate file.';
+      event.target.value = '';
+      return;
+    }
+
+    const file = selectedFiles[0];
+
+    // Validate file type
+    const validMimes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validMimes.includes(file.type)) {
+      this.certificateUploadError = 'Invalid file type. Please upload a PDF or image file (JPG, PNG, GIF, WebP).';
+      event.target.value = '';
+      return;
+    }
+
+    // Set as queued file
+    this.queuedCertificateFile = file;
+  }
+
+  /**
+   * Upload queued community certificate after family details are saved
+   */
+  uploadQueuedCertificate(): void {
+    if (!this.queuedCertificateFile) {
+      this.step++;
+      return;
+    }
+
+    this.isUploadingCertificate = true;
+    this.certificateUploadError = '';
+
+    this.userApi.communityCertupload(this.queuedCertificateFile, this.formData.profile_id).subscribe({
+      next: (response: any) => {
+        // Backend returns: { status, file_id, filename, profile_id }
+        if (response.status === 'success' && response.file_id && response.filename) {
+          this.communityCertificate = {
+            file_id: response.file_id,
+            filename: response.filename,
+            icon_url: 'assets/images/icons/pdf-icon.png' // Static PDF icon
+          };
+          this.queuedCertificateFile = null;
+          this.isUploadingCertificate = false;
+          alert('Community certificate uploaded successfully!');
+          this.step++;
+        } else {
+          this.handleCertificateUploadError(response);
+        }
+      },
+      error: (err: any) => {
+        this.handleCertificateUploadError(err);
+      }
+    });
+  }
+
+  /**
+   * Handle community certificate upload errors with detailed messages
+   */
+  private handleCertificateUploadError(error: any): void {
+    const errorDetail = error.error?.detail || error.message || 'Unknown error';
+    
+    let errorMessage = `Failed to upload certificate: ${errorDetail}`;
+
+    // Handle specific error enums from backend
+    if (error.error?.detail) {
+      const detail = error.error.detail.toLowerCase();
+      
+      if (detail.includes('size_exceeded') || detail.includes('too large')) {
+        errorMessage = 'Certificate file is too large. Please use a file smaller than 10MB.';
+      } else if (detail.includes('virus_found') || detail.includes('malicious')) {
+        errorMessage = 'Certificate file failed security scan. Please try another file.';
+      } else if (detail.includes('duplicate_detected')) {
+        errorMessage = 'This certificate file has already been uploaded.';
+      } else if (detail.includes('no_free_slot')) {
+        errorMessage = 'You\'ve reached the maximum file limit. Please delete a file before uploading another.';
+      }
+    }
+
+    this.certificateUploadError = errorMessage;
+    this.isUploadingCertificate = false;
+    alert(errorMessage);
+  }
+
+  /**
+   * Delete community certificate by file_id
+   */
+  deleteCommunityCertificate(file_id: string): void {
+    if (!confirm('Are you sure you want to delete this community certificate?')) {
+      return;
+    }
+
+    this.userApi.deleteCommunityCert(file_id, this.formData.profile_id).subscribe({
+      next: () => {
+        // Clear community certificate object
+        this.communityCertificate = null;
+        this.queuedCertificateFile = null;
+        alert('Community certificate deleted successfully');
+      },
+      error: (err: any) => {
+        const errorMsg = err.error?.detail || 'Failed to delete certificate';
+        alert(`Error: ${errorMsg}`);
       }
     });
   }
@@ -602,10 +911,140 @@ export class RegistrationComponent implements OnInit {
     this.userApi.createAstrology(astrologyData).subscribe({
       next: () => {
         alert('Astrology details saved!');
-        this.step++;
+        
+        // If horoscope file is queued, upload it
+        if (this.queuedHoroscopeFile) {
+          this.uploadHoroscopeFile();
+        } else {
+          // No horoscope file, proceed to next step
+          this.step++;
+        }
       },
       error: (err: any) => {
         alert(`Failed to save astrology details: ${err.error?.detail || 'Unknown error'}`);
+      }
+    });
+  }
+
+  /**
+   * Handle horoscope file selection
+   */
+  handleHoroscopeSelection(event: any): void {
+    const files = event.target.files;
+    if (!files || files.length === 0) {
+      return;
+    }
+
+    const file = files[0];
+    const validMimes = ['application/pdf', 'image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    
+    // Validate file type
+    if (!validMimes.includes(file.type)) {
+      this.horoscopeUploadError = 'Invalid file type. Please upload a PDF or image file (JPEG, PNG, GIF, WebP)';
+      return;
+    }
+
+    // Validate file size (10MB max)
+    const maxSizeBytes = 10 * 1024 * 1024;
+    if (file.size > maxSizeBytes) {
+      this.horoscopeUploadError = 'File size exceeds 10MB limit';
+      return;
+    }
+
+    // Store the file for upload
+    this.queuedHoroscopeFile = file;
+    this.horoscopeUploadError = '';
+    console.log('Horoscope file selected:', file.name);
+  }
+
+  /**
+   * Upload horoscope file to backend
+   */
+  uploadHoroscopeFile(): void {
+    if (!this.queuedHoroscopeFile || !this.formData.profile_id) {
+      return;
+    }
+
+    this.isUploadingHoroscope = true;
+    this.horoscopeUploadError = '';
+
+    const file = this.queuedHoroscopeFile;
+    const profileId = this.formData.profile_id;
+
+    this.userApi.uploadHoroscope(file, profileId).subscribe({
+      next: (response: any) => {
+        if (response.status === 'success') {
+          // Store the file information
+          this.horoscopeFile = {
+            file_id: response.file_id,
+            filename: response.filename
+          };
+          this.queuedHoroscopeFile = null;
+          this.isUploadingHoroscope = false;
+          console.log('Horoscope file uploaded successfully:', response.file_id);
+          
+          // Proceed to next step
+          this.step++;
+        } else {
+          this.handleHoroscopeUploadError(response.code, response.message);
+        }
+      },
+      error: (err: any) => {
+        this.isUploadingHoroscope = false;
+        const errorCode = err.error?.code || 'PROCESSING_ERROR';
+        const errorMessage = err.error?.message || err.error?.detail || 'Unknown error';
+        this.handleHoroscopeUploadError(errorCode, errorMessage);
+      }
+    });
+  }
+
+  /**
+   * Handle horoscope upload errors
+   */
+  handleHoroscopeUploadError(errorCode: string, errorMessage: string): void {
+    const errorMessages: { [key: string]: string } = {
+      'SIZE_EXCEEDED': 'File size exceeds 10MB limit',
+      'VIRUS_FOUND': 'File failed virus scan',
+      'INVALID_FILE_TYPE': 'Invalid file type. Only PDF and images are allowed',
+      'DUPLICATE_DETECTED': 'This horoscope file already exists in the system',
+      'HOROSCOPE_FILE_EXISTS': 'This profile already has a horoscope file uploaded',
+      'PROCESSING_ERROR': 'Failed to upload horoscope: ' + errorMessage
+    };
+
+    const displayMessage = errorMessages[errorCode] || errorMessage;
+    this.horoscopeUploadError = displayMessage;
+    alert(`Horoscope upload failed: ${displayMessage}`);
+  }
+
+  /**
+   * Delete horoscope file
+   */
+  deleteHoroscopeFile(): void {
+    if (!this.horoscopeFile?.file_id) {
+      return;
+    }
+
+    if (!confirm('Are you sure you want to delete this horoscope file?')) {
+      return;
+    }
+
+    const fileId = this.horoscopeFile.file_id;
+
+    this.userApi.deleteHoroscope(fileId).subscribe({
+      next: (response: any) => {
+        if (response.status === 'success') {
+          // Clear the horoscope file
+          this.horoscopeFile = null;
+          this.queuedHoroscopeFile = null;
+          console.log('Horoscope file deleted successfully');
+          alert('Horoscope file deleted successfully');
+        } else {
+          alert(`Failed to delete horoscope: ${response.message}`);
+        }
+      },
+      error: (err: any) => {
+        const errorMessage = err.error?.message || err.error?.detail || 'Unknown error';
+        alert(`Failed to delete horoscope: ${errorMessage}`);
       }
     });
   }
@@ -825,7 +1264,9 @@ export class RegistrationComponent implements OnInit {
       }
     });      
 
-    this.userApi.updateIsVerifiedbyProfileID(true, this.formData.profile_id).subscribe({
+    alert('Registration completed successfully!');
+    this.router.navigate(['/user-page']);
+    /*this.userApi.updateIsVerifiedbyProfileID(true, this.formData.profile_id).subscribe({
       next: () => {
         alert('Registration completed successfully!');
         this.router.navigate(['/user-page']);
@@ -834,7 +1275,7 @@ export class RegistrationComponent implements OnInit {
         alert(`Failed to set Verify in User: ${err.error?.detail || 'Unknown error'}`);
         this.router.navigate(['/login']);
       }
-    });
+    });*/
   }
 
   // ==================== NAVIGATION ====================

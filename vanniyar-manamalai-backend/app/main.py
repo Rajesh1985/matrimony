@@ -17,6 +17,7 @@ from app.routers import (
     professional as professional_router,
     user as user_router,
     file as file_router,
+    membership as membership_router,
 )
 
 app = FastAPI()
@@ -41,3 +42,4 @@ app.include_router(partner_preferences_router.router)
 app.include_router(professional_router.router)
 app.include_router(user_router.router)
 app.include_router(file_router.router)
+app.include_router(membership_router.router)

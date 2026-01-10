@@ -39,18 +39,26 @@ def update_profile(db: Session, profile_id: int, profile_data: ProfileUpdate):
     Example: Update only mobile_number without needing to send name, birth_date, etc.
     """
     db_profile = db.query(Profile).filter(Profile.id == profile_id).first()
-    
+    print(f"[update_profile] Updating profile ID {profile_id} with data: {profile_data}")
     if not db_profile:
         return None
+    print(f"[update_profile] Current profile data before update: {db_profile}")
     
     # Update only fields that are provided (not None)
     update_data = profile_data.dict(exclude_unset=True)
     
-    for field, value in update_data.items():
-        setattr(db_profile, field, value)
+    # Handle 'mobile' -> 'mobile_number' mapping if 'mobile' is provided
+    if 'mobile' in update_data:
+        update_data['mobile_number'] = update_data.pop('mobile')
     
+    print(f"[update_profile] Fields to update: {update_data}")
+    for field, value in update_data.items():
+        if hasattr(db_profile, field):
+            setattr(db_profile, field, value)
+    print(f"[update_profile] Profile data after update: {db_profile}")
     db.commit()
     db.refresh(db_profile)
+    print(f"[update_profile] Updated profile data from DB: {db_profile}")
     return db_profile
 
 def delete_profile(db: Session, profile_id: int):

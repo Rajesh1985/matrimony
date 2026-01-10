@@ -6,6 +6,7 @@ import { Injectable } from '@angular/core';
 export class GlobalStateService {
   private _profileId: number | null = null;
   private _isUserSignedIn: boolean = false;
+  private _isAdmin: boolean = false;
 
   get profileId(): number | null {
     return this._profileId;
@@ -19,5 +20,12 @@ export class GlobalStateService {
   }
   set isUserSignedIn(signedIn: boolean) {
     this._isUserSignedIn = signedIn;
+  }
+
+  get isAdmin(): boolean {
+    return this._isAdmin;
+  }
+  set isAdmin(val: boolean) {
+    this._isAdmin = val;
   }
 }

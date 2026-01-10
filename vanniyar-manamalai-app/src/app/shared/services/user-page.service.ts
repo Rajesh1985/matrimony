@@ -13,6 +13,8 @@ export interface UserProfileComplete {
   mobile: string;
   gender: string;
   age: number;
+  birth_date: string | null;
+  birth_time: string | null;
   height_cm: number;
   caste: string;
   religion: string;
@@ -20,6 +22,7 @@ export interface UserProfileComplete {
   rasi: string;
   lagnam: string;
   birth_place: string;
+  dosham_details: string;
   occupation: string;
   company_name: string;
   annual_income: string;
@@ -49,23 +52,35 @@ export interface UserProfileComplete {
   education: string;
   employment_type: string;
   work_location: string;
-  education_preference: string;
-  occupation_preference: string;
-  income_preference: string;
-  location_preference: string;
-  star_preference: string;
-  rasi_preference: string;
+  education_preference: string | string[];
+  occupation_preference: string | string[];
+  income_preference: string | string[];
+  location_preference: string | string[];
+  star_preference: string | string[];
+  rasi_preference: string | string[];
   age_from: number;
   age_to: number;
   height_from: number;
   height_to: number;
   preferences_updated_at: string;
   profile_updated_at: string;
+  
+  // File IDs for photos and documents
+  astrology_file_id: string | null;
+  community_file_id: string | null;
+  photo_file_id_1: string | null;
+  photo_file_id_2: string | null;
+
+  // Membership Details
+  plan_name: string | null;
+  start_date: string | null;
+  end_date: string | null;
 }
 
 export interface RecommendedProfile {
   match_profile_id: number;
   match_user_id: number;
+  serial_number: string;
   name: string;
   age: number;
   height_cm: number;
@@ -78,7 +93,8 @@ export interface RecommendedProfile {
   country: string;
   about_me: string;
   match_score: number;
-  preferences_updated_at: string;
+  photo_file_id_1: string | null;
+  photo_file_id_2: string | null;
 }
 
 @Injectable({
@@ -86,7 +102,7 @@ export interface RecommendedProfile {
 })
 export class UserPageService {
   private apiUrl = 'http://89.116.134.253:8000';
-  // private apiUrl =  'http://localhost:8000';
+  //private apiUrl =  'http://localhost:8000';
 
   constructor(private http: HttpClient) {}
 
@@ -112,11 +128,11 @@ export class UserPageService {
    * Get recommended profiles for user based on partner preferences
    */
   getRecommendedProfiles(
-    userId: number,
+    profileId: number,
     limit: number = 20
   ): Observable<RecommendedProfile[]> {
     return this.http.get<RecommendedProfile[]>(
-      `${this.apiUrl}/profiles/recommendations/${userId}?limit=${limit}`
+      `${this.apiUrl}/profiles/recommendations/${profileId}?limit=${limit}`
     );
   }
 
@@ -134,7 +150,7 @@ export class UserPageService {
    * Update profile details (personal, address)
    */
   updateProfile(profileId: number, data: any): Observable<any> {
-    return this.http.put(
+    return this.http.patch(
       `${this.apiUrl}/profiles/${profileId}`,
       data
     );
@@ -144,8 +160,8 @@ export class UserPageService {
    * Update professional details
    */
   updateProfessional(profileId: number, data: any): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/profiles/${profileId}/professional`,
+    return this.http.patch(
+      `${this.apiUrl}/professional/profile/${profileId}`,
       data
     );
   }
@@ -154,8 +170,8 @@ export class UserPageService {
    * Update partner preferences
    */
   updatePartnerPreferences(profileId: number, data: any): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/profiles/${profileId}/partner-preferences`,
+    return this.http.patch(
+      `${this.apiUrl}/partner-preferences/profile/${profileId}`,
       data
     );
   }
@@ -164,8 +180,8 @@ export class UserPageService {
    * Update family details
    */
   updateFamily(profileId: number, data: any): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/profiles/${profileId}/family`,
+    return this.http.patch(
+      `${this.apiUrl}/family/profile/${profileId}`,
       data
     );
   }
@@ -174,8 +190,8 @@ export class UserPageService {
    * Update astrology details
    */
   updateAstrology(profileId: number, data: any): Observable<any> {
-    return this.http.put(
-      `${this.apiUrl}/profiles/${profileId}/astrology`,
+    return this.http.patch(
+      `${this.apiUrl}/astrology/profile/${profileId}`,
       data
     );
   }

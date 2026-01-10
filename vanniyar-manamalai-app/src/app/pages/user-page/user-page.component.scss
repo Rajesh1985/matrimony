@@ -145,6 +145,27 @@ $bp-desktop: 1440px;
   margin-bottom: 16px;
   display: flex;
   justify-content: center;
+  
+  // Photo container for actual profile photos
+  .photo-container {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $color-white;
+    border: 3px solid $color-primary;
+    box-shadow: $shadow-lg;
+    
+    .profile-photo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
 }
 
 .profile-summary {
@@ -249,6 +270,62 @@ $bp-desktop: 1440px;
   color: $color-muted;
   line-height: 1.4;
   text-align: left;
+}
+
+// ==================== MEMBERSHIP SECTION ====================
+.membership-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  background-color: rgba($color-primary, 0.05);
+  border-radius: $border-radius;
+  align-items: center;
+}
+
+.membership-badge {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.silver {
+    background-color: #c0c0c0;
+    color: #333;
+  }
+
+  &.gold {
+    background-color: #ffd700;
+    color: #333;
+  }
+
+  &.platinum {
+    background-color: #e5e4e2;
+    color: #333;
+  }
+}
+
+.validity {
+  font-size: 11px;
+  color: $color-success;
+  font-weight: 500;
+}
+
+.expired {
+  font-size: 11px;
+  color: $color-danger;
+  font-weight: 600;
+}
+
+.no-plan {
+  font-size: 12px;
+  color: $color-muted;
+  font-style: italic;
+  padding: 8px 0;
 }
 
 // ==================== SECTIONS ====================
@@ -456,6 +533,26 @@ $bp-desktop: 1440px;
 
 .profile-photo {
   flex-shrink: 0;
+
+  .photo-container {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: $color-white;
+    border: 3px solid $color-primary;
+    box-shadow: $shadow;
+    
+    .profile-photo-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+  }
 }
 
 .profile-header-info {
@@ -474,6 +571,18 @@ $bp-desktop: 1440px;
     margin: 0 0 6px 0;
     font-size: 11px;
     color: $color-muted;
+  }
+
+  .profile-astro-header {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+
+    .badge {
+      font-size: 10px;
+      padding: 2px 6px;
+    }
   }
 }
 
@@ -576,6 +685,12 @@ $bp-desktop: 1440px;
   gap: 6px;
   margin-bottom: 12px;
   flex-wrap: wrap;
+}
+
+.astrology-bilingual {
+  font-size: 12px;
+  color: $color-muted;
+  display: inline-block;
 }
 
 .profile-about {
@@ -720,6 +835,25 @@ $bp-desktop: 1440px;
   box-shadow: $shadow;
 }
 
+// ==================== MEMBERSHIP BANNER ====================
+.membership-banner {
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: $border-radius;
+  padding: 24px;
+  margin-top: 20px;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+  font-size: 14px;
+  line-height: 1.6;
+  box-shadow: $shadow;
+
+  p {
+    margin: 0;
+  }
+}
+
 // ==================== MODAL ====================
 .modal-overlay {
   position: fixed;
@@ -831,9 +965,532 @@ $bp-desktop: 1440px;
   }
 }
 
+// ==================== FORM STYLES ====================
+.edit-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    label {
+      font-weight: 600;
+      font-size: 13px;
+      color: $color-text;
+      text-transform: capitalize;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="date"],
+    input[type="time"],
+    textarea,
+    select {
+      padding: 10px 12px;
+      border: 1px solid $color-border;
+      border-radius: $border-radius;
+      font-size: 13px;
+      font-family: inherit;
+      color: $color-text;
+      background-color: $color-white;
+      transition: $transition;
+
+      &:focus {
+        outline: none;
+        border-color: $color-primary;
+        box-shadow: 0 0 0 3px rgba($color-primary, 0.1);
+      }
+
+      &::placeholder {
+        color: $color-muted;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        background-color: #3a3a3a;
+        color: #e0e0e0;
+        border-color: #555;
+
+        &::placeholder {
+          color: #999;
+        }
+
+        &:focus {
+          border-color: $color-primary;
+        }
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+      max-height: 200px;
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 30px;
+
+      @media (prefers-color-scheme: dark) {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23e0e0e0' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      }
+    }
+
+    &.error {
+      input,
+      textarea,
+      select {
+        border-color: #dc3545;
+
+        &:focus {
+          border-color: #dc3545;
+          box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+        }
+      }
+
+      .error-message {
+        color: #dc3545;
+        font-size: 12px;
+        margin-top: 4px;
+      }
+    }
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .form-group label {
+      color: #e0e0e0;
+    }
+  }
+}
+
+// ==================== PROFILE MODAL ====================
+.profile-modal {
+  max-width: 600px;
+  max-height: 95vh;
+  overflow-y: auto;
+  
+  .modal-close-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    font-size: 28px;
+    color: $color-white;
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    z-index: 10;
+    transition: $transition;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.7);
+    }
+  }
+
+  .profile-card {
+    margin: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .profile-avatar-slider {
+    position: relative;
+    width: 100%;
+    background: #f5f5f5;
+    
+    .photo-slider-container {
+      position: relative;
+      width: 100%;
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+
+      .slider-photo {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+
+      .slider-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.5);
+        border: none;
+        color: $color-white;
+        font-size: 24px;
+        cursor: pointer;
+        padding: 12px 16px;
+        border-radius: 4px;
+        z-index: 5;
+        transition: $transition;
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.7);
+        }
+
+        &.slider-prev {
+          left: 12px;
+        }
+
+        &.slider-next {
+          right: 12px;
+        }
+      }
+
+      .slider-indicators {
+        position: absolute;
+        bottom: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 8px;
+        z-index: 5;
+
+        .indicator {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.5);
+          cursor: pointer;
+          transition: $transition;
+
+          &.active {
+            background: $color-white;
+          }
+
+          &:hover {
+            background: rgba(255, 255, 255, 0.8);
+          }
+        }
+      }
+    }
+
+    .photo-placeholder {
+      width: 100%;
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f5f5;
+    }
+  }
+
+  .profile-summary {
+    padding: 20px;
+
+    .modal-sections-container {
+      margin-top: 20px;
+      border-top: 1px solid #e0e0e0;
+      padding-top: 20px;
+
+      .section {
+        margin-bottom: 12px;
+
+        .section-header {
+          padding: 12px 16px;
+          background: #f9f9f9;
+          border-radius: 4px;
+          cursor: pointer;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          transition: $transition;
+          border-left: 3px solid transparent;
+
+          &:hover {
+            background: #f0f0f0;
+            border-left-color: $color-primary;
+          }
+
+          h4 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+
+          .toggle-icon {
+            font-size: 12px;
+            color: #999;
+            transition: transform 0.3s ease;
+
+            &.open {
+              transform: rotate(180deg);
+            }
+          }
+        }
+
+        .section-content {
+          padding: 12px 16px;
+          background: #fafafa;
+          border-radius: 0 0 4px 4px;
+          animation: slideDown 0.3s ease;
+
+          .detail-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+
+            &:last-child {
+              border-bottom: none;
+            }
+
+            .label {
+              font-weight: 600;
+              color: #666;
+              font-size: 13px;
+            }
+
+            .value {
+              color: #333;
+              font-size: 13px;
+              text-align: right;
+              max-width: 50%;
+              word-break: break-word;
+            }
+          }
+        }
+      }
+    }
+
+    .profile-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+
+      .btn {
+        width: 100%;
+      }
+    }
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      max-height: 0;
+    }
+    to {
+      opacity: 1;
+      max-height: 500px;
+    }
+  }
+}
+
 // ==================== UTILITIES ====================
 .text-muted {
   color: $color-muted;
+}
+
+// Certificate Section
+.certificate-section {
+  padding: 12px 0;
+  border-top: 1px solid $color-border;
+
+  .btn-sm {
+    font-size: 12px;
+    padding: 6px 12px;
+    background: $color-primary;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: $transition;
+
+    &:hover {
+      background: darken($color-primary, 10%);
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// Certificate Modal
+.certificate-modal {
+  max-width: 900px;
+  width: 90%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+
+  .certificate-body {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: #f5f5f5;
+
+    @media (prefers-color-scheme: dark) {
+      background: #1a1a1a;
+    }
+  }
+
+  .loading-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    padding: 40px;
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid $color-border;
+      border-top-color: $color-primary;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    p {
+      font-size: 16px;
+      color: $color-muted;
+    }
+  }
+
+  .error-state {
+    width: 100%;
+    padding: 20px;
+
+    .alert {
+      padding: 16px;
+      border-radius: $border-radius;
+      background: #ffe0e0;
+      color: #c00;
+      border: 1px solid #ff9999;
+
+      strong {
+        font-weight: 600;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        background: rgba(255, 0, 0, 0.1);
+        color: #ff6b6b;
+      }
+    }
+  }
+
+  .certificate-display {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+
+    .certificate-viewer {
+      width: 100%;
+      height: 100%;
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      border-radius: $border-radius;
+      overflow: hidden;
+
+      @media (prefers-color-scheme: dark) {
+        background: #2d2d2d;
+      }
+    }
+
+    .certificate-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      min-height: 400px;
+    }
+
+    .certificate-filename {
+      font-size: 14px;
+      color: $color-muted;
+      text-align: center;
+      margin: 0;
+      padding: 8px;
+      max-width: 100%;
+      word-break: break-word;
+    }
+  }
+
+  .horoscope-display {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+
+    .horoscope-viewer {
+      width: 100%;
+      height: 100%;
+      min-height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      border-radius: $border-radius;
+      overflow: hidden;
+
+      @media (prefers-color-scheme: dark) {
+        background: #2d2d2d;
+      }
+    }
+
+    .horoscope-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      min-height: 400px;
+    }
+
+    .horoscope-filename {
+      font-size: 14px;
+      color: $color-muted;
+      text-align: center;
+      margin: 0;
+      padding: 8px;
+      max-width: 100%;
+      word-break: break-word;
+    }
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 // ==================== ACCESSIBILITY ====================
@@ -850,6 +1507,455 @@ $bp-desktop: 1440px;
     transition-duration: 0.01ms !important;
   }
 }
+
+// ==================== FILE UPLOAD CONTROLS ====================
+.file-upload-group {
+  margin-bottom: 20px;
+  padding: 12px 0;
+  border-bottom: 1px solid $color-border;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: $color-text;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.file-upload-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  @media (max-width: $bp-mobile) {
+    gap: 6px;
+  }
+
+  .btn {
+    padding: 8px 14px;
+    font-size: 13px;
+    border-radius: 4px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: $transition;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+
+    &:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: $bp-mobile) {
+      padding: 6px 10px;
+      font-size: 12px;
+    }
+  }
+
+  .btn-sm {
+    padding: 8px 12px;
+    font-size: 12px;
+
+    @media (max-width: $bp-mobile) {
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+  }
+
+  .btn-info {
+    background-color: #17a2b8;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: #138496;
+    }
+
+    &:active:not(:disabled) {
+      background-color: #0c5460;
+    }
+  }
+
+  .btn-danger {
+    background-color: $color-danger;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: #ee5a5a;
+    }
+
+    &:active:not(:disabled) {
+      background-color: #c92a2a;
+    }
+  }
+
+  .btn-success {
+    background-color: $color-success;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: #38d66b;
+    }
+
+    &:active:not(:disabled) {
+      background-color: #2ebe5f;
+    }
+  }
+
+  .btn-primary {
+    background-color: $color-primary;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: #5568d3;
+    }
+
+    &:active:not(:disabled) {
+      background-color: #4c5db8;
+    }
+  }
+
+  .btn-secondary {
+    background-color: #6c757d;
+    color: white;
+
+    &:hover:not(:disabled) {
+      background-color: #5a6268;
+    }
+
+    &:active:not(:disabled) {
+      background-color: #4e555b;
+    }
+  }
+}
+
+// Hide the native file input
+.file-input-hidden {
+  display: none;
+}
+
+// Upload status indicator
+.upload-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: $color-primary;
+  font-weight: 500;
+  animation: pulse 1.5s infinite;
+
+  &::before {
+    content: '';
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: $color-primary;
+    border-radius: 50%;
+    animation: uploadPulse 1.5s infinite;
+  }
+}
+
+@keyframes uploadPulse {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Error message styling
+.error-message {
+  display: block;
+  color: $color-danger;
+  font-size: 12px;
+  margin-top: 6px;
+  font-weight: 500;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Certificate and Photo Modal Styling
+.certificate-modal,
+.photo-modal {
+  max-width: 600px;
+  width: 90vw;
+}
+
+.certificate-body,
+.photo-body {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $color-bg;
+
+  .loading-state,
+  .error-state {
+    text-align: center;
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid $color-border;
+      border-top-color: $color-primary;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    p {
+      color: $color-muted;
+      font-size: 14px;
+    }
+  }
+
+  .alert {
+    text-align: left;
+    margin: 0;
+  }
+}
+
+.certificate-viewer,
+.photo-viewer {
+  width: 100%;
+  max-height: 500px;
+  overflow: auto;
+  border: 1px solid $color-border;
+  border-radius: $border-radius;
+  background: white;
+
+  .certificate-iframe {
+    width: 100%;
+    min-height: 500px;
+    border: none;
+  }
+
+  .photo-preview {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: cover;
+  }
+}
+
+.certificate-filename,
+.photo-filename,
+.horoscope-filename {
+  margin-top: 12px;
+  font-size: 13px;
+  color: $color-muted;
+  text-align: center;
+}
+
+// Horoscope Modal and Section Styling
+.horoscope-modal {
+  max-width: 600px;
+  width: 90vw;
+}
+
+.horoscope-body {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $color-bg;
+
+  .loading-state,
+  .error-state {
+    text-align: center;
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid $color-border;
+      border-top-color: $color-primary;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px;
+    }
+
+    p {
+      color: $color-muted;
+      font-size: 14px;
+    }
+  }
+
+  .alert {
+    text-align: left;
+    margin: 0;
+  }
+}
+
+.horoscope-viewer {
+  width: 100%;
+  max-height: 500px;
+  overflow: auto;
+  border: 1px solid $color-border;
+  border-radius: $border-radius;
+  background: white;
+
+  .horoscope-iframe {
+    width: 100%;
+    min-height: 500px;
+    border: none;
+  }
+}
+
+.horoscope-section {
+  border-top: 1px solid $color-border;
+  padding-top: 15px;
+  margin-top: 15px;
+  
+  label {
+    font-weight: 500;
+    margin-bottom: 12px;
+    display: block;
+    color: $color-text;
+  }
+}
+
+// Address Section Styling
+// Address details heading styling (in personal section)
+.address-details-heading {
+  font-size: 15px;
+  font-weight: 600;
+  color: $color-text;
+  margin-top: 20px;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid $color-primary;
+}
+
+// Address details heading styling in form (personal edit modal)
+.address-details-form-heading {
+  font-size: 15px;
+  font-weight: 600;
+  color: $color-text;
+  margin-top: 20px;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid $color-primary;
+}
+
+// Preferences Section Styling
+.preferences-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  .range-section {
+    border-top: 1px solid $color-border;
+    padding-top: 15px;
+    margin-top: 10px;
+
+    h5 {
+      font-size: 14px;
+      font-weight: 600;
+      color: $color-text;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+
+      @media (max-width: $bp-mobile) {
+        grid-template-columns: 1fr;
+      }
+
+      .form-group {
+        label {
+          font-size: 13px;
+          font-weight: 500;
+        }
+
+        input {
+          width: 100%;
+        }
+      }
+    }
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+
+    label {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: $color-text;
+
+      .required {
+        color: $color-danger;
+        font-weight: 600;
+      }
+    }
+
+    input,
+    select {
+      padding: 10px;
+      border: 1px solid $color-border;
+      border-radius: $border-radius;
+      font-size: 14px;
+      font-family: inherit;
+      transition: $transition;
+
+      &:focus {
+        outline: none;
+        border-color: $color-primary;
+        box-shadow: 0 0 0 3px rgba($color-primary, 0.1);
+      }
+
+      &:disabled {
+        background-color: #f5f5f5;
+        color: $color-muted;
+        cursor: not-allowed;
+      }
+    }
+  }
+}
+
+// ==================== DARK MODE SUPPORT ====================
 
 // Dark mode support (optional)
 @media (prefers-color-scheme: dark) {

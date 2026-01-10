@@ -1,0 +1,103 @@
+h2 {
+  text-align: center;
+  margin-top: 2rem;
+}
+p {
+  text-align: center;
+  color: #555;
+}
+.admin-user-page-grid {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: 2rem;
+  min-height: 80vh;
+}
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem 1rem;
+  background: #f7f7f7;
+  border-radius: 8px;
+  align-items: stretch;
+}
+
+.sidebar button {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  transition: box-shadow 0.2s;
+}
+.sidebar button.active-tab {
+  box-shadow: 0 0 0 2px #1976d2;
+}
+.sidebar button[color="primary"] {
+  background: #43a047;
+  color: #fff;
+}
+.sidebar button[color="accent"] {
+  background: #ff9800;
+  color: #fff;
+}
+.sidebar button[color="warn"] {
+  background: #e53935;
+  color: #fff;
+}
+.main-content {
+  padding: 2rem 1rem;
+}
+.responsive-table {
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.5rem;
+}
+th, td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: left;
+}
+th {
+  background: #f0f0f0;
+  font-weight: 700;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+tbody tr:nth-child(odd) {
+  background: #fff;
+}
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+.banner {
+  background: #e3f2fd;
+  color: #1976d2;
+  font-weight: bold;
+  text-align: center;
+  border-radius: 8px;
+  padding: 1rem 2rem;
+  margin: 2rem auto;
+  max-width: 500px;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+}
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.pagination button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -22,44 +22,31 @@ export class MembershipComponent {
   
   plans: MembershipPlan[] = [
     {
-      name: 'Basic',
-      cost: 'TBD',
+      name: 'Silver',
+      cost: '3500',
       views: 'TBD',
-      validity: '1 month',
+      validity: '3 Months',
       features: [
-        '25 Profile Views',
-        '1 Month Validity',
-        'Basic Support',
-        'Access to Basic Search'
+        '3 Months Validity'
       ]
     },
     {
-      name: 'Elite',
-      cost: 'TBD',
+      name: 'Gold',
+      cost: '5000',
       views: 'TBD',
       validity: '6 months',
       recommended: true,
       features: [
-        '100 Profile Views',
-        '6 Months Validity',
-        'Priority Support',
-        'Advanced Search Features',
-        'Featured Profile Listing'
+        '6 Months Validity'
       ]
     },
     {
-      name: 'Premium',
-      cost: 'TBD',
+      name: 'Platinum',
+      cost: '7500',
       views: 'TBD',
       validity: '12 months',
       features: [
-        '500 Profile Views',
-        '12 Months Validity',
-        'On Call Support 24/7',
-        'Premium Search Features',
-        'Featured Profile Listing',
-        'Priority Match Alerts',
-        'Personal Relationship Manager'
+        '12 Months Validity'
       ]
     }
   ];
