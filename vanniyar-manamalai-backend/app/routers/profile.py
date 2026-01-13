@@ -2,12 +2,10 @@
 
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_
 from app.database import get_db
 from app.schemas.profile import ProfileCreate, ProfileUpdate, ProfileResponse
 from app.schemas.complete_profile import CompleteProfileResponse
 from app.schemas.recommendation import RecommendedProfileResponse
-from app.schemas.profile_summary import ProfileSummaryResponse
 from app.crud.profile import create_profile, get_profile, get_profiles, update_profile, delete_profile, update_serial_number_by_profile_id
 from app.crud.vw_user_profiles_complete import (
     get_profiles_complete,
@@ -15,14 +13,13 @@ from app.crud.vw_user_profiles_complete import (
     get_recommended_profiles,
 )
 from app.models.profile import Profile
-from app.models.user import User
-from app.models.membership import MembershipDetails
 from datetime import date
 from pydantic import BaseModel
+import os
 
-# === Admin credentials (static) ===
-ADMIN_USERNAME = "manamalai_admin"
-ADMIN_PASSWORD = "Chenagai@12345"
+# === Admin credentials (from environment variables) ===
+ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "manamalai_admin")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "")  # Must be set via environment variable
 
 class AdminLoginRequest(BaseModel):
     username: str
@@ -81,7 +78,7 @@ def get_unapproved_profiles_count(db: Session = Depends(get_db)):
     return {"count": count}
 
 
-@router.get("/exipred_list/count", response_model=ProfileCountResponse)
+@router.get("/expired_list/count", response_model=ProfileCountResponse)
 def get_expired_profiles_count(db: Session = Depends(get_db)):
     """
     Get count of expired profiles (membership expired or missing)
@@ -170,7 +167,7 @@ def get_unapproved_profiles(limit: int = Query(20, ge=1), offset: int = Query(0,
     return profiles
 
 
-@router.get("/exipred_list/all", response_model=None)
+@router.get("/expired_list/all", response_model=None)
 def get_expired_profiles(limit: int = Query(20, ge=1), offset: int = Query(0, ge=0), db: Session = Depends(get_db)):
     """
     Get all expired profiles (membership expired or missing)
