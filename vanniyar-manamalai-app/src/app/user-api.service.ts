@@ -888,10 +888,10 @@ export class UserApiService {
   }
 
   getExpiredUsersCount(): Observable<{ count: number }> {
-    return this.http.get<{ count: number }>(`${this.baseUrl}/profiles/exipred_list/count`);
+    return this.http.get<{ count: number }>(`${this.baseUrl}/profiles/expired_list/count`);
   }
   getExpiredUsers(limit: number, offset: number): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/profiles/exipred_list/all?limit=${limit}&offset=${offset}`);
+    return this.http.get<any[]>(`${this.baseUrl}/profiles/expired_list/all?limit=${limit}&offset=${offset}`);
   }
 
   getMembership(profileId: string): Observable<any> {
