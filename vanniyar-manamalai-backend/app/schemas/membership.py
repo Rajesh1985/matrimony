@@ -16,6 +16,7 @@ class MembershipBase(BaseModel):
     plan_name: Optional[str] = Field(None, description="Membership plan name: Silver, Gold, or Platinum")
 
     @validator('plan_name')
+    @classmethod
     def validate_plan_name(cls, v):
         """Validate plan_name is one of the valid options or None"""
         if v is not None and v not in {"Silver", "Gold", "Platinum"}:
@@ -29,6 +30,7 @@ class MembershipCreateRequest(BaseModel):
     plan_name: str = Field(..., description="Membership plan name: Silver, Gold, or Platinum")
 
     @validator('plan_name')
+    @classmethod
     def validate_plan_name(cls, v):
         """Validate plan_name is one of the valid options"""
         if v not in {"Silver", "Gold", "Platinum"}:
@@ -41,6 +43,7 @@ class MembershipUpdateRequest(BaseModel):
     plan_name: Optional[str] = Field(None, description="Membership plan name: Silver, Gold, Platinum, or null to cancel")
 
     @validator('plan_name')
+    @classmethod
     def validate_plan_name(cls, v):
         """Validate plan_name is one of the valid options or None"""
         if v is not None and v not in {"Silver", "Gold", "Platinum"}:
