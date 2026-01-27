@@ -93,14 +93,28 @@ def update_preferences_by_profile_id(db: Session, profile_id: int, preferences_d
     - User's age changes: Adjusts age_from/age_to accordingly
     - User consults astrologer: Updates star/rasi preferences
     
-    Returns: Updated preferences record or None if not found
+    Returns: Updated preferences record or newly created one
     """
-    db_preferences = db.query(PartnerPreferences).filter(
+    # Get all preferences for this profile
+    all_preferences = db.query(PartnerPreferences).filter(
         PartnerPreferences.profile_id == profile_id
-    ).first()
+    ).all()
     
-    if not db_preferences:
-        return None
+    # If no preferences exist, create new entry
+    if not all_preferences:
+        # Convert update data to create data
+        update_data = preferences_data.dict(exclude_unset=True)
+        update_data['profile_id'] = profile_id
+        create_data = PartnerPreferencesCreate(**update_data)
+        return create_partner_preferences(db, create_data)
+    
+    # Use the first preference record
+    db_preferences = all_preferences[0]
+    
+    # If there are duplicates, delete them
+    if len(all_preferences) > 1:
+        for duplicate in all_preferences[1:]:
+            delete_preferences(db, duplicate.id)
     
     # Update only provided fields
     update_data = preferences_data.dict(exclude_unset=True)

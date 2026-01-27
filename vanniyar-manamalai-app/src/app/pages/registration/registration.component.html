@@ -143,42 +143,51 @@
         <div class="form-row">
           <div class="form-group">
             <label for="country">Country *</label>
-            <select 
+            <input 
               id="country" 
+              type="text"
+              list="country-list"
               [(ngModel)]="formData.country" 
               (change)="onCountryChange(formData.country)"
+              placeholder="Type or select country"
               class="form-control"
               [class.has-error]="hasError('country')">
-              <option value="">Select Country</option>
-              <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
-            </select>
+            <datalist id="country-list">
+              <option *ngFor="let country of countries" [value]="country">
+            </datalist>
             <span class="error-message" *ngIf="hasError('country')">{{ errors['country'] }}</span>
           </div>
 
           <div class="form-group">
             <label for="state">State *</label>
-            <select 
+            <input 
               id="state" 
+              type="text"
+              list="state-list"
               [(ngModel)]="formData.state" 
               (change)="onStateChange(formData.state)"
+              placeholder="Type or select state"
               class="form-control"
               [class.has-error]="hasError('state')">
-              <option value="">Select State</option>
-              <option *ngFor="let state of states" [value]="state">{{ state }}</option>
-            </select>
+            <datalist id="state-list">
+              <option *ngFor="let state of states" [value]="state">
+            </datalist>
             <span class="error-message" *ngIf="hasError('state')">{{ errors['state'] }}</span>
           </div>
 
           <div class="form-group">
             <label for="city">City *</label>
-            <select 
+            <input 
               id="city" 
+              type="text"
+              list="city-list"
               [(ngModel)]="formData.city" 
+              placeholder="Type or select city"
               class="form-control"
               [class.has-error]="hasError('city')">
-              <option value="">Select City</option>
-              <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
-            </select>
+            <datalist id="city-list">
+              <option *ngFor="let city of cities" [value]="city">
+            </datalist>
             <span class="error-message" *ngIf="hasError('city')">{{ errors['city'] }}</span>
           </div>
         </div>
@@ -922,13 +931,18 @@
 
         <div class="form-group">
           <label for="location_preference">Location Preference *</label>
-          <app-multi-select-dropdown
-            [options]="locationOptions"
-            [selectedValues]="formData.location_preference"
-            placeholder="Select location preferences"
-            [showSelectAll]="false"
-            (selectionChanged)="onLocationPreferenceChanged($event)">
-          </app-multi-select-dropdown>
+          <input 
+            id="location_preference" 
+            type="text"
+            list="location-preference-list"
+            [(ngModel)]="formData.location_preference_combined"
+            placeholder="Type or select locations (comma-separated for multiple)"
+            class="form-control"
+            [class.has-error]="hasError('location_preference')">
+          <datalist id="location-preference-list">
+            <option *ngFor="let loc of locationOptions" [value]="loc.value">
+          </datalist>
+          <small class="form-hint">You can select from dropdown or type custom locations. Separate multiple locations with commas.</small>
           <span class="error-message" *ngIf="hasError('location_preference')">{{ errors['location_preference'] }}</span>
         </div>
 

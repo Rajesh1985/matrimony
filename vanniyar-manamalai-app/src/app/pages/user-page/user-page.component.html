@@ -585,41 +585,50 @@
         <!-- Country -->
         <div class="form-group">
           <label for="country">Country <span class="required">*</span></label>
-          <select 
+          <input 
             id="country"
+            type="text"
+            list="country-list-edit"
             class="form-control"
             [(ngModel)]="editFormData.country"
-            (change)="onCountryChange(editFormData.country)">
-            <option value="">Select a country</option>
-            <option *ngFor="let country of countries" [value]="country">{{ country }}</option>
-          </select>
+            (change)="onCountryChange(editFormData.country)"
+            placeholder="Type or select country">
+          <datalist id="country-list-edit">
+            <option *ngFor="let country of countries" [value]="country">
+          </datalist>
         </div>
 
         <!-- State -->
         <div class="form-group">
           <label for="state">State <span class="required">*</span></label>
-          <select 
+          <input 
             id="state"
+            type="text"
+            list="state-list-edit"
             class="form-control"
             [(ngModel)]="editFormData.state"
             (change)="onStateChange(editFormData.state)"
-            [disabled]="!editFormData.country">
-            <option value="">Select a state</option>
-            <option *ngFor="let state of states" [value]="state">{{ state }}</option>
-          </select>
+            [disabled]="!editFormData.country"
+            placeholder="Type or select state">
+          <datalist id="state-list-edit">
+            <option *ngFor="let state of states" [value]="state">
+          </datalist>
         </div>
 
         <!-- City -->
         <div class="form-group">
           <label for="city">City <span class="required">*</span></label>
-          <select 
+          <input 
             id="city"
+            type="text"
+            list="city-list-edit"
             class="form-control"
             [(ngModel)]="editFormData.city"
-            [disabled]="!editFormData.state">
-            <option value="">Select a city</option>
-            <option *ngFor="let city of cities" [value]="city">{{ city }}</option>
-          </select>
+            [disabled]="!editFormData.state"
+            placeholder="Type or select city">
+          <datalist id="city-list-edit">
+            <option *ngFor="let city of cities" [value]="city">
+          </datalist>
         </div>
 
         <!-- Postal Code -->
@@ -1133,13 +1142,17 @@
         <!-- Location Preference -->
         <div class="form-group">
           <label for="location_preference">Location Preference</label>
-          <app-multi-select-dropdown
-            [options]="locationPreferenceDropdownOptions"
-            [selectedValues]="editFormData.location_preference"
-            placeholder="Select location preferences"
-            [showSelectAll]="false"
-            (selectionChanged)="onLocationPreferenceChanged($event)">
-          </app-multi-select-dropdown>
+          <input 
+            id="location_preference" 
+            type="text"
+            list="location-preference-list-edit"
+            [(ngModel)]="editFormData.location_preference_combined"
+            placeholder="Type or select locations (comma-separated for multiple)"
+            class="form-control">
+          <datalist id="location-preference-list-edit">
+            <option *ngFor="let loc of locationPreferenceDropdownOptions" [value]="loc.value">
+          </datalist>
+          <small class="form-hint">You can select from dropdown or type custom locations. Separate multiple locations with commas.</small>
         </div>
 
         <!-- Age Range Section -->
