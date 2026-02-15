@@ -1146,13 +1146,14 @@
             id="location_preference" 
             type="text"
             list="location-preference-list-edit"
-            [(ngModel)]="editFormData.location_preference_combined"
+            [(ngModel)]="editFormData.location_preference"
             placeholder="Type or select locations (comma-separated for multiple)"
-            class="form-control">
+            class="form-control"
+            (blur)="onLocationBlur()">
           <datalist id="location-preference-list-edit">
-            <option *ngFor="let loc of locationPreferenceDropdownOptions" [value]="loc.value">
+            <option *ngFor="let loc of locationPreferenceDropdownOptions" [value]="loc.value">{{ loc.label }}</option>
           </datalist>
-          <small class="form-hint">You can select from dropdown or type custom locations. Separate multiple locations with commas.</small>
+          <small class="form-hint">You can type custom locations or select from dropdown. Separate multiple with commas.</small>
         </div>
 
         <!-- Age Range Section -->

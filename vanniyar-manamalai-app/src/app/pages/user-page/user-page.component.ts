@@ -309,6 +309,35 @@ export class UserPageComponent implements OnInit {
   }
 
   /**
+   * Handle location preference blur - convert comma-separated string to array
+   */
+  onLocationBlur(): void {
+    // Check if it's already an array (from database or multi-select)
+    if (Array.isArray(this.editFormData.location_preference)) {
+      return;
+    }
+
+    // If it's not an array, it's a string input - convert it
+    const locationInput = this.editFormData.location_preference?.trim();
+    
+    if (!locationInput || locationInput === '') {
+      this.editFormData.location_preference = [];
+      return;
+    }
+
+    // Split by comma, trim spaces, and filter empty values
+    const locations = locationInput
+      .split(',')
+      .map((loc: string) => loc.trim())
+      .filter((loc: string) => loc.length > 0);
+
+    // Store as array
+    this.editFormData.location_preference = locations;
+
+    console.log('Location preferences:', this.editFormData.location_preference);
+  }
+
+  /**
    * Load current user's complete profile
    */
   loadUserProfile(): void {

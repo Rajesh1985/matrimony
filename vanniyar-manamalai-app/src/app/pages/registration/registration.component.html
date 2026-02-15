@@ -929,22 +929,24 @@
           <span class="error-message" *ngIf="hasError('income_preference')">{{ errors['income_preference'] }}</span>
         </div>
 
-        <div class="form-group">
-          <label for="location_preference">Location Preference *</label>
-          <input 
-            id="location_preference" 
-            type="text"
-            list="location-preference-list"
-            [(ngModel)]="formData.location_preference_combined"
-            placeholder="Type or select locations (comma-separated for multiple)"
-            class="form-control"
-            [class.has-error]="hasError('location_preference')">
-          <datalist id="location-preference-list">
-            <option *ngFor="let loc of locationOptions" [value]="loc.value">
-          </datalist>
-          <small class="form-hint">You can select from dropdown or type custom locations. Separate multiple locations with commas.</small>
-          <span class="error-message" *ngIf="hasError('location_preference')">{{ errors['location_preference'] }}</span>
-        </div>
+      <!-- This ALLOWS custom typing -->
+      <div class="form-group">
+        <label for="location_preference">Location Preference *</label>
+        <input 
+          id="location_preference" 
+          type="text"
+          list="location-preference-list"
+          [(ngModel)]="formData.location_preference"
+          placeholder="Type or select locations (comma-separated for multiple)"
+          class="form-control"
+          (blur)="onLocationBlur()"
+          [class.has-error]="hasError('location_preference')">
+        <datalist id="location-preference-list">
+          <option *ngFor="let loc of locationOptions" [value]="loc.value">{{ loc.label }}</option>
+        </datalist>
+        <small class="form-hint">You can type custom locations or select from dropdown. Separate multiple with commas.</small>
+        <span class="error-message" *ngIf="hasError('location_preference')">{{ errors['location_preference'] }}</span>
+      </div>
 
         <div class="form-group">
           <label for="star_preference">Star Preference *</label>

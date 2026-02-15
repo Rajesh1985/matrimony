@@ -259,16 +259,20 @@ export class RegistrationComponent implements OnInit {
     return /^[A-Za-z\s]{2,50}$/.test(name);
   }
 
-  clearErrors(): void {
-    this.errors = {};
-  }
-
   addError(field: string, message: string): void {
     this.errors[field] = message;
   }
 
+  clearError(field: string): void {
+    delete this.errors[field];
+  }
+
   hasError(field: string): boolean {
     return !!this.errors[field];
+  }
+
+  clearErrors(): void {
+    this.errors = {};
   }
 
   /**
@@ -1316,5 +1320,34 @@ export class RegistrationComponent implements OnInit {
       'Verification & Completion'
     ];
     return titles[this.step] || 'Registration';
+  }
+
+  onLocationBlur(): void {
+    // Convert comma-separated string to array when user leaves the field
+    const locationInput = this.formData.location_preference?.trim();
+    
+    if (!locationInput || locationInput === '') {
+      this.formData.location_preference = [];
+      this.clearError('location_preference');
+      return;
+    }
+
+    // Split by comma, trim spaces, and filter empty values
+    const locations: string[] = locationInput
+      .split(',')
+      .map((loc: string) => loc.trim())
+      .filter((loc: string) => loc.length > 0);
+
+    // Store as array
+    this.formData.location_preference = locations;
+
+    // Validate
+    if (locations.length === 0) {
+      this.addError('location_preference', 'Please enter at least one location');
+    } else {
+      this.clearError('location_preference');
+    }
+
+    console.log('Location preferences:', this.formData.location_preference);
   }
 }
